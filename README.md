@@ -1,6 +1,8 @@
 # PyTorch Offline Documentation
 
-Offline documentation built from official [PyTorch](https://github.com/Overv/VulkanTutorial/commit/cdb08cf047abbd1995d7284d51f740662c258aef) release.
+[![PyTorch version](https://img.shields.io/badge/PyTorch_version-v1.3.0-blue.svg?logo=PyTorch)](https://pytorch.org)
+
+Offline documentation built from official [PyTorch](https://github.com/pytorch/pytorch.git) release.
 
 Offline documentation does speed up page loading for some regions. No need to wait for searching.
 
@@ -15,4 +17,3 @@ $ 7z x PyTorch-Docs.7z -r -o./PyTorch-Docs # or extract 7z with other program
 $ cd PyTorch-Docs
 $ open index.html
 ```
-
