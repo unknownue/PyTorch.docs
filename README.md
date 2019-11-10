@@ -12,8 +12,6 @@ This repo helps to relieve the pain of building PyTorch offline documentation. N
 
 ```shell
 $ git clone https://github.com/unknownue/docs.PyTorch.git
-$ cd docs.PyTorch
-$ 7z x PyTorch-Docs.7z -r -o./PyTorch-Docs # or extract 7z with other program
-$ cd PyTorch-Docs
+$ cd docs.PyTorch/PyTorch-Docs/
 $ open index.html
 ```
