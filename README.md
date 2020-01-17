@@ -1,8 +1,8 @@
 # PyTorch Offline Documentation
 
-[![torch version](https://img.shields.io/badge/torch_version-v1.4.0-g.svg?logo=PyTorch)](https://pytorch.org) [![torchvision version](https://img.shields.io/badge/torchvision_version-v0.5.0-g.svg?logo=PyTorch)](https://github.com/pytorch/vision)
+[![torch version](https://img.shields.io/badge/torch_version-v1.4.0-g.svg?logo=PyTorch)](https://github.com/pytorch/pytorch) [![torchvision version](https://img.shields.io/badge/torchvision_version-v0.5.0-g.svg?logo=PyTorch)](https://github.com/pytorch/vision) [![PyTorch 1.4](https://img.shields.io/badge/PyTorch_1.4-Release_Note-blue.svg?logo=PyTorch)](https://pytorch.org/blog/pytorch-1-dot-4-released-and-domain-libraries-updated/)
 
-Offline documentation built from official [PyTorch](https://github.com/pytorch/pytorch.git) and [torchvision](https://github.com/pytorch/vision) release. The documentations of pytorch and torchvision are separate.
+Offline documentation built from official [PyTorch](https://github.com/pytorch/pytorch.git) and [torchvision](https://github.com/pytorch/vision.git) release. The documentations of pytorch and torchvision are separate.
 
 Offline documentation does speed up page loading, especially for some countries/regions.
 
