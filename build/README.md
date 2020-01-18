@@ -1,6 +1,6 @@
 # Build Setups
 
-The build setup require 
+The build setup require [Docker](https://docker.com/), and the built image has a size of about 2GB.
 
 Build docker image:
 
