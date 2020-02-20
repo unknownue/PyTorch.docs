@@ -1,11 +1,13 @@
 # Build Setups
 
+## Pytorch
+
 The build setup require [Docker](https://docker.com/), and the built image has a size of about 2GB.
 
 Build docker image:
 
 ```shell
-$ docker build -t pytorch-docs-build .
+$ docker build -t pytorch-docs-build -f torch.Dockerfile .
 ```
 
 Run the container:
@@ -39,3 +41,26 @@ $ exit
 ```
 
 Now the documentation can be found in current `build` directory.
+
+
+## Numpy
+
+Build docker image:
+
+```shell
+$ docker build -t unknownue/numpy.docs -f numpy.Dockerfile .
+```
+
+Build the documentation:
+
+```shell
+$ mkdir build/
+$ docker run --rm \
+    -v $(pwd)/build:/root/numpy/doc/build \
+    -w /root/numpy/doc/ \
+    unknownue/numpy.docs \
+    make html
+```
+
+After the building finish, the documentation can be found in `build` directory.
+
