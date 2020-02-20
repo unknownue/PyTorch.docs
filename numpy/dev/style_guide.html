@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>NumPy C Style Guide &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="Contributing to NumPy" href="index.html" >
+    <link rel="next" title="Releasing a Version" href="releasing.html" >
+    <link rel="prev" title="NumPy benchmarks" href="../benchmarking.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" accesskey="U">Contributing to NumPy</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="releasing.html" title="Releasing a Version"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="../benchmarking.html" title="NumPy benchmarks"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">NumPy C Style Guide</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#c-dialect">C dialect</a></li>
+<li><a class="reference internal" href="#code-lay-out">Code lay-out</a></li>
+<li><a class="reference internal" href="#naming-conventions">Naming conventions</a></li>
+<li><a class="reference internal" href="#function-documentation">Function documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../benchmarking.html"
+                        title="previous chapter">NumPy benchmarks</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="releasing.html"
+                        title="next chapter">Releasing a Version</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="numpy-c-style-guide">
+<span id="style-guide"></span><h1>NumPy C Style Guide<a class="headerlink" href="#numpy-c-style-guide" title="Permalink to this headline">¶</a></h1>
+<p>The NumPy C coding conventions are based on Python PEP-0007 by Guido van
+Rossum with a few added strictures. There are many C coding conventions and
+it must be emphasized that the primary goal of the NumPy conventions isn’t
+to choose the ‘best’, about which there is certain to be disagreement, but
+to achieve uniformity. Because the NumPy conventions are very close to
+those in PEP-0007, that PEP is used as a template below with the NumPy
+additions and variations in the appropriate spots.</p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This document gives coding conventions for the C code comprising
+the C implementation of NumPy. Note, rules are there to be broken.
+Two good reasons to break a particular rule:</p>
+<ol class="arabic simple">
+<li><p>When applying the rule would make the code less readable, even
+for someone who is used to reading code that follows the rules.</p></li>
+<li><p>To be consistent with surrounding code that also breaks it
+(maybe for historic reasons) – although this is also an
+opportunity to clean up someone else’s mess.</p></li>
+</ol>
+</div>
+<div class="section" id="c-dialect">
+<h2>C dialect<a class="headerlink" href="#c-dialect" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Use C99 (that is, the standard defined by ISO/IEC 9899:1999).</p></li>
+<li><p>Don’t use GCC extensions (e.g. don’t write multi-line strings
+without trailing backslashes). Preferably break long strings
+up onto separate lines like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;blah blah&quot;</span>
+<span class="s2">&quot;blah blah&quot;</span>
+</pre></div>
+</div>
+<p>This will work with MSVC, which otherwise chokes on very long
+strings.</p>
+</li>
+<li><p>All function declarations and definitions must use full
+prototypes (i.e. specify the types of all arguments).</p></li>
+<li><p>No compiler warnings with major compilers (gcc, VC++, a few others).
+Note: NumPy still produces compiler warnings that need to be addressed.</p></li>
+</ul>
+</div>
+<div class="section" id="code-lay-out">
+<h2>Code lay-out<a class="headerlink" href="#code-lay-out" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Use 4-space indents and no tabs at all.</p></li>
+<li><p>No line should be longer than 80 characters.  If this and the
+previous rule together don’t give you enough room to code, your code is
+too complicated, consider using subroutines.</p></li>
+<li><p>No line should end in whitespace.  If you think you need
+significant trailing whitespace, think again, somebody’s editor might
+delete it as a matter of routine.</p></li>
+<li><p>Function definition style: function name in column 1, outermost
+curly braces in column 1, blank line after local variable declarations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>static int
+extra_ivars(PyTypeObject *type, PyTypeObject *base)
+{
+    int t_size = PyType_BASICSIZE(type);
+    int b_size = PyType_BASICSIZE(base);
+
+    assert(t_size &gt;= b_size); /* type smaller than base! */
+    ...
+    return 1;
+}
+</pre></div>
+</div>
+<p>If the transition to C++ goes through it is possible that this form will
+be relaxed so that short class methods meant to be inlined can have the
+return type on the same line as the function name. However, that is yet to
+be determined.</p>
+</li>
+<li><p>Code structure: one space between keywords like <code class="docutils literal notranslate"><span class="pre">if</span></code>, <code class="docutils literal notranslate"><span class="pre">for</span></code> and
+the following left parenthesis; no spaces inside the parenthesis; braces
+around all <code class="docutils literal notranslate"><span class="pre">if</span></code> branches and no statements on the same line as the
+<code class="docutils literal notranslate"><span class="pre">if</span></code>. They should be formatted as shown:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">mro</span> <span class="o">!=</span> <span class="n">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">one_line_statement</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">one_line_statement</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="k">while</span> <span class="p">(</span><span class="n">isstuff</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">dostuff</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="n">do</span> <span class="p">{</span>
+    <span class="n">stuff</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">isstuff</span><span class="p">);</span>
+
+
+<span class="n">switch</span> <span class="p">(</span><span class="n">kind</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">/*</span> <span class="n">Boolean</span> <span class="n">kind</span> <span class="o">*/</span>
+    <span class="n">case</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="o">/*</span> <span class="n">Unsigned</span> <span class="nb">int</span> <span class="n">kind</span> <span class="o">*/</span>
+    <span class="n">case</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="o">/*</span> <span class="n">Anything</span> <span class="k">else</span> <span class="o">*/</span>
+    <span class="n">default</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">3</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>The return statement should <em>not</em> get redundant parentheses:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">Py_None</span><span class="p">;</span> <span class="o">/*</span> <span class="n">correct</span> <span class="o">*/</span>
+<span class="k">return</span><span class="p">(</span><span class="n">Py_None</span><span class="p">);</span> <span class="o">/*</span> <span class="n">incorrect</span> <span class="o">*/</span>
+</pre></div>
+</div>
+</li>
+<li><p>Function and macro call style: <code class="docutils literal notranslate"><span class="pre">foo(a,</span> <span class="pre">b,</span> <span class="pre">c)</span></code>, no space before
+the open paren, no spaces inside the parens, no spaces before
+commas, one space after each comma.</p></li>
+<li><p>Always put spaces around the assignment, Boolean and comparison
+operators.  In expressions using a lot of operators, add spaces
+around the outermost (lowest priority) operators.</p></li>
+<li><p>Breaking long lines: if you can, break after commas in the
+outermost argument list.  Always indent continuation lines
+appropriately, e.g.,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PyErr_SetString</span><span class="p">(</span><span class="n">PyExc_TypeError</span><span class="p">,</span>
+        <span class="s2">&quot;Oh dear, you messed up.&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Here appropriately means at least two tabs. It isn’t necessary to
+line everything up with the opening parenthesis of the function
+call.</p>
+</li>
+<li><p>When you break a long expression at a binary operator, the
+operator goes at the end of the previous line, e.g.,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="nb">type</span> <span class="o">&gt;</span> <span class="n">tp_dictoffset</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span>
+        <span class="n">base</span> <span class="o">&gt;</span> <span class="n">tp_dictoffset</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span>
+        <span class="nb">type</span> <span class="o">&gt;</span> <span class="n">tp_dictoffset</span> <span class="o">==</span> <span class="n">b_size</span> <span class="o">&amp;&amp;</span>
+        <span class="p">(</span><span class="n">size_t</span><span class="p">)</span><span class="n">t_size</span> <span class="o">==</span> <span class="n">b_size</span> <span class="o">+</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that the terms in the multi-line Boolean expression are indented so
+as to make the beginning of the code block clearly visible.</p>
+</li>
+<li><p>Put blank lines around functions, structure definitions, and
+major sections inside functions.</p></li>
+<li><p>Comments go before the code they describe. Multi-line comments should
+be like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span>
+ <span class="o">*</span> <span class="n">This</span> <span class="n">would</span> <span class="n">be</span> <span class="n">a</span> <span class="n">long</span>
+ <span class="o">*</span> <span class="n">explanatory</span> <span class="n">comment</span><span class="o">.</span>
+ <span class="o">*/</span>
+</pre></div>
+</div>
+<p>Trailing comments should be used sparingly. Instead of</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>if (yes) { // Success!
+</pre></div>
+</div>
+<p>do</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>if (yes) {
+    // Success!
+</pre></div>
+</div>
+</li>
+<li><p>All functions and global variables should be declared static
+when they aren’t needed outside the current compilation unit.</p></li>
+<li><p>Declare external functions and variables in a header file.</p></li>
+</ul>
+</div>
+<div class="section" id="naming-conventions">
+<h2>Naming conventions<a class="headerlink" href="#naming-conventions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>There has been no consistent prefix for NumPy public functions, but
+they all begin with a prefix of some sort, followed by an underscore, and
+are in camel case: <code class="docutils literal notranslate"><span class="pre">PyArray_DescrAlignConverter</span></code>, <code class="docutils literal notranslate"><span class="pre">NpyIter_GetIterNext</span></code>.
+In the future the names should be of the form <code class="docutils literal notranslate"><span class="pre">Npy*_PublicFunction</span></code>,
+where the star is something appropriate.</p></li>
+<li><p>Public Macros should have a <code class="docutils literal notranslate"><span class="pre">NPY_</span></code> prefix and then use upper case,
+for example, <code class="docutils literal notranslate"><span class="pre">NPY_DOUBLE</span></code>.</p></li>
+<li><p>Private functions should be lower case with underscores, for example:
+<code class="docutils literal notranslate"><span class="pre">array_real_get</span></code>. Single leading underscores should not be used, but
+some current function names violate that rule due to historical accident.
+Those functions should be renamed at some point.</p></li>
+</ul>
+</div>
+<div class="section" id="function-documentation">
+<h2>Function documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
+<p>NumPy doesn’t have a C function documentation standard at this time, but
+needs one. Most numpy functions are not documented in the code and that
+should change. One possibility is Doxygen with a plugin so that the same
+NumPy style used for Python functions can also be used for documenting
+C functions, see the files in doc/cdoc/.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

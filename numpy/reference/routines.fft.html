@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Discrete Fourier Transform (numpy.fft) &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="Routines" href="routines.html" >
+    <link rel="next" title="numpy.fft.fft" href="generated/numpy.fft.fft.html" >
+    <link rel="prev" title="numpy.geterrobj" href="generated/numpy.geterrobj.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="routines.html" accesskey="U">Routines</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="generated/numpy.fft.fft.html" title="numpy.fft.fft"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="generated/numpy.geterrobj.html" title="numpy.geterrobj"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Discrete Fourier Transform (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.fft</span></code>)</a><ul>
+<li><a class="reference internal" href="#standard-ffts">Standard FFTs</a></li>
+<li><a class="reference internal" href="#real-ffts">Real FFTs</a></li>
+<li><a class="reference internal" href="#hermitian-ffts">Hermitian FFTs</a></li>
+<li><a class="reference internal" href="#helper-routines">Helper routines</a></li>
+<li><a class="reference internal" href="#background-information">Background information</a></li>
+<li><a class="reference internal" href="#implementation-details">Implementation details</a></li>
+<li><a class="reference internal" href="#type-promotion">Type Promotion</a></li>
+<li><a class="reference internal" href="#normalization">Normalization</a></li>
+<li><a class="reference internal" href="#real-and-hermitian-transforms">Real and Hermitian transforms</a></li>
+<li><a class="reference internal" href="#higher-dimensions">Higher dimensions</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="generated/numpy.geterrobj.html"
+                        title="previous chapter">numpy.geterrobj</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="generated/numpy.fft.fft.html"
+                        title="next chapter">numpy.fft.fft</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <span class="target" id="module-numpy.fft"><span id="routines-fft"></span></span><div class="section" id="discrete-fourier-transform-numpy-fft">
+<h1>Discrete Fourier Transform (<a class="reference internal" href="#module-numpy.fft" title="numpy.fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.fft</span></code></a>)<a class="headerlink" href="#discrete-fourier-transform-numpy-fft" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="standard-ffts">
+<h2>Standard FFTs<a class="headerlink" href="#standard-ffts" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.fft.html#numpy.fft.fft" title="numpy.fft.fft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft</span></code></a>(a[, n, axis, norm])</p></td>
+<td><p>Compute the one-dimensional discrete Fourier Transform.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.ifft.html#numpy.fft.ifft" title="numpy.fft.ifft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ifft</span></code></a>(a[, n, axis, norm])</p></td>
+<td><p>Compute the one-dimensional inverse discrete Fourier Transform.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.fft2.html#numpy.fft.fft2" title="numpy.fft.fft2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft2</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the 2-dimensional discrete Fourier Transform</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.ifft2.html#numpy.fft.ifft2" title="numpy.fft.ifft2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ifft2</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the 2-dimensional inverse discrete Fourier Transform.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.fftn.html#numpy.fft.fftn" title="numpy.fft.fftn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fftn</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the N-dimensional discrete Fourier Transform.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.ifftn.html#numpy.fft.ifftn" title="numpy.fft.ifftn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ifftn</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the N-dimensional inverse discrete Fourier Transform.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="real-ffts">
+<h2>Real FFTs<a class="headerlink" href="#real-ffts" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.rfft.html#numpy.fft.rfft" title="numpy.fft.rfft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfft</span></code></a>(a[, n, axis, norm])</p></td>
+<td><p>Compute the one-dimensional discrete Fourier Transform for real input.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.irfft.html#numpy.fft.irfft" title="numpy.fft.irfft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">irfft</span></code></a>(a[, n, axis, norm])</p></td>
+<td><p>Compute the inverse of the n-point DFT for real input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.rfft2.html#numpy.fft.rfft2" title="numpy.fft.rfft2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfft2</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the 2-dimensional FFT of a real array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.irfft2.html#numpy.fft.irfft2" title="numpy.fft.irfft2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">irfft2</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the 2-dimensional inverse FFT of a real array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.rfftn.html#numpy.fft.rfftn" title="numpy.fft.rfftn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfftn</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the N-dimensional discrete Fourier Transform for real input.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.irfftn.html#numpy.fft.irfftn" title="numpy.fft.irfftn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">irfftn</span></code></a>(a[, s, axes, norm])</p></td>
+<td><p>Compute the inverse of the N-dimensional FFT of real input.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hermitian-ffts">
+<h2>Hermitian FFTs<a class="headerlink" href="#hermitian-ffts" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.hfft.html#numpy.fft.hfft" title="numpy.fft.hfft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hfft</span></code></a>(a[, n, axis, norm])</p></td>
+<td><p>Compute the FFT of a signal that has Hermitian symmetry, i.e., a real spectrum.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.ihfft.html#numpy.fft.ihfft" title="numpy.fft.ihfft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ihfft</span></code></a>(a[, n, axis, norm])</p></td>
+<td><p>Compute the inverse FFT of a signal that has Hermitian symmetry.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="helper-routines">
+<h2>Helper routines<a class="headerlink" href="#helper-routines" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.fftfreq.html#numpy.fft.fftfreq" title="numpy.fft.fftfreq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fftfreq</span></code></a>(n[, d])</p></td>
+<td><p>Return the Discrete Fourier Transform sample frequencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.rfftfreq.html#numpy.fft.rfftfreq" title="numpy.fft.rfftfreq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfftfreq</span></code></a>(n[, d])</p></td>
+<td><p>Return the Discrete Fourier Transform sample frequencies (for usage with rfft, irfft).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fft.fftshift.html#numpy.fft.fftshift" title="numpy.fft.fftshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fftshift</span></code></a>(x[, axes])</p></td>
+<td><p>Shift the zero-frequency component to the center of the spectrum.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fft.ifftshift.html#numpy.fft.ifftshift" title="numpy.fft.ifftshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ifftshift</span></code></a>(x[, axes])</p></td>
+<td><p>The inverse of <a class="reference internal" href="generated/numpy.fft.fftshift.html#numpy.fft.fftshift" title="numpy.fft.fftshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fftshift</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="background-information">
+<h2>Background information<a class="headerlink" href="#background-information" title="Permalink to this headline">¶</a></h2>
+<p>Fourier analysis is fundamentally a method for expressing a function as a
+sum of periodic components, and for recovering the function from those
+components.  When both the function and its Fourier transform are
+replaced with discretized counterparts, it is called the discrete Fourier
+transform (DFT).  The DFT has become a mainstay of numerical computing in
+part because of a very fast algorithm for computing it, called the Fast
+Fourier Transform (FFT), which was known to Gauss (1805) and was brought
+to light in its current form by Cooley and Tukey <a class="reference internal" href="#rfb1dc64dd6a5-ct" id="id1">[CT]</a>.  Press et al. <a class="reference internal" href="#rfb1dc64dd6a5-nr" id="id2">[NR]</a>
+provide an accessible introduction to Fourier analysis and its
+applications.</p>
+<p>Because the discrete Fourier transform separates its input into
+components that contribute at discrete frequencies, it has a great number
+of applications in digital signal processing, e.g., for filtering, and in
+this context the discretized input to the transform is customarily
+referred to as a <em>signal</em>, which exists in the <em>time domain</em>.  The output
+is called a <em>spectrum</em> or <em>transform</em> and exists in the <em>frequency
+domain</em>.</p>
+</div>
+<div class="section" id="implementation-details">
+<h2>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<p>There are many ways to define the DFT, varying in the sign of the
+exponent, normalization, etc.  In this implementation, the DFT is defined
+as</p>
+<div class="math">
+<p><img src="../_images/math/192fb50712b8530c868a329a12a27077c012daa9.svg" alt="A_k =  \sum_{m=0}^{n-1} a_m \exp\left\{-2\pi i{mk \over n}\right\}
+\qquad k = 0,\ldots,n-1."/></p>
+</div><p>The DFT is in general defined for complex inputs and outputs, and a
+single-frequency component at linear frequency <img class="math" src="../_images/math/5b7752c757e0b691a80ab8227eadb8a8389dc58a.svg" alt="f"/> is
+represented by a complex exponential
+<img class="math" src="../_images/math/db128dc25c145961513f66c7eecb26c4c4135dcc.svg" alt="a_m = \exp\{2\pi i\,f m\Delta t\}"/>, where <img class="math" src="../_images/math/b4ed9c2e208e08edeca8b1550ec0840acd090276.svg" alt="\Delta t"/>
+is the sampling interval.</p>
+<p>The values in the result follow so-called “standard” order: If <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">=</span>
+<span class="pre">fft(a,</span> <span class="pre">n)</span></code>, then <code class="docutils literal notranslate"><span class="pre">A[0]</span></code> contains the zero-frequency term (the sum of
+the signal), which is always purely real for real inputs. Then <code class="docutils literal notranslate"><span class="pre">A[1:n/2]</span></code>
+contains the positive-frequency terms, and <code class="docutils literal notranslate"><span class="pre">A[n/2+1:]</span></code> contains the
+negative-frequency terms, in order of decreasingly negative frequency.
+For an even number of input points, <code class="docutils literal notranslate"><span class="pre">A[n/2]</span></code> represents both positive and
+negative Nyquist frequency, and is also purely real for real input.  For
+an odd number of input points, <code class="docutils literal notranslate"><span class="pre">A[(n-1)/2]</span></code> contains the largest positive
+frequency, while <code class="docutils literal notranslate"><span class="pre">A[(n+1)/2]</span></code> contains the largest negative frequency.
+The routine <code class="docutils literal notranslate"><span class="pre">np.fft.fftfreq(n)</span></code> returns an array giving the frequencies
+of corresponding elements in the output.  The routine
+<code class="docutils literal notranslate"><span class="pre">np.fft.fftshift(A)</span></code> shifts transforms and their frequencies to put the
+zero-frequency components in the middle, and <code class="docutils literal notranslate"><span class="pre">np.fft.ifftshift(A)</span></code> undoes
+that shift.</p>
+<p>When the input <em class="xref py py-obj">a</em> is a time-domain signal and <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">=</span> <span class="pre">fft(a)</span></code>, <code class="docutils literal notranslate"><span class="pre">np.abs(A)</span></code>
+is its amplitude spectrum and <code class="docutils literal notranslate"><span class="pre">np.abs(A)**2</span></code> is its power spectrum.
+The phase spectrum is obtained by <code class="docutils literal notranslate"><span class="pre">np.angle(A)</span></code>.</p>
+<p>The inverse DFT is defined as</p>
+<div class="math">
+<p><img src="../_images/math/7de8229bc434f3dfae9b186316c1721563f46ef7.svg" alt="a_m = \frac{1}{n}\sum_{k=0}^{n-1}A_k\exp\left\{2\pi i{mk\over n}\right\}
+\qquad m = 0,\ldots,n-1."/></p>
+</div><p>It differs from the forward transform by the sign of the exponential
+argument and the default normalization by <img class="math" src="../_images/math/cb0504c49ba210e1759afd1e6491992917aa174a.svg" alt="1/n"/>.</p>
+</div>
+<div class="section" id="type-promotion">
+<h2>Type Promotion<a class="headerlink" href="#type-promotion" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#module-numpy.fft" title="numpy.fft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.fft</span></code></a> promotes <code class="docutils literal notranslate"><span class="pre">float32</span></code> and <code class="docutils literal notranslate"><span class="pre">complex64</span></code> arrays to <code class="docutils literal notranslate"><span class="pre">float64</span></code> and
+<code class="docutils literal notranslate"><span class="pre">complex128</span></code> arrays respectively. For an FFT implementation that does not
+promote input arrays, see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/fftpack.html#module-scipy.fftpack" title="(in SciPy v1.4.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.fftpack</span></code></a>.</p>
+</div>
+<div class="section" id="normalization">
+<h2>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline">¶</a></h2>
+<p>The default normalization has the direct transforms unscaled and the inverse
+transforms are scaled by <img class="math" src="../_images/math/cb0504c49ba210e1759afd1e6491992917aa174a.svg" alt="1/n"/>. It is possible to obtain unitary
+transforms by setting the keyword argument <code class="docutils literal notranslate"><span class="pre">norm</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;ortho&quot;</span></code> (default is
+<em class="xref py py-obj">None</em>) so that both direct and inverse transforms will be scaled by
+<img class="math" src="../_images/math/5c1e385692393dc6b3247fca6807fdd874ab311e.svg" alt="1/\sqrt{n}"/>.</p>
+</div>
+<div class="section" id="real-and-hermitian-transforms">
+<h2>Real and Hermitian transforms<a class="headerlink" href="#real-and-hermitian-transforms" title="Permalink to this headline">¶</a></h2>
+<p>When the input is purely real, its transform is Hermitian, i.e., the
+component at frequency <img class="math" src="../_images/math/0edac3a6b0973196c5005c560d87e755c0ea5c86.svg" alt="f_k"/> is the complex conjugate of the
+component at frequency <img class="math" src="../_images/math/a9527fff1f9301ecdeff1120a4a4ddde090caac0.svg" alt="-f_k"/>, which means that for real
+inputs there is no information in the negative frequency components that
+is not already available from the positive frequency components.
+The family of <a class="reference internal" href="generated/numpy.fft.rfft.html#numpy.fft.rfft" title="numpy.fft.rfft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfft</span></code></a> functions is
+designed to operate on real inputs, and exploits this symmetry by
+computing only the positive frequency components, up to and including the
+Nyquist frequency.  Thus, <code class="docutils literal notranslate"><span class="pre">n</span></code> input points produce <code class="docutils literal notranslate"><span class="pre">n/2+1</span></code> complex
+output points.  The inverses of this family assumes the same symmetry of
+its input, and for an output of <code class="docutils literal notranslate"><span class="pre">n</span></code> points uses <code class="docutils literal notranslate"><span class="pre">n/2+1</span></code> input points.</p>
+<p>Correspondingly, when the spectrum is purely real, the signal is
+Hermitian.  The <a class="reference internal" href="generated/numpy.fft.hfft.html#numpy.fft.hfft" title="numpy.fft.hfft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hfft</span></code></a> family of functions exploits this symmetry by
+using <code class="docutils literal notranslate"><span class="pre">n/2+1</span></code> complex points in the input (time) domain for <code class="docutils literal notranslate"><span class="pre">n</span></code> real
+points in the frequency domain.</p>
+<p>In higher dimensions, FFTs are used, e.g., for image analysis and
+filtering.  The computational efficiency of the FFT means that it can
+also be a faster way to compute large convolutions, using the property
+that a convolution in the time domain is equivalent to a point-by-point
+multiplication in the frequency domain.</p>
+</div>
+<div class="section" id="higher-dimensions">
+<h2>Higher dimensions<a class="headerlink" href="#higher-dimensions" title="Permalink to this headline">¶</a></h2>
+<p>In two dimensions, the DFT is defined as</p>
+<div class="math">
+<p><img src="../_images/math/ed091ae5f8395421f58d2a9cbb2b872d4747a7ea.svg" alt="A_{kl} =  \sum_{m=0}^{M-1} \sum_{n=0}^{N-1}
+a_{mn}\exp\left\{-2\pi i \left({mk\over M}+{nl\over N}\right)\right\}
+\qquad k = 0, \ldots, M-1;\quad l = 0, \ldots, N-1,"/></p>
+</div><p>which extends in the obvious way to higher dimensions, and the inverses
+in higher dimensions also extend in the same way.</p>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<dl class="citation">
+<dt class="label" id="rfb1dc64dd6a5-ct"><span class="brackets"><a class="fn-backref" href="#id1">CT</a></span></dt>
+<dd><p>Cooley, James W., and John W. Tukey, 1965, “An algorithm for the
+machine calculation of complex Fourier series,” <em>Math. Comput.</em>
+19: 297-301.</p>
+</dd>
+<dt class="label" id="rfb1dc64dd6a5-nr"><span class="brackets"><a class="fn-backref" href="#id2">NR</a></span></dt>
+<dd><p>Press, W., Teukolsky, S., Vetterline, W.T., and Flannery, B.P.,
+2007, <em>Numerical Recipes: The Art of Scientific Computing</em>, ch.
+12-13.  Cambridge Univ. Press, Cambridge, UK.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>For examples, see the various functions.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Memory Alignment &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="NumPy internals" href="internals.html" >
+    <link rel="next" title="NumPy and SWIG" href="swig.html" >
+    <link rel="prev" title="NumPy C Code Explanations" href="internals.code-explanations.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="internals.html" accesskey="U">NumPy internals</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="swig.html" title="NumPy and SWIG"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="internals.code-explanations.html" title="NumPy C Code Explanations"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Memory Alignment</a><ul>
+<li><a class="reference internal" href="#numpy-alignment-goals">Numpy Alignment Goals</a></li>
+<li><a class="reference internal" href="#variables-in-numpy-which-control-and-describe-alignment">Variables in Numpy which control and describe alignment</a></li>
+<li><a class="reference internal" href="#consequences-of-alignment">Consequences of alignment</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="internals.code-explanations.html"
+                        title="previous chapter">NumPy C Code Explanations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="swig.html"
+                        title="next chapter">NumPy and SWIG</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="memory-alignment">
+<span id="alignment"></span><h1>Memory Alignment<a class="headerlink" href="#memory-alignment" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="numpy-alignment-goals">
+<h2>Numpy Alignment Goals<a class="headerlink" href="#numpy-alignment-goals" title="Permalink to this headline">¶</a></h2>
+<p>There are three use-cases related to memory alignment in numpy (as of 1.14):</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Creating structured datatypes with fields aligned like in a C-struct.</p></li>
+<li><p>Speeding up copy operations by using uint assignment in instead of memcpy</p></li>
+<li><p>Guaranteeing safe aligned access for ufuncs/setitem/casting code</p></li>
+</ol>
+</div></blockquote>
+<p>Numpy uses two different forms of alignment to achieve these goals:
+“True alignment” and “Uint alignment”.</p>
+<p>“True” alignment refers to the architecture-dependent alignment of an
+equivalent C-type in C. For example, in x64 systems <code class="docutils literal notranslate"><span class="pre">numpy.float64</span></code> is
+equivalent to <code class="docutils literal notranslate"><span class="pre">double</span></code> in C. On most systems this has either an alignment of
+4 or 8 bytes (and this can be controlled in gcc by the option
+<code class="docutils literal notranslate"><span class="pre">malign-double</span></code>).  A variable is aligned in memory if its memory offset is a
+multiple of its alignment. On some systems (eg sparc) memory alignment is
+required, on others it gives a speedup.</p>
+<p>“Uint” alignment depends on the size of a datatype. It is defined to be the
+“True alignment” of the uint used by numpy’s copy-code to copy the datatype, or
+undefined/unaligned if there is no equivalent uint. Currently numpy uses uint8,
+uint16, uint32, uint64 and uint64 to copy data of size 1,2,4,8,16 bytes
+respectively, and all other sized datatypes cannot be uint-aligned.</p>
+<p>For example, on a (typical linux x64 gcc) system, the numpy <code class="docutils literal notranslate"><span class="pre">complex64</span></code>
+datatype is implemented as <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">{</span> <span class="pre">float</span> <span class="pre">real,</span> <span class="pre">imag;</span> <span class="pre">}</span></code>. This has “true”
+alignment of 4 and “uint” alignment of 8 (equal to the true alignment of
+<code class="docutils literal notranslate"><span class="pre">uint64</span></code>).</p>
+<dl class="simple">
+<dt>Some cases where uint and true alignment are different (default gcc linux):</dt><dd><p>arch     type        true-aln    uint-aln
+—-     —-        ——–    ——–
+x86_64   complex64          4           8
+x86_64   float128          16           8
+x86      float96            4           -</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="variables-in-numpy-which-control-and-describe-alignment">
+<h2>Variables in Numpy which control and describe alignment<a class="headerlink" href="#variables-in-numpy-which-control-and-describe-alignment" title="Permalink to this headline">¶</a></h2>
+<p>There are 4 relevant uses of the word <code class="docutils literal notranslate"><span class="pre">align</span></code> used in numpy:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">dtype.alignment</span></code> attribute (<code class="docutils literal notranslate"><span class="pre">descr-&gt;alignment</span></code> in C). This is meant
+to reflect the “true alignment” of the type. It has arch-dependent default
+values for all datatypes, with the exception of structured types created
+with <code class="docutils literal notranslate"><span class="pre">align=True</span></code> as described below.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">ALIGNED</span></code> flag of an ndarray, computed in <code class="docutils literal notranslate"><span class="pre">IsAligned</span></code> and checked
+by <code class="docutils literal notranslate"><span class="pre">PyArray_ISALIGNED</span></code>. This is computed from <code class="docutils literal notranslate"><span class="pre">dtype.alignment</span></code>.
+It is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if every item in the array is at a memory location
+consistent with <code class="docutils literal notranslate"><span class="pre">dtype.alignment</span></code>, which is the case if the data ptr and
+all strides of the array are multiples of that alignment.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">align</span></code> keyword of the dtype constructor, which only affects structured
+arrays. If the structure’s field offsets are not manually provided numpy
+determines offsets automatically. In that case, <code class="docutils literal notranslate"><span class="pre">align=True</span></code> pads the
+structure so that each field is “true” aligned in memory and sets
+<code class="docutils literal notranslate"><span class="pre">dtype.alignment</span></code> to be the largest of the field “true” alignments. This
+is like what C-structs usually do. Otherwise if offsets or itemsize were
+manually provided <code class="docutils literal notranslate"><span class="pre">align=True</span></code> simply checks that all the fields are
+“true” aligned and that the total itemsize is a multiple of the largest
+field alignment. In either case <code class="docutils literal notranslate"><span class="pre">dtype.isalignedstruct</span></code> is also set to
+True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IsUintAligned</span></code> is used to determine if an ndarray is “uint aligned” in
+an analogous way to how <code class="docutils literal notranslate"><span class="pre">IsAligned</span></code> checks for true-alignment.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="consequences-of-alignment">
+<h2>Consequences of alignment<a class="headerlink" href="#consequences-of-alignment" title="Permalink to this headline">¶</a></h2>
+<p>Here is how the variables above are used:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Creating aligned structs: In order to know how to offset a field when
+<code class="docutils literal notranslate"><span class="pre">align=True</span></code>, numpy looks up <code class="docutils literal notranslate"><span class="pre">field.dtype.alignment</span></code>. This includes
+fields which are nested structured arrays.</p></li>
+<li><p>Ufuncs: If the <code class="docutils literal notranslate"><span class="pre">ALIGNED</span></code> flag of an array is False, ufuncs will
+buffer/cast the array before evaluation. This is needed since ufunc inner
+loops access raw elements directly, which might fail on some archs if the
+elements are not true-aligned.</p></li>
+<li><p>Getitem/setitem/copyswap function: Similar to ufuncs, these functions
+generally have two code paths. If <code class="docutils literal notranslate"><span class="pre">ALIGNED</span></code> is False they will
+use a code path that buffers the arguments so they are true-aligned.</p></li>
+<li><p>Strided copy code: Here, “uint alignment” is used instead.  If the itemsize
+of an array is equal to 1, 2, 4, 8 or 16 bytes and the array is uint
+aligned then instead numpy will do <code class="docutils literal notranslate"><span class="pre">*(uintN*)dst)</span> <span class="pre">=</span> <span class="pre">*(uintN*)src)</span></code> for
+appropriate N. Otherwise numpy copies by doing <code class="docutils literal notranslate"><span class="pre">memcpy(dst,</span> <span class="pre">src,</span> <span class="pre">N)</span></code>.</p></li>
+<li><p>Nditer code: Since this often calls the strided copy code, it must
+check for “uint alignment”.</p></li>
+<li><p>Cast code: This checks for “true” alignment, as it does
+<code class="docutils literal notranslate"><span class="pre">*dst</span> <span class="pre">=</span> <span class="pre">CASTFUNC(*src)</span></code> if aligned. Otherwise, it does
+<code class="docutils literal notranslate"><span class="pre">memmove(srcval,</span> <span class="pre">src);</span> <span class="pre">dstval</span> <span class="pre">=</span> <span class="pre">CASTFUNC(srcval);</span> <span class="pre">memmove(dst,</span> <span class="pre">dstval)</span></code>
+where dstval/srcval are aligned.</p></li>
+</ol>
+</div></blockquote>
+<p>Note that the strided-copy and strided-cast code are deeply intertwined and so
+any arrays being processed by them must be both uint and true aligned, even
+though the copy-code only needs uint alignment and the cast code only true
+alignment.  If there is ever a big rewrite of this code it would be good to
+allow them to use different alignments.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

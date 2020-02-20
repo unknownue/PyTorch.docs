@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Extending via Numba and CFFI &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../../../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" >
+    <link rel="index" title="Index" href="../../../genindex.html" >
+    <link rel="search" title="Search" href="../../../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../../../index.html" >
+    <link rel="up" title="Extending" href="../extending.html" >
+    <link rel="next" title="Extending numpy.random via Cython" href="cython/index.html" >
+    <link rel="prev" title="Extending via Numba" href="numba.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../../../index.html">
+      <img border=0 alt="NumPy" src="../../../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../../../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="../../index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="../../routines.html" >Routines</a></li>
+          <li class="active"><a href="../index.html" >Random sampling (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.random</span></code>)</a></li>
+          <li class="active"><a href="../extending.html" accesskey="U">Extending</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../../../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="cython/index.html" title="Extending numpy.random via Cython"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="numba.html" title="Extending via Numba"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="numba.html"
+                        title="previous chapter">Extending via Numba</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cython/index.html"
+                        title="next chapter">Extending <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.random</span></code> via Cython</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="extending-via-numba-and-cffi">
+<h1>Extending via Numba and CFFI<a class="headerlink" href="#extending-via-numba-and-cffi" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Building the required library in this example requires a source distribution</span>
+<span class="sd">of NumPy or clone of the NumPy git repository since distributions.c is not</span>
+<span class="sd">included in binary distributions.</span>
+
+<span class="sd">On *nix, execute in numpy/random/src/distributions</span>
+
+<span class="sd">export ${PYTHON_VERSION}=3.8 # Python version</span>
+<span class="sd">export PYTHON_INCLUDE=#path to Python&#39;s include folder, usually \</span>
+<span class="sd">    ${PYTHON_HOME}/include/python${PYTHON_VERSION}m</span>
+<span class="sd">export NUMPY_INCLUDE=#path to numpy&#39;s include folder, usually \</span>
+<span class="sd">    ${PYTHON_HOME}/lib/python${PYTHON_VERSION}/site-packages/numpy/core/include</span>
+<span class="sd">gcc -shared -o libdistributions.so -fPIC distributions.c \</span>
+<span class="sd">    -I${NUMPY_INCLUDE} -I${PYTHON_INCLUDE}</span>
+<span class="sd">mv libdistributions.so ../../_examples/numba/</span>
+
+<span class="sd">On Windows</span>
+
+<span class="sd">rem PYTHON_HOME and PYTHON_VERSION are setup dependent, this is an example</span>
+<span class="sd">set PYTHON_HOME=c:\Anaconda</span>
+<span class="sd">set PYTHON_VERSION=38</span>
+<span class="sd">cl.exe /LD .\distributions.c -DDLL_EXPORT \</span>
+<span class="sd">    -I%PYTHON_HOME%\lib\site-packages\numpy\core\include \</span>
+<span class="sd">    -I%PYTHON_HOME%\include %PYTHON_HOME%\libs\python%PYTHON_VERSION%.lib</span>
+<span class="sd">move distributions.dll ../../_examples/numba/</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cffi</span> <span class="kn">import</span> <span class="n">FFI</span>
+
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">PCG64</span>
+
+<span class="n">ffi</span> <span class="o">=</span> <span class="n">FFI</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;./distributions.dll&#39;</span><span class="p">):</span>
+    <span class="n">lib</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">dlopen</span><span class="p">(</span><span class="s1">&#39;./distributions.dll&#39;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;./libdistributions.so&#39;</span><span class="p">):</span>
+    <span class="n">lib</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">dlopen</span><span class="p">(</span><span class="s1">&#39;./libdistributions.so&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Required DLL/so file was not found.&#39;</span><span class="p">)</span>
+
+<span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">double random_standard_normal(void *bitgen_state);</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">PCG64</span><span class="p">()</span>
+<span class="n">xffi</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">cffi</span>
+<span class="n">bit_generator</span> <span class="o">=</span> <span class="n">xffi</span><span class="o">.</span><span class="n">bit_generator</span>
+
+<span class="n">random_standard_normal</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">random_standard_normal</span>
+
+
+<span class="k">def</span> <span class="nf">normals</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bit_generator</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">random_standard_normal</span><span class="p">(</span><span class="n">bit_generator</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="n">normalsj</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">normals</span><span class="p">,</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Numba requires a memory address for void *</span>
+<span class="c1"># Can also get address from x.ctypes.bit_generator.value</span>
+<span class="n">bit_generator_address</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;uintptr_t&#39;</span><span class="p">,</span> <span class="n">bit_generator</span><span class="p">))</span>
+
+<span class="n">norm</span> <span class="o">=</span> <span class="n">normalsj</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">bit_generator_address</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">norm</span><span class="p">[:</span><span class="mi">12</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

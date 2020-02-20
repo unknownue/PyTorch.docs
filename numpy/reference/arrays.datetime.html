@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Datetimes and Timedeltas &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="Array objects" href="arrays.html" >
+    <link rel="next" title="Constants" href="constants.html" >
+    <link rel="prev" title="The Array Interface" href="arrays.interface.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="arrays.html" accesskey="U">Array objects</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="constants.html" title="Constants"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="arrays.interface.html" title="The Array Interface"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Datetimes and Timedeltas</a><ul>
+<li><a class="reference internal" href="#basic-datetimes">Basic Datetimes</a></li>
+<li><a class="reference internal" href="#datetime-and-timedelta-arithmetic">Datetime and Timedelta Arithmetic</a></li>
+<li><a class="reference internal" href="#datetime-units">Datetime Units</a></li>
+<li><a class="reference internal" href="#business-day-functionality">Business Day Functionality</a><ul>
+<li><a class="reference internal" href="#np-is-busday">np.is_busday():</a></li>
+<li><a class="reference internal" href="#np-busday-count">np.busday_count():</a><ul>
+<li><a class="reference internal" href="#custom-weekmasks">Custom Weekmasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes-with-numpy-1-11">Changes with NumPy 1.11</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="arrays.interface.html"
+                        title="previous chapter">The Array Interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="constants.html"
+                        title="next chapter">Constants</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="datetimes-and-timedeltas">
+<span id="arrays-datetime"></span><h1>Datetimes and Timedeltas<a class="headerlink" href="#datetimes-and-timedeltas" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.7.0.</span></p>
+</div>
+<p>Starting in NumPy 1.7, there are core array data types which natively
+support datetime functionality. The data type is called “datetime64”,
+so named because “datetime” is already taken by the datetime library
+included in Python.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The datetime API is <em>experimental</em> in 1.7.0, and may undergo changes
+in future versions of NumPy.</p>
+</div>
+<div class="section" id="basic-datetimes">
+<h2>Basic Datetimes<a class="headerlink" href="#basic-datetimes" title="Permalink to this headline">¶</a></h2>
+<p>The most basic way to create datetimes is from strings in
+ISO 8601 date or datetime format. The unit for internal storage
+is automatically selected from the form of the string, and can
+be either a <a class="reference internal" href="#arrays-dtypes-dateunits"><span class="std std-ref">date unit</span></a> or a
+<a class="reference internal" href="#arrays-dtypes-timeunits"><span class="std std-ref">time unit</span></a>. The date units are years (‘Y’),
+months (‘M’), weeks (‘W’), and days (‘D’), while the time units are
+hours (‘h’), minutes (‘m’), seconds (‘s’), milliseconds (‘ms’), and
+some additional SI-prefix seconds-based units. The datetime64 data type
+also accepts the string “NAT”, in any combination of lowercase/uppercase
+letters, for a “Not A Time” value.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>A simple ISO date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2005-02-25&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2005-02-25&#39;)</span>
+</pre></div>
+</div>
+<p>Using months for the unit:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2005-02&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2005-02&#39;)</span>
+</pre></div>
+</div>
+<p>Specifying just the month, but forcing a ‘days’ unit:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2005-02&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2005-02-01&#39;)</span>
+</pre></div>
+</div>
+<p>From a date and time:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2005-02-25T03:30&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2005-02-25T03:30&#39;)</span>
+</pre></div>
+</div>
+<p>NAT (not a time):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;nat&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;NaT&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>When creating an array of datetimes from a string, it is still possible
+to automatically select the unit from the inputs, by using the
+datetime type with generic units.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;2007-07-13&#39;</span><span class="p">,</span> <span class="s1">&#39;2006-01-13&#39;</span><span class="p">,</span> <span class="s1">&#39;2010-08-13&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;datetime64&#39;</span><span class="p">)</span>
+<span class="go">array([&#39;2007-07-13&#39;, &#39;2006-01-13&#39;, &#39;2010-08-13&#39;], dtype=&#39;datetime64[D]&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;2001-01-01T12:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2002-02-03T13:56:03.172&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;datetime64&#39;</span><span class="p">)</span>
+<span class="go">array([&#39;2001-01-01T12:00:00.000-0600&#39;, &#39;2002-02-03T13:56:03.172-0600&#39;], dtype=&#39;datetime64[ms]&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>The datetime type works with many common NumPy functions, for
+example <a class="reference internal" href="generated/numpy.arange.html#numpy.arange" title="numpy.arange"><code class="xref py py-func docutils literal notranslate"><span class="pre">arange</span></code></a> can be used to generate ranges of dates.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>All the dates for one month:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="s1">&#39;2005-02&#39;</span><span class="p">,</span> <span class="s1">&#39;2005-03&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;datetime64[D]&#39;</span><span class="p">)</span>
+<span class="go">array([&#39;2005-02-01&#39;, &#39;2005-02-02&#39;, &#39;2005-02-03&#39;, &#39;2005-02-04&#39;,</span>
+<span class="go">       &#39;2005-02-05&#39;, &#39;2005-02-06&#39;, &#39;2005-02-07&#39;, &#39;2005-02-08&#39;,</span>
+<span class="go">       &#39;2005-02-09&#39;, &#39;2005-02-10&#39;, &#39;2005-02-11&#39;, &#39;2005-02-12&#39;,</span>
+<span class="go">       &#39;2005-02-13&#39;, &#39;2005-02-14&#39;, &#39;2005-02-15&#39;, &#39;2005-02-16&#39;,</span>
+<span class="go">       &#39;2005-02-17&#39;, &#39;2005-02-18&#39;, &#39;2005-02-19&#39;, &#39;2005-02-20&#39;,</span>
+<span class="go">       &#39;2005-02-21&#39;, &#39;2005-02-22&#39;, &#39;2005-02-23&#39;, &#39;2005-02-24&#39;,</span>
+<span class="go">       &#39;2005-02-25&#39;, &#39;2005-02-26&#39;, &#39;2005-02-27&#39;, &#39;2005-02-28&#39;],</span>
+<span class="go">       dtype=&#39;datetime64[D]&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>The datetime object represents a single moment in time. If two
+datetimes have different units, they may still be representing
+the same moment of time, and converting from a bigger unit like
+months to a smaller unit like days is considered a ‘safe’ cast
+because the moment of time is still being represented exactly.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2005&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2005-01-01&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2010-03-14T15Z&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2010-03-14T15:00:00.00Z&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="datetime-and-timedelta-arithmetic">
+<h2>Datetime and Timedelta Arithmetic<a class="headerlink" href="#datetime-and-timedelta-arithmetic" title="Permalink to this headline">¶</a></h2>
+<p>NumPy allows the subtraction of two Datetime values, an operation which
+produces a number with a time unit. Because NumPy doesn’t have a physical
+quantities system in its core, the timedelta64 data type was created
+to complement datetime64. The arguments for timedelta64 are a number,
+to represent the number of units, and a date/time unit, such as
+(D)ay, (M)onth, (Y)ear, (h)ours, (m)inutes, or (s)econds. The timedelta64
+data type also accepts the string “NAT” in place of the number for a “Not A Time” value.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(1,&#39;D&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(4,&#39;h&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="s1">&#39;nAt&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(&#39;NaT&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>Datetimes and Timedeltas work together to provide ways for
+simple datetime calculations.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2009-01-01&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2008-01-01&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(366,&#39;D&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2009&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2009-01-21&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-06-15T00:00&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-15T12:00-0500&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="go">7.0</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(7,&#39;D&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;nat&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2009-01-01&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(&#39;NaT&#39;,&#39;D&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2009-01-01&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="s1">&#39;nat&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;NaT&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>There are two Timedelta units (‘Y’, years and ‘M’, months) which are treated
+specially, because how much time they represent changes depending
+on when they are used. While a timedelta day unit is equivalent to
+24 hours, there is no way to convert a month unit into days, because
+different months have different numbers of days.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;M&#39;</span><span class="p">)</span>
+<span class="go">numpy.timedelta64(12,&#39;M&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">TypeError</span>: <span class="n">Cannot cast NumPy timedelta64 scalar from metadata [Y] to [D] according to the rule &#39;same_kind&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="datetime-units">
+<h2>Datetime Units<a class="headerlink" href="#datetime-units" title="Permalink to this headline">¶</a></h2>
+<p>The Datetime and Timedelta data types support a large number of time
+units, as well as generic units which can be coerced into any of the
+other units based on input data.</p>
+<p>Datetimes are always stored based on POSIX time (though having a TAI
+mode which allows for accounting of leap-seconds is proposed), with
+an epoch of 1970-01-01T00:00Z. This means the supported dates are
+always a symmetric interval around the epoch, called “time span” in the
+table below.</p>
+<p>The length of the span is the range of a 64-bit integer times the length
+of the date or unit.  For example, the time span for ‘W’ (week) is exactly
+7 times longer than the time span for ‘D’ (day), and the time span for
+‘D’ (day) is exactly 24 times longer than the time span for ‘h’ (hour).</p>
+<p>Here are the date units:</p>
+<table class="docutils align-default" id="arrays-dtypes-dateunits">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 22%" />
+<col style="width: 32%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Time span (relative)</p></th>
+<th class="head"><p>Time span (absolute)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Y</p></td>
+<td><p>year</p></td>
+<td><p>+/- 9.2e18 years</p></td>
+<td><p>[9.2e18 BC, 9.2e18 AD]</p></td>
+</tr>
+<tr class="row-odd"><td><p>M</p></td>
+<td><p>month</p></td>
+<td><p>+/- 7.6e17 years</p></td>
+<td><p>[7.6e17 BC, 7.6e17 AD]</p></td>
+</tr>
+<tr class="row-even"><td><p>W</p></td>
+<td><p>week</p></td>
+<td><p>+/- 1.7e17 years</p></td>
+<td><p>[1.7e17 BC, 1.7e17 AD]</p></td>
+</tr>
+<tr class="row-odd"><td><p>D</p></td>
+<td><p>day</p></td>
+<td><p>+/- 2.5e16 years</p></td>
+<td><p>[2.5e16 BC, 2.5e16 AD]</p></td>
+</tr>
+</tbody>
+</table>
+<p>And here are the time units:</p>
+<table class="docutils align-default" id="arrays-dtypes-timeunits">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 22%" />
+<col style="width: 32%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Time span (relative)</p></th>
+<th class="head"><p>Time span (absolute)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>h</p></td>
+<td><p>hour</p></td>
+<td><p>+/- 1.0e15 years</p></td>
+<td><p>[1.0e15 BC, 1.0e15 AD]</p></td>
+</tr>
+<tr class="row-odd"><td><p>m</p></td>
+<td><p>minute</p></td>
+<td><p>+/- 1.7e13 years</p></td>
+<td><p>[1.7e13 BC, 1.7e13 AD]</p></td>
+</tr>
+<tr class="row-even"><td><p>s</p></td>
+<td><p>second</p></td>
+<td><p>+/- 2.9e11 years</p></td>
+<td><p>[2.9e11 BC, 2.9e11 AD]</p></td>
+</tr>
+<tr class="row-odd"><td><p>ms</p></td>
+<td><p>millisecond</p></td>
+<td><p>+/- 2.9e8 years</p></td>
+<td><p>[ 2.9e8 BC,  2.9e8 AD]</p></td>
+</tr>
+<tr class="row-even"><td><p>us</p></td>
+<td><p>microsecond</p></td>
+<td><p>+/- 2.9e5 years</p></td>
+<td><p>[290301 BC, 294241 AD]</p></td>
+</tr>
+<tr class="row-odd"><td><p>ns</p></td>
+<td><p>nanosecond</p></td>
+<td><p>+/- 292 years</p></td>
+<td><p>[  1678 AD,   2262 AD]</p></td>
+</tr>
+<tr class="row-even"><td><p>ps</p></td>
+<td><p>picosecond</p></td>
+<td><p>+/- 106 days</p></td>
+<td><p>[  1969 AD,   1970 AD]</p></td>
+</tr>
+<tr class="row-odd"><td><p>fs</p></td>
+<td><p>femtosecond</p></td>
+<td><p>+/- 2.6 hours</p></td>
+<td><p>[  1969 AD,   1970 AD]</p></td>
+</tr>
+<tr class="row-even"><td><p>as</p></td>
+<td><p>attosecond</p></td>
+<td><p>+/- 9.2 seconds</p></td>
+<td><p>[  1969 AD,   1970 AD]</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="business-day-functionality">
+<h2>Business Day Functionality<a class="headerlink" href="#business-day-functionality" title="Permalink to this headline">¶</a></h2>
+<p>To allow the datetime to be used in contexts where only certain days of
+the week are valid, NumPy includes a set of “busday” (business day)
+functions.</p>
+<p>The default for busday functions is that the only valid days are Monday
+through Friday (the usual business days).  The implementation is based on
+a “weekmask” containing 7 Boolean flags to indicate valid days; custom
+weekmasks are possible that specify other sets of valid days.</p>
+<p>The “busday” functions can additionally check a list of “holiday” dates,
+specific dates that are not valid days.</p>
+<p>The function <a class="reference internal" href="generated/numpy.busday_offset.html#numpy.busday_offset" title="numpy.busday_offset"><code class="xref py py-func docutils literal notranslate"><span class="pre">busday_offset</span></code></a> allows you to apply offsets
+specified in business days to datetimes with a unit of ‘D’ (day).</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-23&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-24&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-23&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-27&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>When an input date falls on the weekend or a holiday,
+<a class="reference internal" href="generated/numpy.busday_offset.html#numpy.busday_offset" title="numpy.busday_offset"><code class="xref py py-func docutils literal notranslate"><span class="pre">busday_offset</span></code></a> first applies a rule to roll the
+date to a valid business day, then applies the offset. The
+default rule is ‘raise’, which simply raises an exception.
+The rules most typically used are ‘forward’ and ‘backward’.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-25&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">ValueError</span>: <span class="n">Non-business day date in busday_offset</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-25&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-27&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-25&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-29&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-25&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;backward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-24&#39;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-06-25&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;backward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-06-28&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>In some cases, an appropriate use of the roll and the offset
+is necessary to get a desired answer.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>The first business day on or after a date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-03-20&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-03-21&#39;,&#39;D&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-03-22&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-03-22&#39;,&#39;D&#39;)</span>
+</pre></div>
+</div>
+<p>The first business day strictly after a date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-03-20&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;backward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-03-21&#39;,&#39;D&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2011-03-22&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;backward&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2011-03-23&#39;,&#39;D&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>The function is also useful for computing some kinds of days
+like holidays. In Canada and the U.S., Mother’s day is on
+the second Sunday in May, which can be computed with a custom
+weekmask.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_offset</span><span class="p">(</span><span class="s1">&#39;2012-05&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">roll</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">weekmask</span><span class="o">=</span><span class="s1">&#39;Sun&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2012-05-13&#39;,&#39;D&#39;)</span>
+</pre></div>
+</div>
+</div>
+<p>When performance is important for manipulating many business dates
+with one particular choice of weekmask and holidays, there is
+an object <a class="reference internal" href="generated/numpy.busdaycalendar.html#numpy.busdaycalendar" title="numpy.busdaycalendar"><code class="xref py py-class docutils literal notranslate"><span class="pre">busdaycalendar</span></code></a> which stores the data necessary
+in an optimized form.</p>
+<div class="section" id="np-is-busday">
+<h3>np.is_busday():<a class="headerlink" href="#np-is-busday" title="Permalink to this headline">¶</a></h3>
+<p>To test a datetime64 value to see if it is a valid day, use <a class="reference internal" href="generated/numpy.is_busday.html#numpy.is_busday" title="numpy.is_busday"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_busday</span></code></a>.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">is_busday</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-15&#39;</span><span class="p">))</span>  <span class="c1"># a Friday</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">is_busday</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-16&#39;</span><span class="p">))</span> <span class="c1"># a Saturday</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">is_busday</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-16&#39;</span><span class="p">),</span> <span class="n">weekmask</span><span class="o">=</span><span class="s2">&quot;Sat Sun&quot;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-11&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-18&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">is_busday</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([ True,  True,  True,  True,  True, False, False], dtype=&#39;bool&#39;)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="np-busday-count">
+<h3>np.busday_count():<a class="headerlink" href="#np-busday-count" title="Permalink to this headline">¶</a></h3>
+<p>To find how many valid days there are in a specified range of datetime64
+dates, use <a class="reference internal" href="generated/numpy.busday_count.html#numpy.busday_count" title="numpy.busday_count"><code class="xref py py-func docutils literal notranslate"><span class="pre">busday_count</span></code></a>:</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_count</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-11&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-18&#39;</span><span class="p">))</span>
+<span class="go">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">busday_count</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-18&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-11&#39;</span><span class="p">))</span>
+<span class="go">-5</span>
+</pre></div>
+</div>
+</div>
+<p>If you have an array of datetime64 day values, and you want a count of
+how many of them are valid dates, you can do this:</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-11&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2011-07-18&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">is_busday</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+<span class="go">5</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-weekmasks">
+<h4>Custom Weekmasks<a class="headerlink" href="#custom-weekmasks" title="Permalink to this headline">¶</a></h4>
+<p>Here are several examples of custom weekmask values.  These examples
+specify the “busday” default of Monday through Friday being valid days.</p>
+<p>Some examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Positional sequences; positions are Monday through Sunday.</span>
+<span class="c1"># Length of the sequence must be exactly 7.</span>
+<span class="n">weekmask</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="c1"># list or other sequence; 0 == invalid day, 1 == valid day</span>
+<span class="n">weekmask</span> <span class="o">=</span> <span class="s2">&quot;1111100&quot;</span>
+<span class="c1"># string &#39;0&#39; == invalid day, &#39;1&#39; == valid day</span>
+
+<span class="c1"># string abbreviations from this list: Mon Tue Wed Thu Fri Sat Sun</span>
+<span class="n">weekmask</span> <span class="o">=</span> <span class="s2">&quot;Mon Tue Wed Thu Fri&quot;</span>
+<span class="c1"># any amount of whitespace is allowed; abbreviations are case-sensitive.</span>
+<span class="n">weekmask</span> <span class="o">=</span> <span class="s2">&quot;MonTue Wed  Thu</span><span class="se">\t</span><span class="s2">Fri&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="changes-with-numpy-1-11">
+<h2>Changes with NumPy 1.11<a class="headerlink" href="#changes-with-numpy-1-11" title="Permalink to this headline">¶</a></h2>
+<p>In prior versions of NumPy, the datetime64 type always stored
+times in UTC. By default, creating a datetime64 object from a string or
+printing it would convert from or to local time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># old behavior</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2000-01-01T00:00:00&#39;</span><span class="p">)</span>
+<span class="n">numpy</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2000-01-01T00:00:00-0800&#39;</span><span class="p">)</span>  <span class="c1"># note the timezone offset -08:00</span>
+</pre></div>
+</div>
+<p>A consensus of datetime64 users agreed that this behavior is undesirable
+and at odds with how datetime64 is usually used (e.g., by <a class="reference external" href="http://pandas.pydata.org">pandas</a>). For
+most use cases, a timezone naive datetime type is preferred, similar to the
+<code class="docutils literal notranslate"><span class="pre">datetime.datetime</span></code> type in the Python standard library. Accordingly,
+datetime64 no longer assumes that input is in local time, nor does it print
+local times:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2000-01-01T00:00:00&#39;</span><span class="p">)</span>
+<span class="go">numpy.datetime64(&#39;2000-01-01T00:00:00&#39;)</span>
+</pre></div>
+</div>
+<p>For backwards compatibility, datetime64 still parses timezone offsets, which
+it handles by converting to UTC. However, the resulting datetime is timezone
+naive:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;2000-01-01T00:00:00-08&#39;</span><span class="p">)</span>
+<span class="go">DeprecationWarning: parsing timezone aware datetimes is deprecated; this will raise an error in the future</span>
+<span class="go">numpy.datetime64(&#39;2000-01-01T08:00:00&#39;)</span>
+</pre></div>
+</div>
+<p>As a corollary to this change, we no longer prohibit casting between datetimes
+with date units and datetimes with timeunits. With timezone naive datetimes,
+the rule for casting from dates to times is no longer ambiguous.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

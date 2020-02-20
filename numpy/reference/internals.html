@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>NumPy internals &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="NumPy Reference" href="index.html" >
+    <link rel="next" title="NumPy C Code Explanations" href="internals.code-explanations.html" >
+    <link rel="prev" title="C API Deprecations" href="c-api/deprecations.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" accesskey="U">NumPy Reference</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="internals.code-explanations.html" title="NumPy C Code Explanations"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="c-api/deprecations.html" title="C API Deprecations"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">NumPy internals</a><ul>
+<li><a class="reference internal" href="#internal-organization-of-numpy-arrays">Internal organization of numpy arrays</a></li>
+<li><a class="reference internal" href="#multidimensional-array-indexing-order-issues">Multidimensional Array Indexing Order Issues</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="c-api/deprecations.html"
+                        title="previous chapter">C API Deprecations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="internals.code-explanations.html"
+                        title="next chapter">NumPy C Code Explanations</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="numpy-internals">
+<h1>NumPy internals<a class="headerlink" href="#numpy-internals" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="internals.code-explanations.html">NumPy C Code Explanations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#memory-model">Memory model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#data-type-encapsulation">Data-type encapsulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#n-d-iterators">N-D Iterators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#broadcasting">Broadcasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#array-scalars">Array Scalars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#indexing">Indexing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="internals.code-explanations.html#advanced-indexing">Advanced indexing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="internals.code-explanations.html#universal-functions">Universal Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="internals.code-explanations.html#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals.code-explanations.html#function-call">Function call</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#one-loop">One Loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#strided-loop">Strided Loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#buffered-loop">Buffered Loop</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="internals.code-explanations.html#final-output-manipulation">Final output manipulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internals.code-explanations.html#methods">Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#id1">Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#reduce">Reduce</a></li>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#accumulate">Accumulate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="internals.code-explanations.html#reduceat">Reduceat</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="alignment.html">Memory Alignment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="alignment.html#numpy-alignment-goals">Numpy Alignment Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alignment.html#variables-in-numpy-which-control-and-describe-alignment">Variables in Numpy which control and describe alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alignment.html#consequences-of-alignment">Consequences of alignment</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<span class="target" id="module-numpy.doc.internals"></span><div class="section" id="internal-organization-of-numpy-arrays">
+<h2>Internal organization of numpy arrays<a class="headerlink" href="#internal-organization-of-numpy-arrays" title="Permalink to this headline">¶</a></h2>
+<p>It helps to understand a bit about how numpy arrays are handled under the covers to help understand numpy better. This section will not go into great detail. Those wishing to understand the full details are referred to Travis Oliphant’s book “Guide to NumPy”.</p>
+<p>NumPy arrays consist of two major components, the raw array data (from now on,
+referred to as the data buffer), and the information about the raw array data.
+The data buffer is typically what people think of as arrays in C or Fortran,
+a contiguous (and fixed) block of memory containing fixed sized data items.
+NumPy also contains a significant set of data that describes how to interpret
+the data in the data buffer. This extra information contains (among other things):</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The basic data element’s size in bytes</p></li>
+<li><p>The start of the data within the data buffer (an offset relative to the
+beginning of the data buffer).</p></li>
+<li><p>The number of dimensions and the size of each dimension</p></li>
+<li><p>The separation between elements for each dimension (the ‘stride’). This
+does not have to be a multiple of the element size</p></li>
+<li><p>The byte order of the data (which may not be the native byte order)</p></li>
+<li><p>Whether the buffer is read-only</p></li>
+<li><p>Information (via the dtype object) about the interpretation of the basic
+data element. The basic data element may be as simple as a int or a float,
+or it may be a compound object (e.g., struct-like), a fixed character field,
+or Python object pointers.</p></li>
+<li><p>Whether the array is to interpreted as C-order or Fortran-order.</p></li>
+</ol>
+</div></blockquote>
+<p>This arrangement allow for very flexible use of arrays. One thing that it allows
+is simple changes of the metadata to change the interpretation of the array buffer.
+Changing the byteorder of the array is a simple change involving no rearrangement
+of the data. The shape of the array can be changed very easily without changing
+anything in the data buffer or any data copying at all</p>
+<p>Among other things that are made possible is one can create a new array metadata
+object that uses the same data buffer
+to create a new view of that data buffer that has a different interpretation
+of the buffer (e.g., different shape, offset, byte order, strides, etc) but
+shares the same data bytes. Many operations in numpy do just this such as
+slices. Other operations, such as transpose, don’t move data elements
+around in the array, but rather change the information about the shape and strides so that the indexing of the array changes, but the data in the doesn’t move.</p>
+<p>Typically these new versions of the array metadata but the same data buffer are
+new ‘views’ into the data buffer. There is a different ndarray object, but it
+uses the same data buffer. This is why it is necessary to force copies through
+use of the .copy() method if one really wants to make a new and independent
+copy of the data buffer.</p>
+<p>New views into arrays mean the object reference counts for the data buffer
+increase. Simply doing away with the original array object will not remove the
+data buffer if other views of it still exist.</p>
+</div>
+<div class="section" id="multidimensional-array-indexing-order-issues">
+<h2>Multidimensional Array Indexing Order Issues<a class="headerlink" href="#multidimensional-array-indexing-order-issues" title="Permalink to this headline">¶</a></h2>
+<p>What is the right way to index
+multi-dimensional arrays? Before you jump to conclusions about the one and
+true way to index multi-dimensional arrays, it pays to understand why this is
+a confusing issue. This section will try to explain in detail how numpy
+indexing works and why we adopt the convention we do for images, and when it
+may be appropriate to adopt other conventions.</p>
+<p>The first thing to understand is
+that there are two conflicting conventions for indexing 2-dimensional arrays.
+Matrix notation uses the first index to indicate which row is being selected and
+the second index to indicate which column is selected. This is opposite the
+geometrically oriented-convention for images where people generally think the
+first index represents x position (i.e., column) and the second represents y
+position (i.e., row). This alone is the source of much confusion;
+matrix-oriented users and image-oriented users expect two different things with
+regard to indexing.</p>
+<p>The second issue to understand is how indices correspond
+to the order the array is stored in memory. In Fortran the first index is the
+most rapidly varying index when moving through the elements of a two
+dimensional array as it is stored in memory. If you adopt the matrix
+convention for indexing, then this means the matrix is stored one column at a
+time (since the first index moves to the next row as it changes). Thus Fortran
+is considered a Column-major language. C has just the opposite convention. In
+C, the last index changes most rapidly as one moves through the array as
+stored in memory. Thus C is a Row-major language. The matrix is stored by
+rows. Note that in both cases it presumes that the matrix convention for
+indexing is being used, i.e., for both Fortran and C, the first index is the
+row. Note this convention implies that the indexing convention is invariant
+and that the data order changes to keep that so.</p>
+<p>But that’s not the only way
+to look at it. Suppose one has large two-dimensional arrays (images or
+matrices) stored in data files. Suppose the data are stored by rows rather than
+by columns. If we are to preserve our index convention (whether matrix or
+image) that means that depending on the language we use, we may be forced to
+reorder the data if it is read into memory to preserve our indexing
+convention. For example if we read row-ordered data into memory without
+reordering, it will match the matrix indexing convention for C, but not for
+Fortran. Conversely, it will match the image indexing convention for Fortran,
+but not for C. For C, if one is using data stored in row order, and one wants
+to preserve the image index convention, the data must be reordered when
+reading into memory.</p>
+<p>In the end, which you do for Fortran or C depends on
+which is more important, not reordering data or preserving the indexing
+convention. For large images, reordering data is potentially expensive, and
+often the indexing convention is inverted to avoid that.</p>
+<p>The situation with
+numpy makes this issue yet more complicated. The internal machinery of numpy
+arrays is flexible enough to accept any ordering of indices. One can simply
+reorder indices by manipulating the internal stride information for arrays
+without reordering the data at all. NumPy will know how to map the new index
+order to the data without moving the data.</p>
+<p>So if this is true, why not choose
+the index order that matches what you most expect? In particular, why not define
+row-ordered images to use the image convention? (This is sometimes referred
+to as the Fortran convention vs the C convention, thus the ‘C’ and ‘FORTRAN’
+order options for array ordering in numpy.) The drawback of doing this is
+potential performance penalties. It’s common to access the data sequentially,
+either implicitly in array operations or explicitly by looping over rows of an
+image. When that is done, then the data will be accessed in non-optimal order.
+As the first index is incremented, what is actually happening is that elements
+spaced far apart in memory are being sequentially accessed, with usually poor
+memory access speeds. For example, for a two dimensional image ‘im’ defined so
+that im[0, 10] represents the value at x=0, y=10. To be consistent with usual
+Python behavior then im[0] would represent a column at x=0. Yet that data
+would be spread over the whole array since the data are stored in row order.
+Despite the flexibility of numpy’s indexing, it can’t really paper over the fact
+basic operations are rendered inefficient because of data order or that getting
+contiguous subarrays is still awkward (e.g., im[:,0] for the first row, vs
+im[0]), thus one can’t use an idiom such as for row in im; for col in im does
+work, but doesn’t yield contiguous column data.</p>
+<p>As it turns out, numpy is
+smart enough when dealing with ufuncs to determine which index is the most
+rapidly varying one in memory and uses that for the innermost loop. Thus for
+ufuncs there is no large intrinsic advantage to either approach in most cases.
+On the other hand, use of .flat with an FORTRAN ordered array will lead to
+non-optimal memory access as adjacent elements in the flattened array (iterator,
+actually) are not contiguous in memory.</p>
+<p>Indeed, the fact is that Python
+indexing on lists and other sequences naturally leads to an outside-to inside
+ordering (the first index gets the largest grouping, the next the next largest,
+and the last gets the smallest element). Since image data are normally stored
+by rows, this corresponds to position within rows being the last item indexed.</p>
+<p>If you do want to use Fortran ordering realize that
+there are two approaches to consider: 1) accept that the first index is just not
+the most rapidly changing in memory and have all your I/O routines reorder
+your data when going from memory to disk or visa versa, or use numpy’s
+mechanism for mapping the first index to the most rapidly varying data. We
+recommend the former if possible. The disadvantage of the latter is that many
+of numpy’s functions will yield arrays without Fortran ordering unless you are
+careful to use the ‘order’ keyword. Doing this would be highly inconvenient.</p>
+<p>Otherwise we recommend simply learning to reverse the usual order of indices
+when accessing elements of an array. Granted, it goes against the grain, but
+it is more in line with Python semantics and the natural order of the data.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

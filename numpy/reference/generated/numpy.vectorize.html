@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>numpy.vectorize &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" >
+    <link rel="index" title="Index" href="../../genindex.html" >
+    <link rel="search" title="Search" href="../../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="up" title="Functional programming" href="../routines.functional.html" >
+    <link rel="next" title="numpy.vectorize.__call__" href="numpy.vectorize.__call__.html" >
+    <link rel="prev" title="numpy.apply_over_axes" href="numpy.apply_over_axes.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../../index.html">
+      <img border=0 alt="NumPy" src="../../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="../index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="../routines.html" >Routines</a></li>
+          <li class="active"><a href="../routines.functional.html" accesskey="U">Functional programming</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="numpy.vectorize.__call__.html" title="numpy.vectorize.__call__"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="numpy.apply_over_axes.html" title="numpy.apply_over_axes"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="numpy.apply_over_axes.html"
+                        title="previous chapter">numpy.apply_over_axes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="numpy.vectorize.__call__.html"
+                        title="next chapter">numpy.vectorize.__call__</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="numpy-vectorize">
+<h1>numpy.vectorize<a class="headerlink" href="#numpy-vectorize" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="numpy.vectorize">
+<em class="property">class </em><code class="sig-prename descclassname">numpy.</code><code class="sig-name descname">vectorize</code><span class="sig-paren">(</span><em class="sig-param">pyfunc</em>, <em class="sig-param">otypes=None</em>, <em class="sig-param">doc=None</em>, <em class="sig-param">excluded=None</em>, <em class="sig-param">cache=False</em>, <em class="sig-param">signature=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/__init__.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.vectorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generalized function class.</p>
+<p>Define a vectorized function which takes a nested sequence of objects or
+numpy arrays as inputs and returns a single numpy array or a tuple of numpy
+arrays. The vectorized function evaluates <em class="xref py py-obj">pyfunc</em> over successive tuples
+of the input arrays like the python map function, except it uses the
+broadcasting rules of numpy.</p>
+<p>The data type of the output of <em class="xref py py-obj">vectorized</em> is determined by calling
+the function with the first element of the input.  This can be avoided
+by specifying the <em class="xref py py-obj">otypes</em> argument.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>pyfunc</strong><span class="classifier">callable</span></dt><dd><p>A python function or method.</p>
+</dd>
+<dt><strong>otypes</strong><span class="classifier">str or list of dtypes, optional</span></dt><dd><p>The output data type. It must be specified as either a string of
+typecode characters or a list of data type specifiers. There should
+be one data type specifier for each output.</p>
+</dd>
+<dt><strong>doc</strong><span class="classifier">str, optional</span></dt><dd><p>The docstring for the function. If None, the docstring will be the
+<code class="docutils literal notranslate"><span class="pre">pyfunc.__doc__</span></code>.</p>
+</dd>
+<dt><strong>excluded</strong><span class="classifier">set, optional</span></dt><dd><p>Set of strings or integers representing the positional or keyword
+arguments for which the function will not be vectorized.  These will be
+passed directly to <em class="xref py py-obj">pyfunc</em> unmodified.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.7.0.</span></p>
+</div>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>If <em class="xref py py-obj">True</em>, then cache the first function call that determines the number
+of outputs if <em class="xref py py-obj">otypes</em> is not provided.</p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.7.0.</span></p>
+</div>
+</div></blockquote>
+</dd>
+<dt><strong>signature</strong><span class="classifier">string, optional</span></dt><dd><p>Generalized universal function signature, e.g., <code class="docutils literal notranslate"><span class="pre">(m,n),(n)-&gt;(m)</span></code> for
+vectorized matrix-vector multiplication. If provided, <code class="docutils literal notranslate"><span class="pre">pyfunc</span></code> will
+be called with (and expected to return) arrays with shapes given by the
+size of corresponding core dimensions. By default, <code class="docutils literal notranslate"><span class="pre">pyfunc</span></code> is
+assumed to take scalars as input and output.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.12.0.</span></p>
+</div>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>vectorized</strong><span class="classifier">callable</span></dt><dd><p>Vectorized function.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="numpy.frompyfunc.html#numpy.frompyfunc" title="numpy.frompyfunc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frompyfunc</span></code></a></dt><dd><p>Takes an arbitrary Python function and returns a ufunc</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The <a class="reference internal" href="#numpy.vectorize" title="numpy.vectorize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorize</span></code></a> function is provided primarily for convenience, not for
+performance. The implementation is essentially a for loop.</p>
+<p>If <em class="xref py py-obj">otypes</em> is not specified, then a call to the function with the
+first argument will be used to determine the number of outputs.  The
+results of this call will be cached if <em class="xref py py-obj">cache</em> is <em class="xref py py-obj">True</em> to prevent
+calling the function twice.  However, to implement the cache, the
+original function must be wrapped which will slow down subsequent
+calls, so only do this if your function is expensive.</p>
+<p>The new keyword argument interface and <em class="xref py py-obj">excluded</em> argument support
+further degrades performance.</p>
+<p class="rubric">References</p>
+<dl class="citation">
+<dt class="label" id="r5cc1f1f25381-1"><span class="brackets">R5cc1f1f25381-1</span></dt>
+<dd><p>NumPy Reference, section <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/c-api.generalized-ufuncs.html">Generalized Universal Function API</a>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">myfunc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="s2">&quot;Return a-b if a&gt;b, otherwise return a+b&quot;</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span>
+<span class="gp">... </span>    <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vfunc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">myfunc</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vfunc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([3, 4, 1, 2])</span>
+</pre></div>
+</div>
+<p>The docstring is taken from the input function to <a class="reference internal" href="#numpy.vectorize" title="numpy.vectorize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorize</span></code></a> unless it
+is specified:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vfunc</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">&#39;Return a-b if a&gt;b, otherwise return a+b&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vfunc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">myfunc</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s1">&#39;Vectorized `myfunc`&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vfunc</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">&#39;Vectorized `myfunc`&#39;</span>
+</pre></div>
+</div>
+<p>The output type is determined by evaluating the first element of the input,
+unless it is specified:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">vfunc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">&lt;class &#39;numpy.int64&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vfunc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">myfunc</span><span class="p">,</span> <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">vfunc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">&lt;class &#39;numpy.float64&#39;&gt;</span>
+</pre></div>
+</div>
+<p>The <em class="xref py py-obj">excluded</em> argument can be used to prevent vectorizing over certain
+arguments.  This can be useful for array-like arguments of a fixed length
+such as the coefficients for a polynomial as in <a class="reference internal" href="numpy.polyval.html#numpy.polyval" title="numpy.polyval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polyval</span></code></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">mypolyval</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">_p</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">res</span> <span class="o">=</span> <span class="n">_p</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">while</span> <span class="n">_p</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">_p</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">res</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpolyval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">mypolyval</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpolyval</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">array([3, 6])</span>
+</pre></div>
+</div>
+<p>Positional arguments may also be excluded by specifying their position:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vpolyval</span><span class="o">.</span><span class="n">excluded</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpolyval</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">array([3, 6])</span>
+</pre></div>
+</div>
+<p>The <em class="xref py py-obj">signature</em> argument allows for vectorizing functions that act on
+non-scalar arrays of fixed length. For example, you can use it for a
+vectorized calculation of Pearson correlation coefficient and its p-value:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pearsonr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">pearsonr</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">signature</span><span class="o">=</span><span class="s1">&#39;(n),(n)-&gt;(),()&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pearsonr</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="go">(array([ 1., -1.]), array([ 0.,  0.]))</span>
+</pre></div>
+</div>
+<p>Or for a vectorized convolution:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">convolve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="s1">&#39;(n),(m)-&gt;(k)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convolve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">array([[1., 2., 1., 0., 0., 0.],</span>
+<span class="go">       [0., 1., 2., 1., 0., 0.],</span>
+<span class="go">       [0., 0., 1., 2., 1., 0.],</span>
+<span class="go">       [0., 0., 0., 1., 2., 1.]])</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="numpy.vectorize.__call__.html#numpy.vectorize.__call__" title="numpy.vectorize.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(self, \*args, \*\*kwargs)</p></td>
+<td><p>Return arrays with the results of <em class="xref py py-obj">pyfunc</em> broadcast (vectorized) over <em class="xref py py-obj">args</em> and <em class="xref py py-obj">kwargs</em> not in <em class="xref py py-obj">excluded</em>.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

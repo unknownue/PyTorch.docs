@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Random Generator &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" >
+    <link rel="index" title="Index" href="../../genindex.html" >
+    <link rel="search" title="Search" href="../../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="up" title="Random sampling (numpy.random)" href="index.html" >
+    <link rel="next" title="numpy.random.Generator.bit_generator" href="generated/numpy.random.Generator.bit_generator.html" >
+    <link rel="prev" title="Random sampling (numpy.random)" href="index.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../../index.html">
+      <img border=0 alt="NumPy" src="../../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="../index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="../routines.html" >Routines</a></li>
+          <li class="active"><a href="index.html" accesskey="U">Random sampling (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.random</span></code>)</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="generated/numpy.random.Generator.bit_generator.html" title="numpy.random.Generator.bit_generator"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="index.html" title="Random sampling (numpy.random)"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Random Generator</a><ul>
+<li><a class="reference internal" href="#accessing-the-bitgenerator">Accessing the BitGenerator</a></li>
+<li><a class="reference internal" href="#simple-random-data">Simple random data</a></li>
+<li><a class="reference internal" href="#permutations">Permutations</a></li>
+<li><a class="reference internal" href="#distributions">Distributions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Random sampling (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.random</span></code>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="generated/numpy.random.Generator.bit_generator.html"
+                        title="next chapter">numpy.random.Generator.bit_generator</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="random-generator">
+<h1>Random Generator<a class="headerlink" href="#random-generator" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a> provides access to
+a wide range of distributions, and served as a replacement for
+<a class="reference internal" href="legacy.html#numpy.random.RandomState" title="numpy.random.RandomState"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomState</span></code></a>.  The main difference between
+the two is that <code class="docutils literal notranslate"><span class="pre">Generator</span></code> relies on an additional BitGenerator to
+manage state and generate the random bits, which are then transformed into
+random values from useful distributions. The default BitGenerator used by
+<code class="docutils literal notranslate"><span class="pre">Generator</span></code> is <a class="reference internal" href="bit_generators/pcg64.html#numpy.random.PCG64" title="numpy.random.PCG64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PCG64</span></code></a>.  The BitGenerator
+can be changed by passing an instantized BitGenerator to <code class="docutils literal notranslate"><span class="pre">Generator</span></code>.</p>
+<dl class="function">
+<dt id="numpy.random.default_rng">
+<code class="sig-prename descclassname">numpy.random.</code><code class="sig-name descname">default_rng</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#numpy.random.default_rng" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a new Generator with the default BitGenerator (PCG64).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>seed</strong><span class="classifier">{None, int, array_like[ints], SeedSequence, BitGenerator, Generator}, optional</span></dt><dd><p>A seed to initialize the <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a>. If None, then fresh,
+unpredictable entropy will be pulled from the OS. If an <code class="docutils literal notranslate"><span class="pre">int</span></code> or
+<code class="docutils literal notranslate"><span class="pre">array_like[ints]</span></code> is passed, then it will be passed to
+<a class="reference internal" href="bit_generators/generated/numpy.random.SeedSequence.html#numpy.random.SeedSequence" title="numpy.random.SeedSequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeedSequence</span></code></a> to derive the initial <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a> state. One may also
+pass in a`SeedSequence` instance
+Additionally, when passed a <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a>, it will be wrapped by
+<a class="reference internal" href="#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a>. If passed a <a class="reference internal" href="#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a>, it will be returned unaltered.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Generator</strong></dt><dd><p>The initialized generator object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is not a <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a> or a <a class="reference internal" href="#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a>, a new <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a>
+is instantiated. This function does not manage a default global instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="numpy.random.Generator">
+<em class="property">class </em><code class="sig-prename descclassname">numpy.random.</code><code class="sig-name descname">Generator</code><span class="sig-paren">(</span><em class="sig-param">bit_generator</em><span class="sig-paren">)</span><a class="headerlink" href="#numpy.random.Generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container for the BitGenerators.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Generator</span></code> exposes a number of methods for generating random
+numbers drawn from a variety of probability distributions. In addition to
+the distribution-specific arguments, each method takes a keyword argument
+<em class="xref py py-obj">size</em> that defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>. If <em class="xref py py-obj">size</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, then a single
+value is generated and returned. If <em class="xref py py-obj">size</em> is an integer, then a 1-D
+array filled with generated values is returned. If <em class="xref py py-obj">size</em> is a tuple,
+then an array with that shape is filled and returned.</p>
+<p>The function <a class="reference internal" href="#numpy.random.default_rng" title="numpy.random.default_rng"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code></a> will instantiate
+a <a class="reference internal" href="#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a> with numpy’s default <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a>.</p>
+<p><strong>No Compatibility Guarantee</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">Generator</span></code> does not provide a version compatibility guarantee. In
+particular, as better algorithms evolve the bit stream may change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bit_generator</strong><span class="classifier">BitGenerator</span></dt><dd><p>BitGenerator to use as the core generator.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#numpy.random.default_rng" title="numpy.random.default_rng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_rng</span></code></a></dt><dd><p>Recommended constructor for <a class="reference internal" href="#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The Python stdlib module <a class="reference internal" href="generated/numpy.random.random.html#numpy.random.random" title="numpy.random.random"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code></a> contains pseudo-random number generator
+with a number of methods that are similar to the ones available in
+<code class="docutils literal notranslate"><span class="pre">Generator</span></code>. It uses Mersenne Twister, and this bit generator can
+be accessed using <code class="docutils literal notranslate"><span class="pre">MT19937</span></code>. <code class="docutils literal notranslate"><span class="pre">Generator</span></code>, besides being
+NumPy-aware, has the advantage that it provides a much larger number
+of probability distributions to choose from.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">PCG64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rg</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rg</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
+<span class="go">-0.203  # random</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="accessing-the-bitgenerator">
+<h2>Accessing the BitGenerator<a class="headerlink" href="#accessing-the-bitgenerator" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.bit_generator.html#numpy.random.Generator.bit_generator" title="numpy.random.Generator.bit_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_generator</span></code></a></p></td>
+<td><p>Gets the bit generator instance used by the generator</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="simple-random-data">
+<h2>Simple random data<a class="headerlink" href="#simple-random-data" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.integers.html#numpy.random.Generator.integers" title="numpy.random.Generator.integers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integers</span></code></a>(low[, high, size, dtype, endpoint])</p></td>
+<td><p>Return random integers from <em class="xref py py-obj">low</em> (inclusive) to <em class="xref py py-obj">high</em> (exclusive), or if endpoint=True, <em class="xref py py-obj">low</em> (inclusive) to <em class="xref py py-obj">high</em> (inclusive).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.random.html#numpy.random.Generator.random" title="numpy.random.Generator.random"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code></a>([size, dtype, out])</p></td>
+<td><p>Return random floats in the half-open interval [0.0, 1.0).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.choice.html#numpy.random.Generator.choice" title="numpy.random.Generator.choice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">choice</span></code></a>()</p></td>
+<td><p>choice(a, size=None, replace=True, p=None, axis=0):</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.bytes.html#numpy.random.Generator.bytes" title="numpy.random.Generator.bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bytes</span></code></a>(length)</p></td>
+<td><p>Return random bytes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="permutations">
+<h2>Permutations<a class="headerlink" href="#permutations" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.shuffle.html#numpy.random.Generator.shuffle" title="numpy.random.Generator.shuffle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shuffle</span></code></a>(x[, axis])</p></td>
+<td><p>Modify a sequence in-place by shuffling its contents.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.permutation.html#numpy.random.Generator.permutation" title="numpy.random.Generator.permutation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permutation</span></code></a>(x[, axis])</p></td>
+<td><p>Randomly permute a sequence, or return a permuted range.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="distributions">
+<h2>Distributions<a class="headerlink" href="#distributions" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.beta.html#numpy.random.Generator.beta" title="numpy.random.Generator.beta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta</span></code></a>(a, b[, size])</p></td>
+<td><p>Draw samples from a Beta distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.binomial.html#numpy.random.Generator.binomial" title="numpy.random.Generator.binomial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binomial</span></code></a>(n, p[, size])</p></td>
+<td><p>Draw samples from a binomial distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.chisquare.html#numpy.random.Generator.chisquare" title="numpy.random.Generator.chisquare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chisquare</span></code></a>(df[, size])</p></td>
+<td><p>Draw samples from a chi-square distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.dirichlet.html#numpy.random.Generator.dirichlet" title="numpy.random.Generator.dirichlet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dirichlet</span></code></a>(alpha[, size])</p></td>
+<td><p>Draw samples from the Dirichlet distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.exponential.html#numpy.random.Generator.exponential" title="numpy.random.Generator.exponential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exponential</span></code></a>([scale, size])</p></td>
+<td><p>Draw samples from an exponential distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.f.html#numpy.random.Generator.f" title="numpy.random.Generator.f"><code class="xref py py-obj docutils literal notranslate"><span class="pre">f</span></code></a>(dfnum, dfden[, size])</p></td>
+<td><p>Draw samples from an F distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.gamma.html#numpy.random.Generator.gamma" title="numpy.random.Generator.gamma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gamma</span></code></a>(shape[, scale, size])</p></td>
+<td><p>Draw samples from a Gamma distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.geometric.html#numpy.random.Generator.geometric" title="numpy.random.Generator.geometric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometric</span></code></a>(p[, size])</p></td>
+<td><p>Draw samples from the geometric distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.gumbel.html#numpy.random.Generator.gumbel" title="numpy.random.Generator.gumbel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gumbel</span></code></a>([loc, scale, size])</p></td>
+<td><p>Draw samples from a Gumbel distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.hypergeometric.html#numpy.random.Generator.hypergeometric" title="numpy.random.Generator.hypergeometric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hypergeometric</span></code></a>(ngood, nbad, nsample[, size])</p></td>
+<td><p>Draw samples from a Hypergeometric distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.laplace.html#numpy.random.Generator.laplace" title="numpy.random.Generator.laplace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">laplace</span></code></a>([loc, scale, size])</p></td>
+<td><p>Draw samples from the Laplace or double exponential distribution with specified location (or mean) and scale (decay).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.logistic.html#numpy.random.Generator.logistic" title="numpy.random.Generator.logistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logistic</span></code></a>([loc, scale, size])</p></td>
+<td><p>Draw samples from a logistic distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.lognormal.html#numpy.random.Generator.lognormal" title="numpy.random.Generator.lognormal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lognormal</span></code></a>([mean, sigma, size])</p></td>
+<td><p>Draw samples from a log-normal distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.logseries.html#numpy.random.Generator.logseries" title="numpy.random.Generator.logseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logseries</span></code></a>(p[, size])</p></td>
+<td><p>Draw samples from a logarithmic series distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.multinomial.html#numpy.random.Generator.multinomial" title="numpy.random.Generator.multinomial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multinomial</span></code></a>(n, pvals[, size])</p></td>
+<td><p>Draw samples from a multinomial distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.multivariate_hypergeometric.html#numpy.random.Generator.multivariate_hypergeometric" title="numpy.random.Generator.multivariate_hypergeometric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multivariate_hypergeometric</span></code></a>(colors, nsample)</p></td>
+<td><p>Generate variates from a multivariate hypergeometric distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.multivariate_normal.html#numpy.random.Generator.multivariate_normal" title="numpy.random.Generator.multivariate_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multivariate_normal</span></code></a>(mean, cov[, size, …])</p></td>
+<td><p>Draw random samples from a multivariate normal distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.negative_binomial.html#numpy.random.Generator.negative_binomial" title="numpy.random.Generator.negative_binomial"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negative_binomial</span></code></a>(n, p[, size])</p></td>
+<td><p>Draw samples from a negative binomial distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.noncentral_chisquare.html#numpy.random.Generator.noncentral_chisquare" title="numpy.random.Generator.noncentral_chisquare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noncentral_chisquare</span></code></a>(df, nonc[, size])</p></td>
+<td><p>Draw samples from a noncentral chi-square distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.noncentral_f.html#numpy.random.Generator.noncentral_f" title="numpy.random.Generator.noncentral_f"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noncentral_f</span></code></a>(dfnum, dfden, nonc[, size])</p></td>
+<td><p>Draw samples from the noncentral F distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal</span></code></a>([loc, scale, size])</p></td>
+<td><p>Draw random samples from a normal (Gaussian) distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.pareto.html#numpy.random.Generator.pareto" title="numpy.random.Generator.pareto"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pareto</span></code></a>(a[, size])</p></td>
+<td><p>Draw samples from a Pareto II or Lomax distribution with specified shape.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.poisson.html#numpy.random.Generator.poisson" title="numpy.random.Generator.poisson"><code class="xref py py-obj docutils literal notranslate"><span class="pre">poisson</span></code></a>([lam, size])</p></td>
+<td><p>Draw samples from a Poisson distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.power.html#numpy.random.Generator.power" title="numpy.random.Generator.power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power</span></code></a>(a[, size])</p></td>
+<td><p>Draws samples in [0, 1] from a power distribution with positive exponent a - 1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.rayleigh.html#numpy.random.Generator.rayleigh" title="numpy.random.Generator.rayleigh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rayleigh</span></code></a>([scale, size])</p></td>
+<td><p>Draw samples from a Rayleigh distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.standard_cauchy.html#numpy.random.Generator.standard_cauchy" title="numpy.random.Generator.standard_cauchy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_cauchy</span></code></a>([size])</p></td>
+<td><p>Draw samples from a standard Cauchy distribution with mode = 0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.standard_exponential.html#numpy.random.Generator.standard_exponential" title="numpy.random.Generator.standard_exponential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_exponential</span></code></a>([size, dtype, method, out])</p></td>
+<td><p>Draw samples from the standard exponential distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.standard_gamma.html#numpy.random.Generator.standard_gamma" title="numpy.random.Generator.standard_gamma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_gamma</span></code></a>(shape[, size, dtype, out])</p></td>
+<td><p>Draw samples from a standard Gamma distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.standard_normal.html#numpy.random.Generator.standard_normal" title="numpy.random.Generator.standard_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_normal</span></code></a>([size, dtype, out])</p></td>
+<td><p>Draw samples from a standard Normal distribution (mean=0, stdev=1).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.standard_t.html#numpy.random.Generator.standard_t" title="numpy.random.Generator.standard_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standard_t</span></code></a>(df[, size])</p></td>
+<td><p>Draw samples from a standard Student’s t distribution with <em class="xref py py-obj">df</em> degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.triangular.html#numpy.random.Generator.triangular" title="numpy.random.Generator.triangular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triangular</span></code></a>(left, mode, right[, size])</p></td>
+<td><p>Draw samples from the triangular distribution over the interval <code class="docutils literal notranslate"><span class="pre">[left,</span> <span class="pre">right]</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.uniform.html#numpy.random.Generator.uniform" title="numpy.random.Generator.uniform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uniform</span></code></a>([low, high, size])</p></td>
+<td><p>Draw samples from a uniform distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.vonmises.html#numpy.random.Generator.vonmises" title="numpy.random.Generator.vonmises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vonmises</span></code></a>(mu, kappa[, size])</p></td>
+<td><p>Draw samples from a von Mises distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.wald.html#numpy.random.Generator.wald" title="numpy.random.Generator.wald"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wald</span></code></a>(mean, scale[, size])</p></td>
+<td><p>Draw samples from a Wald, or inverse Gaussian, distribution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.random.Generator.weibull.html#numpy.random.Generator.weibull" title="numpy.random.Generator.weibull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weibull</span></code></a>(a[, size])</p></td>
+<td><p>Draw samples from a Weibull distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.random.Generator.zipf.html#numpy.random.Generator.zipf" title="numpy.random.Generator.zipf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zipf</span></code></a>(a[, size])</p></td>
+<td><p>Draw samples from a Zipf distribution.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

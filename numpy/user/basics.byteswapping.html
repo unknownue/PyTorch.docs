@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Byte-swapping &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="NumPy basics" href="basics.html" >
+    <link rel="next" title="Structured arrays" href="basics.rec.html" >
+    <link rel="prev" title="Broadcasting" href="basics.broadcasting.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" >NumPy User Guide</a></li>
+          <li class="active"><a href="basics.html" accesskey="U">NumPy basics</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="basics.rec.html" title="Structured arrays"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="basics.broadcasting.html" title="Broadcasting"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Byte-swapping</a><ul>
+<li><a class="reference internal" href="#introduction-to-byte-ordering-and-ndarrays">Introduction to byte ordering and ndarrays</a></li>
+<li><a class="reference internal" href="#changing-byte-ordering">Changing byte ordering</a><ul>
+<li><a class="reference internal" href="#data-and-dtype-endianness-don-t-match-change-dtype-to-match-data">Data and dtype endianness don’t match, change dtype to match data</a></li>
+<li><a class="reference internal" href="#data-and-type-endianness-don-t-match-change-data-to-match-dtype">Data and type endianness don’t match, change data to match dtype</a></li>
+<li><a class="reference internal" href="#data-and-dtype-endianness-match-swap-data-and-dtype">Data and dtype endianness match, swap data and dtype</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basics.broadcasting.html"
+                        title="previous chapter">Broadcasting</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basics.rec.html"
+                        title="next chapter">Structured arrays</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="module-numpy.doc.byteswapping">
+<span id="byte-swapping"></span><h1>Byte-swapping<a class="headerlink" href="#module-numpy.doc.byteswapping" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction-to-byte-ordering-and-ndarrays">
+<h2>Introduction to byte ordering and ndarrays<a class="headerlink" href="#introduction-to-byte-ordering-and-ndarrays" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ndarray</span></code> is an object that provide a python array interface to data
+in memory.</p>
+<p>It often happens that the memory that you want to view with an array is
+not of the same byte ordering as the computer on which you are running
+Python.</p>
+<p>For example, I might be working on a computer with a little-endian CPU -
+such as an Intel Pentium, but I have loaded some data from a file
+written by a computer that is big-endian.  Let’s say I have loaded 4
+bytes from a file written by a Sun (big-endian) computer.  I know that
+these 4 bytes represent two 16-bit integers.  On a big-endian machine, a
+two-byte integer is stored with the Most Significant Byte (MSB) first,
+and then the Least Significant Byte (LSB). Thus the bytes are, in memory order:</p>
+<ol class="arabic simple">
+<li><p>MSB integer 1</p></li>
+<li><p>LSB integer 1</p></li>
+<li><p>MSB integer 2</p></li>
+<li><p>LSB integer 2</p></li>
+</ol>
+<p>Let’s say the two integers were in fact 1 and 770.  Because 770 = 256 *
+3 + 2, the 4 bytes in memory would contain respectively: 0, 1, 3, 2.
+The bytes I have loaded from the file would have these contents:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">big_end_buffer</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">big_end_buffer</span>
+<span class="go">bytearray(b&#39;\x00\x01\x03\x02&#39;)</span>
+</pre></div>
+</div>
+<p>We might want to use an <code class="docutils literal notranslate"><span class="pre">ndarray</span></code> to access these integers.  In that
+case, we can create an array around this memory, and tell numpy that
+there are two integers, and that they are 16 bit and big-endian:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">big_end_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&gt;i2&#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">big_end_buffer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">big_end_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">big_end_arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">770</span>
+</pre></div>
+</div>
+<p>Note the array <code class="docutils literal notranslate"><span class="pre">dtype</span></code> above of <code class="docutils literal notranslate"><span class="pre">&gt;i2</span></code>.  The <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> means ‘big-endian’
+(<code class="docutils literal notranslate"><span class="pre">&lt;</span></code> is little-endian) and <code class="docutils literal notranslate"><span class="pre">i2</span></code> means ‘signed 2-byte integer’.  For
+example, if our data represented a single unsigned 4-byte little-endian
+integer, the dtype string would be <code class="docutils literal notranslate"><span class="pre">&lt;u4</span></code>.</p>
+<p>In fact, why don’t we try that?</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">little_end_u4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;u4&#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">big_end_buffer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">little_end_u4</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">256</span><span class="o">**</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">256</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">256</span><span class="o">**</span><span class="mi">3</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Returning to our <code class="docutils literal notranslate"><span class="pre">big_end_arr</span></code> - in this case our underlying data is
+big-endian (data endianness) and we’ve set the dtype to match (the dtype
+is also big-endian).  However, sometimes you need to flip these around.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Scalars currently do not include byte order information, so extracting
+a scalar from an array will return an integer in native byte order.
+Hence:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">big_end_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">byteorder</span> <span class="o">==</span> <span class="n">little_end_u4</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">byteorder</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="changing-byte-ordering">
+<h2>Changing byte ordering<a class="headerlink" href="#changing-byte-ordering" title="Permalink to this headline">¶</a></h2>
+<p>As you can imagine from the introduction, there are two ways you can
+affect the relationship between the byte ordering of the array and the
+underlying memory it is looking at:</p>
+<ul class="simple">
+<li><p>Change the byte-ordering information in the array dtype so that it
+interprets the underlying data as being in a different byte order.
+This is the role of <code class="docutils literal notranslate"><span class="pre">arr.newbyteorder()</span></code></p></li>
+<li><p>Change the byte-ordering of the underlying data, leaving the dtype
+interpretation as it was.  This is what <code class="docutils literal notranslate"><span class="pre">arr.byteswap()</span></code> does.</p></li>
+</ul>
+<p>The common situations in which you need to change byte ordering are:</p>
+<ol class="arabic simple">
+<li><p>Your data and dtype endianness don’t match, and you want to change
+the dtype so that it matches the data.</p></li>
+<li><p>Your data and dtype endianness don’t match, and you want to swap the
+data so that they match the dtype</p></li>
+<li><p>Your data and dtype endianness match, but you want the data swapped
+and the dtype to reflect this</p></li>
+</ol>
+<div class="section" id="data-and-dtype-endianness-don-t-match-change-dtype-to-match-data">
+<h3>Data and dtype endianness don’t match, change dtype to match data<a class="headerlink" href="#data-and-dtype-endianness-don-t-match-change-dtype-to-match-data" title="Permalink to this headline">¶</a></h3>
+<p>We make something where they don’t match:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wrong_end_dtype_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;i2&#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">big_end_buffer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wrong_end_dtype_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">256</span>
+</pre></div>
+</div>
+<p>The obvious fix for this situation is to change the dtype so it gives
+the correct endianness:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_end_dtype_arr</span> <span class="o">=</span> <span class="n">wrong_end_dtype_arr</span><span class="o">.</span><span class="n">newbyteorder</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_end_dtype_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Note the array has not changed in memory:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_end_dtype_arr</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span> <span class="o">==</span> <span class="n">big_end_buffer</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="data-and-type-endianness-don-t-match-change-data-to-match-dtype">
+<h3>Data and type endianness don’t match, change data to match dtype<a class="headerlink" href="#data-and-type-endianness-don-t-match-change-data-to-match-dtype" title="Permalink to this headline">¶</a></h3>
+<p>You might want to do this if you need the data in memory to be a certain
+ordering.  For example you might be writing the memory out to a file
+that needs a certain byte ordering.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_end_mem_arr</span> <span class="o">=</span> <span class="n">wrong_end_dtype_arr</span><span class="o">.</span><span class="n">byteswap</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_end_mem_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Now the array <em>has</em> changed in memory:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_end_mem_arr</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span> <span class="o">==</span> <span class="n">big_end_buffer</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="data-and-dtype-endianness-match-swap-data-and-dtype">
+<h3>Data and dtype endianness match, swap data and dtype<a class="headerlink" href="#data-and-dtype-endianness-match-swap-data-and-dtype" title="Permalink to this headline">¶</a></h3>
+<p>You may have a correctly specified array dtype, but you need the array
+to have the opposite byte order in memory, and you want the dtype to
+match so the array values make sense.  In this case you just do both of
+the previous operations:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">swapped_end_arr</span> <span class="o">=</span> <span class="n">big_end_arr</span><span class="o">.</span><span class="n">byteswap</span><span class="p">()</span><span class="o">.</span><span class="n">newbyteorder</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swapped_end_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swapped_end_arr</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span> <span class="o">==</span> <span class="n">big_end_buffer</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>An easier way of casting the data to a specific dtype and byte ordering
+can be achieved with the ndarray astype method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">swapped_end_arr</span> <span class="o">=</span> <span class="n">big_end_arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;&lt;i2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swapped_end_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swapped_end_arr</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span> <span class="o">==</span> <span class="n">big_end_buffer</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

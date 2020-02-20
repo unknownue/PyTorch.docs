@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>numpy.einsum &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" >
+    <link rel="index" title="Index" href="../../genindex.html" >
+    <link rel="search" title="Search" href="../../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="up" title="Linear algebra (numpy.linalg)" href="../routines.linalg.html" >
+    <link rel="next" title="numpy.einsum_path" href="numpy.einsum_path.html" >
+    <link rel="prev" title="numpy.tensordot" href="numpy.tensordot.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../../index.html">
+      <img border=0 alt="NumPy" src="../../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="../index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="../routines.html" >Routines</a></li>
+          <li class="active"><a href="../routines.linalg.html" accesskey="U">Linear algebra (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.linalg</span></code>)</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="numpy.einsum_path.html" title="numpy.einsum_path"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="numpy.tensordot.html" title="numpy.tensordot"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="numpy.tensordot.html"
+                        title="previous chapter">numpy.tensordot</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="numpy.einsum_path.html"
+                        title="next chapter">numpy.einsum_path</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="numpy-einsum">
+<h1>numpy.einsum<a class="headerlink" href="#numpy-einsum" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="numpy.einsum">
+<code class="sig-prename descclassname">numpy.</code><code class="sig-name descname">einsum</code><span class="sig-paren">(</span><em class="sig-param">subscripts</em>, <em class="sig-param">*operands</em>, <em class="sig-param">out=None</em>, <em class="sig-param">dtype=None</em>, <em class="sig-param">order='K'</em>, <em class="sig-param">casting='safe'</em>, <em class="sig-param">optimize=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/core/einsumfunc.py#L1004-L1432"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.einsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the Einstein summation convention on the operands.</p>
+<p>Using the Einstein summation convention, many common multi-dimensional,
+linear algebraic array operations can be represented in a simple fashion.
+In <em>implicit</em> mode <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> computes these values.</p>
+<p>In <em>explicit</em> mode, <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> provides further flexibility to compute
+other array operations that might not be considered classical Einstein
+summation operations, by disabling, or forcing summation over specified
+subscript labels.</p>
+<p>See the notes and examples for clarification.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>subscripts</strong><span class="classifier">str</span></dt><dd><p>Specifies the subscripts for summation as comma separated list of
+subscript labels. An implicit (classical Einstein summation)
+calculation is performed unless the explicit indicator ‘-&gt;’ is
+included as well as subscript labels of the precise output form.</p>
+</dd>
+<dt><strong>operands</strong><span class="classifier">list of array_like</span></dt><dd><p>These are the arrays for the operation.</p>
+</dd>
+<dt><strong>out</strong><span class="classifier">ndarray, optional</span></dt><dd><p>If provided, the calculation is done into this array.</p>
+</dd>
+<dt><strong>dtype</strong><span class="classifier">{data-type, None}, optional</span></dt><dd><p>If provided, forces the calculation to use the data type specified.
+Note that you may have to also give a more liberal <em class="xref py py-obj">casting</em>
+parameter to allow the conversions. Default is None.</p>
+</dd>
+<dt><strong>order</strong><span class="classifier">{‘C’, ‘F’, ‘A’, ‘K’}, optional</span></dt><dd><p>Controls the memory layout of the output. ‘C’ means it should
+be C contiguous. ‘F’ means it should be Fortran contiguous,
+‘A’ means it should be ‘F’ if the inputs are all ‘F’, ‘C’ otherwise.
+‘K’ means it should be as close to the layout as the inputs as
+is possible, including arbitrarily permuted axes.
+Default is ‘K’.</p>
+</dd>
+<dt><strong>casting</strong><span class="classifier">{‘no’, ‘equiv’, ‘safe’, ‘same_kind’, ‘unsafe’}, optional</span></dt><dd><p>Controls what kind of data casting may occur.  Setting this to
+‘unsafe’ is not recommended, as it can adversely affect accumulations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘no’ means the data types should not be cast at all.</p></li>
+<li><p>‘equiv’ means only byte-order changes are allowed.</p></li>
+<li><p>‘safe’ means only casts which can preserve values are allowed.</p></li>
+<li><p>‘same_kind’ means only safe casts or casts within a kind,
+like float64 to float32, are allowed.</p></li>
+<li><p>‘unsafe’ means any data conversions may be done.</p></li>
+</ul>
+</div></blockquote>
+<p>Default is ‘safe’.</p>
+</dd>
+<dt><strong>optimize</strong><span class="classifier">{False, True, ‘greedy’, ‘optimal’}, optional</span></dt><dd><p>Controls if intermediate optimization should occur. No optimization
+will occur if False and True will default to the ‘greedy’ algorithm.
+Also accepts an explicit contraction list from the <code class="docutils literal notranslate"><span class="pre">np.einsum_path</span></code>
+function. See <code class="docutils literal notranslate"><span class="pre">np.einsum_path</span></code> for more details. Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>output</strong><span class="classifier">ndarray</span></dt><dd><p>The calculation based on the Einstein summation convention.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="numpy.einsum_path.html#numpy.einsum_path" title="numpy.einsum_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum_path</span></code></a>, <a class="reference internal" href="numpy.dot.html#numpy.dot" title="numpy.dot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dot</span></code></a>, <a class="reference internal" href="numpy.inner.html#numpy.inner" title="numpy.inner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inner</span></code></a>, <a class="reference internal" href="numpy.outer.html#numpy.outer" title="numpy.outer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">outer</span></code></a>, <a class="reference internal" href="numpy.tensordot.html#numpy.tensordot" title="numpy.tensordot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tensordot</span></code></a>, <a class="reference internal" href="numpy.linalg.multi_dot.html#numpy.linalg.multi_dot" title="numpy.linalg.multi_dot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linalg.multi_dot</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.0.</span></p>
+</div>
+<p>The Einstein summation convention can be used to compute
+many multi-dimensional, linear algebraic array operations. <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a>
+provides a succinct way of representing these.</p>
+<p>A non-exhaustive list of these operations,
+which can be computed by <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a>, is shown below along with examples:</p>
+<ul class="simple">
+<li><p>Trace of an array, <a class="reference internal" href="numpy.trace.html#numpy.trace" title="numpy.trace"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.trace</span></code></a>.</p></li>
+<li><p>Return a diagonal, <a class="reference internal" href="numpy.diag.html#numpy.diag" title="numpy.diag"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.diag</span></code></a>.</p></li>
+<li><p>Array axis summations, <a class="reference internal" href="numpy.sum.html#numpy.sum" title="numpy.sum"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.sum</span></code></a>.</p></li>
+<li><p>Transpositions and permutations, <a class="reference internal" href="numpy.transpose.html#numpy.transpose" title="numpy.transpose"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.transpose</span></code></a>.</p></li>
+<li><p>Matrix multiplication and dot product, <a class="reference internal" href="numpy.matmul.html#numpy.matmul" title="numpy.matmul"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.matmul</span></code></a> <a class="reference internal" href="numpy.dot.html#numpy.dot" title="numpy.dot"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.dot</span></code></a>.</p></li>
+<li><p>Vector inner and outer products, <a class="reference internal" href="numpy.inner.html#numpy.inner" title="numpy.inner"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.inner</span></code></a> <a class="reference internal" href="numpy.outer.html#numpy.outer" title="numpy.outer"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.outer</span></code></a>.</p></li>
+<li><p>Broadcasting, element-wise and scalar multiplication, <a class="reference internal" href="numpy.multiply.html#numpy.multiply" title="numpy.multiply"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.multiply</span></code></a>.</p></li>
+<li><p>Tensor contractions, <a class="reference internal" href="numpy.tensordot.html#numpy.tensordot" title="numpy.tensordot"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.tensordot</span></code></a>.</p></li>
+<li><p>Chained array operations, in efficient calculation order, <a class="reference internal" href="numpy.einsum_path.html#numpy.einsum_path" title="numpy.einsum_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.einsum_path</span></code></a>.</p></li>
+</ul>
+<p>The subscripts string is a comma-separated list of subscript labels,
+where each label refers to a dimension of the corresponding operand.
+Whenever a label is repeated it is summed, so <code class="docutils literal notranslate"><span class="pre">np.einsum('i,i',</span> <span class="pre">a,</span> <span class="pre">b)</span></code>
+is equivalent to <a class="reference internal" href="numpy.inner.html#numpy.inner" title="numpy.inner"><code class="xref py py-func docutils literal notranslate"><span class="pre">np.inner(a,b)</span></code></a>. If a label
+appears only once, it is not summed, so <code class="docutils literal notranslate"><span class="pre">np.einsum('i',</span> <span class="pre">a)</span></code> produces a
+view of <code class="docutils literal notranslate"><span class="pre">a</span></code> with no changes. A further example <code class="docutils literal notranslate"><span class="pre">np.einsum('ij,jk',</span> <span class="pre">a,</span> <span class="pre">b)</span></code>
+describes traditional matrix multiplication and is equivalent to
+<a class="reference internal" href="numpy.matmul.html#numpy.matmul" title="numpy.matmul"><code class="xref py py-func docutils literal notranslate"><span class="pre">np.matmul(a,b)</span></code></a>. Repeated subscript labels in one
+operand take the diagonal. For example, <code class="docutils literal notranslate"><span class="pre">np.einsum('ii',</span> <span class="pre">a)</span></code> is equivalent
+to <a class="reference internal" href="numpy.trace.html#numpy.trace" title="numpy.trace"><code class="xref py py-func docutils literal notranslate"><span class="pre">np.trace(a)</span></code></a>.</p>
+<p>In <em>implicit mode</em>, the chosen subscripts are important
+since the axes of the output are reordered alphabetically.  This
+means that <code class="docutils literal notranslate"><span class="pre">np.einsum('ij',</span> <span class="pre">a)</span></code> doesn’t affect a 2D array, while
+<code class="docutils literal notranslate"><span class="pre">np.einsum('ji',</span> <span class="pre">a)</span></code> takes its transpose. Additionally,
+<code class="docutils literal notranslate"><span class="pre">np.einsum('ij,jk',</span> <span class="pre">a,</span> <span class="pre">b)</span></code> returns a matrix multiplication, while,
+<code class="docutils literal notranslate"><span class="pre">np.einsum('ij,jh',</span> <span class="pre">a,</span> <span class="pre">b)</span></code> returns the transpose of the
+multiplication since subscript ‘h’ precedes subscript ‘i’.</p>
+<p>In <em>explicit mode</em> the output can be directly controlled by
+specifying output subscript labels.  This requires the
+identifier ‘-&gt;’ as well as the list of output subscript labels.
+This feature increases the flexibility of the function since
+summing can be disabled or forced when required. The call
+<code class="docutils literal notranslate"><span class="pre">np.einsum('i-&gt;',</span> <span class="pre">a)</span></code> is like <a class="reference internal" href="numpy.sum.html#numpy.sum" title="numpy.sum"><code class="xref py py-func docutils literal notranslate"><span class="pre">np.sum(a,</span> <span class="pre">axis=-1)</span></code></a>,
+and <code class="docutils literal notranslate"><span class="pre">np.einsum('ii-&gt;i',</span> <span class="pre">a)</span></code> is like <a class="reference internal" href="numpy.diag.html#numpy.diag" title="numpy.diag"><code class="xref py py-func docutils literal notranslate"><span class="pre">np.diag(a)</span></code></a>.
+The difference is that <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> does not allow broadcasting by default.
+Additionally <code class="docutils literal notranslate"><span class="pre">np.einsum('ij,jh-&gt;ih',</span> <span class="pre">a,</span> <span class="pre">b)</span></code> directly specifies the
+order of the output subscript labels and therefore returns matrix
+multiplication, unlike the example above in implicit mode.</p>
+<p>To enable and control broadcasting, use an ellipsis.  Default
+NumPy-style broadcasting is done by adding an ellipsis
+to the left of each term, like <code class="docutils literal notranslate"><span class="pre">np.einsum('...ii-&gt;...i',</span> <span class="pre">a)</span></code>.
+To take the trace along the first and last axes,
+you can do <code class="docutils literal notranslate"><span class="pre">np.einsum('i...i',</span> <span class="pre">a)</span></code>, or to do a matrix-matrix
+product with the left-most indices instead of rightmost, one can do
+<code class="docutils literal notranslate"><span class="pre">np.einsum('ij...,jk...-&gt;ik...',</span> <span class="pre">a,</span> <span class="pre">b)</span></code>.</p>
+<p>When there is only one operand, no axes are summed, and no output
+parameter is provided, a view into the operand is returned instead
+of a new array.  Thus, taking the diagonal as <code class="docutils literal notranslate"><span class="pre">np.einsum('ii-&gt;i',</span> <span class="pre">a)</span></code>
+produces a view (changed in version 1.10.0).</p>
+<p><a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> also provides an alternative way to provide the subscripts
+and operands as <code class="docutils literal notranslate"><span class="pre">einsum(op0,</span> <span class="pre">sublist0,</span> <span class="pre">op1,</span> <span class="pre">sublist1,</span> <span class="pre">...,</span> <span class="pre">[sublistout])</span></code>.
+If the output shape is not provided in this format <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> will be
+calculated in implicit mode, otherwise it will be performed explicitly.
+The examples below have corresponding <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> calls with the two
+parameter methods.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.10.0.</span></p>
+</div>
+<p>Views returned from einsum are now writeable whenever the input array
+is writeable. For example, <code class="docutils literal notranslate"><span class="pre">np.einsum('ijk...-&gt;kji...',</span> <span class="pre">a)</span></code> will now
+have the same effect as <a class="reference internal" href="numpy.swapaxes.html#numpy.swapaxes" title="numpy.swapaxes"><code class="xref py py-func docutils literal notranslate"><span class="pre">np.swapaxes(a,</span> <span class="pre">0,</span> <span class="pre">2)</span></code></a>
+and <code class="docutils literal notranslate"><span class="pre">np.einsum('ii-&gt;i',</span> <span class="pre">a)</span></code> will return a writeable view of the diagonal
+of a 2D array.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.12.0.</span></p>
+</div>
+<p>Added the <code class="docutils literal notranslate"><span class="pre">optimize</span></code> argument which will optimize the contraction order
+of an einsum expression. For a contraction with three or more operands this
+can greatly increase the computational efficiency at the cost of a larger
+memory footprint during computation.</p>
+<p>Typically a ‘greedy’ algorithm is applied which empirical tests have shown
+returns the optimal path in the majority of cases. In some cases ‘optimal’
+will return the superlative path through a more expensive, exhaustive search.
+For iterative calculations it may be advisable to calculate the optimal path
+once and reuse that path by supplying it as an argument. An example is given
+below.</p>
+<p>See <a class="reference internal" href="numpy.einsum_path.html#numpy.einsum_path" title="numpy.einsum_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.einsum_path</span></code></a> for more details.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Trace of a matrix:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ii&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+<span class="go">60</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">60</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">60</span>
+</pre></div>
+</div>
+<p>Extract the diagonal (requires explicit form):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ii-&gt;i&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+<span class="go">array([ 0,  6, 12, 18, 24])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">array([ 0,  6, 12, 18, 24])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([ 0,  6, 12, 18, 24])</span>
+</pre></div>
+</div>
+<p>Sum over an axis (requires explicit form):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij-&gt;i&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+<span class="go">array([ 10,  35,  60,  85, 110])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">array([ 10,  35,  60,  85, 110])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([ 10,  35,  60,  85, 110])</span>
+</pre></div>
+</div>
+<p>For higher dimensional arrays summing a single axis can be done with ellipsis:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...j-&gt;...&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+<span class="go">array([ 10,  35,  60,  85, 110])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="bp">Ellipsis</span><span class="p">])</span>
+<span class="go">array([ 10,  35,  60,  85, 110])</span>
+</pre></div>
+</div>
+<p>Compute a matrix transpose, or reorder any number of axes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ji&#39;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="go">array([[0, 3],</span>
+<span class="go">       [1, 4],</span>
+<span class="go">       [2, 5]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij-&gt;ji&#39;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="go">array([[0, 3],</span>
+<span class="go">       [1, 4],</span>
+<span class="go">       [2, 5]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">array([[0, 3],</span>
+<span class="go">       [1, 4],</span>
+<span class="go">       [2, 5]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="go">array([[0, 3],</span>
+<span class="go">       [1, 4],</span>
+<span class="go">       [2, 5]])</span>
+</pre></div>
+</div>
+<p>Vector inner products:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;i,i&#39;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">30</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">30</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="go">30</span>
+</pre></div>
+</div>
+<p>Matrix vector multiplication:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,j&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([ 30,  80, 130, 180, 230])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">array([ 30,  80, 130, 180, 230])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([ 30,  80, 130, 180, 230])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...j,j&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([ 30,  80, 130, 180, 230])</span>
+</pre></div>
+</div>
+<p>Broadcasting and scalar multiplication:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;..., ...&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="go">array([[ 0,  3,  6],</span>
+<span class="go">       [ 9, 12, 15]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;,ij&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="go">array([[ 0,  3,  6],</span>
+<span class="go">       [ 9, 12, 15]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="bp">Ellipsis</span><span class="p">],</span> <span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="bp">Ellipsis</span><span class="p">])</span>
+<span class="go">array([[ 0,  3,  6],</span>
+<span class="go">       [ 9, 12, 15]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="go">array([[ 0,  3,  6],</span>
+<span class="go">       [ 9, 12, 15]])</span>
+</pre></div>
+</div>
+<p>Vector outer product:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;i,j&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([[0, 1, 2, 3, 4],</span>
+<span class="go">       [0, 2, 4, 6, 8]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">array([[0, 1, 2, 3, 4],</span>
+<span class="go">       [0, 2, 4, 6, 8]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([[0, 1, 2, 3, 4],</span>
+<span class="go">       [0, 2, 4, 6, 8]])</span>
+</pre></div>
+</div>
+<p>Tensor contraction:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">60.</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">24.</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,jil-&gt;kl&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([[4400., 4730.],</span>
+<span class="go">       [4532., 4874.],</span>
+<span class="go">       [4664., 5018.],</span>
+<span class="go">       [4796., 5162.],</span>
+<span class="go">       [4928., 5306.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">array([[4400., 4730.],</span>
+<span class="go">       [4532., 4874.],</span>
+<span class="go">       [4664., 5018.],</span>
+<span class="go">       [4796., 5162.],</span>
+<span class="go">       [4928., 5306.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
+<span class="go">array([[4400., 4730.],</span>
+<span class="go">       [4532., 4874.],</span>
+<span class="go">       [4664., 5018.],</span>
+<span class="go">       [4796., 5162.],</span>
+<span class="go">       [4928., 5306.]])</span>
+</pre></div>
+</div>
+<p>Writeable returned arrays (since version 1.10.0):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ii-&gt;i&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">)[:]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[1., 0., 0.],</span>
+<span class="go">       [0., 1., 0.],</span>
+<span class="go">       [0., 0., 1.]])</span>
+</pre></div>
+</div>
+<p>Example of ellipsis use:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ki,jk-&gt;ij&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([[10, 28, 46, 64],</span>
+<span class="go">       [13, 40, 67, 94]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ki,...k-&gt;i...&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([[10, 28, 46, 64],</span>
+<span class="go">       [13, 40, 67, 94]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;k...,jk&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="go">array([[10, 28, 46, 64],</span>
+<span class="go">       [13, 40, 67, 94]])</span>
+</pre></div>
+</div>
+<p>Chained array operations. For more complicated contractions, speed ups
+might be achieved by repeatedly computing a ‘greedy’ path or pre-computing the
+‘optimal’ path and repeatedly applying it, using an
+<a class="reference internal" href="numpy.einsum_path.html#numpy.einsum_path" title="numpy.einsum_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum_path</span></code></a> insertion (since version 1.12.0). Performance improvements can be
+particularly significant with larger arrays:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Basic <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a>: ~1520ms  (benchmarked on 3.1GHz Intel i5.)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,ilm,njm,nlk,abc-&gt;&#39;</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sub-optimal <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> (due to repeated path calculation time): ~330ms</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,ilm,njm,nlk,abc-&gt;&#39;</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span> <span class="n">optimize</span><span class="o">=</span><span class="s1">&#39;optimal&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Greedy <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> (faster optimal path approximation): ~160ms</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,ilm,njm,nlk,abc-&gt;&#39;</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span> <span class="n">optimize</span><span class="o">=</span><span class="s1">&#39;greedy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Optimal <a class="reference internal" href="#numpy.einsum" title="numpy.einsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">einsum</span></code></a> (best usage pattern in some use cases): ~110ms</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum_path</span><span class="p">(</span><span class="s1">&#39;ijk,ilm,njm,nlk,abc-&gt;&#39;</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span> <span class="n">optimize</span><span class="o">=</span><span class="s1">&#39;optimal&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,ilm,njm,nlk,abc-&gt;&#39;</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span> <span class="n">optimize</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Extending &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" >
+    <link rel="index" title="Index" href="../../genindex.html" >
+    <link rel="search" title="Search" href="../../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="up" title="Random sampling (numpy.random)" href="index.html" >
+    <link rel="next" title="Extending via Numba" href="examples/numba.html" >
+    <link rel="prev" title="Cython API for random" href="c-api.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../../index.html">
+      <img border=0 alt="NumPy" src="../../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="../index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="../routines.html" >Routines</a></li>
+          <li class="active"><a href="index.html" accesskey="U">Random sampling (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.random</span></code>)</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="examples/numba.html" title="Extending via Numba"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="c-api.html" title="Cython API for random"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Extending</a><ul>
+<li><a class="reference internal" href="#numba">Numba</a></li>
+<li><a class="reference internal" href="#cython">Cython</a></li>
+<li><a class="reference internal" href="#cffi">CFFI</a></li>
+<li><a class="reference internal" href="#new-basic-rngs">New Basic RNGs</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="c-api.html"
+                        title="previous chapter">Cython API for random</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples/numba.html"
+                        title="next chapter">Extending via Numba</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="extending">
+<span id="id1"></span><h1>Extending<a class="headerlink" href="#extending" title="Permalink to this headline">¶</a></h1>
+<p>The BitGenerators have been designed to be extendable using standard tools for
+high-performance Python – numba and Cython.  The <a class="reference internal" href="generator.html#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a> object can also
+be used with user-provided BitGenerators as long as these export a small set of
+required functions.</p>
+<div class="section" id="numba">
+<h2>Numba<a class="headerlink" href="#numba" title="Permalink to this headline">¶</a></h2>
+<p>Numba can be used with either CTypes or CFFI.  The current iteration of the
+BitGenerators all export a small set of functions through both interfaces.</p>
+<p>This example shows how numba can be used to produce gaussian samples using
+a pure Python implementation which is then compiled.  The random numbers are
+provided by <code class="docutils literal notranslate"><span class="pre">ctypes.next_double</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">PCG64</span>
+<span class="kn">from</span> <span class="nn">timeit</span> <span class="kn">import</span> <span class="n">timeit</span>
+
+<span class="n">bit_gen</span> <span class="o">=</span> <span class="n">PCG64</span><span class="p">()</span>
+<span class="n">next_d</span> <span class="o">=</span> <span class="n">bit_gen</span><span class="o">.</span><span class="n">cffi</span><span class="o">.</span><span class="n">next_double</span>
+<span class="n">state_addr</span> <span class="o">=</span> <span class="n">bit_gen</span><span class="o">.</span><span class="n">cffi</span><span class="o">.</span><span class="n">state_address</span>
+
+<span class="k">def</span> <span class="nf">normals</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">next_d</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">next_d</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">x2</span> <span class="o">*</span> <span class="n">x2</span>
+        <span class="k">while</span> <span class="n">r2</span> <span class="o">&gt;=</span> <span class="mf">1.0</span> <span class="ow">or</span> <span class="n">r2</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">next_d</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">next_d</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">x2</span> <span class="o">*</span> <span class="n">x2</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r2</span><span class="p">)</span> <span class="o">/</span> <span class="n">r2</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span> <span class="o">*</span> <span class="n">x1</span>
+        <span class="k">if</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span> <span class="o">*</span> <span class="n">x2</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="c1"># Compile using Numba</span>
+<span class="n">normalsj</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">normals</span><span class="p">,</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Must use state address not state with numba</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="k">def</span> <span class="nf">numbacall</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">normalsj</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">state_addr</span><span class="p">)</span>
+
+<span class="n">rg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">numpycall</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">rg</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
+<span class="c1"># Check that the functions work</span>
+<span class="n">r1</span> <span class="o">=</span> <span class="n">numbacall</span><span class="p">()</span>
+<span class="n">r2</span> <span class="o">=</span> <span class="n">numpycall</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">r1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">n</span><span class="p">,)</span>
+<span class="k">assert</span> <span class="n">r1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">r2</span><span class="o">.</span><span class="n">shape</span>
+
+<span class="n">t1</span> <span class="o">=</span> <span class="n">timeit</span><span class="p">(</span><span class="n">numbacall</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:.2f}</span><span class="s1"> secs for </span><span class="si">{}</span><span class="s1"> PCG64 (Numba/PCG64) gaussian randoms&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">timeit</span><span class="p">(</span><span class="n">numpycall</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:.2f}</span><span class="s1"> secs for </span><span class="si">{}</span><span class="s1"> PCG64 (NumPy/PCG64) gaussian randoms&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+
+</pre></div>
+</div>
+<p>Both CTypes and CFFI allow the more complicated distributions to be used
+directly in Numba after compiling the file distributions.c into a <code class="docutils literal notranslate"><span class="pre">DLL</span></code> or
+<code class="docutils literal notranslate"><span class="pre">so</span></code>.  An example showing the use of a more complicated distribution is in
+the <em class="xref py py-obj">examples</em> section below.</p>
+</div>
+<div class="section" id="cython">
+<span id="random-cython"></span><h2>Cython<a class="headerlink" href="#cython" title="Permalink to this headline">¶</a></h2>
+<p>Cython can be used to unpack the <code class="docutils literal notranslate"><span class="pre">PyCapsule</span></code> provided by a BitGenerator.
+This example uses <a class="reference internal" href="bit_generators/pcg64.html#numpy.random.PCG64" title="numpy.random.PCG64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PCG64</span></code></a> and the example from above.  The usual caveats
+for writing high-performance code using Cython – removing bounds checks and
+wrap around, providing array alignment information – still apply.</p>
+<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="c">#!/usr/bin/env python</span>
+<span class="c">#cython: language_level=3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file shows how the to use a BitGenerator to create a distribution.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">cimport</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">cimport</span> <span class="nn">cython</span>
+<span class="k">from</span> <span class="nn">cpython.pycapsule</span> <span class="k">cimport</span> <span class="n">PyCapsule_IsValid</span><span class="p">,</span> <span class="n">PyCapsule_GetPointer</span>
+<span class="k">from</span> <span class="nn">libc.stdint</span> <span class="k">cimport</span> <span class="n">uint16_t</span><span class="p">,</span> <span class="n">uint64_t</span>
+<span class="k">from</span> <span class="nn">numpy.random</span> <span class="k">cimport</span> <span class="n">bitgen_t</span>
+<span class="k">from</span> <span class="nn">numpy.random</span> <span class="k">import</span> <span class="n">PCG64</span>
+
+
+<span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="nd">@cython</span><span class="o">.</span><span class="n">wraparound</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">uniforms</span><span class="p">(</span><span class="n">Py_ssize_t</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create an array of `n` uniformly distributed doubles.</span>
+<span class="sd">    A &#39;real&#39; distribution would want to process the values into</span>
+<span class="sd">    some non-uniform distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">cdef</span> <span class="kt">Py_ssize_t</span> <span class="nf">i</span>
+    <span class="k">cdef</span> <span class="kt">bitgen_t</span> *<span class="nf">rng</span>
+    <span class="k">cdef</span> <span class="kt">const</span> <span class="kt">char</span> *<span class="nf">capsule_name</span> <span class="o">=</span> <span class="s">&quot;BitGenerator&quot;</span>
+    <span class="k">cdef</span> <span class="kt">double</span>[<span class="p">::</span><span class="mf">1</span><span class="p">]</span> <span class="n">random_values</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">PCG64</span><span class="p">()</span>
+    <span class="n">capsule</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">capsule</span>
+    <span class="c"># Optional check that the capsule if from a BitGenerator</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PyCapsule_IsValid</span><span class="p">(</span><span class="n">capsule</span><span class="p">,</span> <span class="n">capsule_name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid pointer to anon_func_state&quot;</span><span class="p">)</span>
+    <span class="c"># Cast the pointer</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">bitgen_t</span> <span class="o">*&gt;</span> <span class="n">PyCapsule_GetPointer</span><span class="p">(</span><span class="n">capsule</span><span class="p">,</span> <span class="n">capsule_name</span><span class="p">)</span>
+    <span class="n">random_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">x</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="k">nogil</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="c"># Call the function</span>
+            <span class="n">random_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">next_double</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">randoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">random_values</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">randoms</span>
+ 
+</pre></div>
+</div>
+<p>The BitGenerator can also be directly accessed using the members of the basic
+RNG structure.</p>
+<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="nd">@cython</span><span class="o">.</span><span class="n">wraparound</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">uint10_uniforms</span><span class="p">(</span><span class="n">Py_ssize_t</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uniform 10 bit integers stored as 16-bit unsigned integers&quot;&quot;&quot;</span>
+    <span class="k">cdef</span> <span class="kt">Py_ssize_t</span> <span class="nf">i</span>
+    <span class="k">cdef</span> <span class="kt">bitgen_t</span> *<span class="nf">rng</span>
+    <span class="k">cdef</span> <span class="kt">const</span> <span class="kt">char</span> *<span class="nf">capsule_name</span> <span class="o">=</span> <span class="s">&quot;BitGenerator&quot;</span>
+    <span class="k">cdef</span> <span class="kt">uint16_t</span>[<span class="p">::</span><span class="mf">1</span><span class="p">]</span> <span class="n">random_values</span>
+    <span class="k">cdef</span> <span class="kt">int</span> <span class="nf">bits_remaining</span>
+    <span class="k">cdef</span> <span class="kt">int</span> <span class="nf">width</span> <span class="o">=</span> <span class="mf">10</span>
+    <span class="k">cdef</span> <span class="kt">uint64_t</span> <span class="nf">buff</span><span class="p">,</span> <span class="nf">mask</span> <span class="o">=</span> <span class="mf">0</span><span class="n">x3FF</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">PCG64</span><span class="p">()</span>
+    <span class="n">capsule</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">capsule</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PyCapsule_IsValid</span><span class="p">(</span><span class="n">capsule</span><span class="p">,</span> <span class="n">capsule_name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid pointer to anon_func_state&quot;</span><span class="p">)</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">bitgen_t</span> <span class="o">*&gt;</span> <span class="n">PyCapsule_GetPointer</span><span class="p">(</span><span class="n">capsule</span><span class="p">,</span> <span class="n">capsule_name</span><span class="p">)</span>
+    <span class="n">random_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;uint16&#39;</span><span class="p">)</span>
+    <span class="c"># Best practice is to release GIL and acquire the lock</span>
+    <span class="n">bits_remaining</span> <span class="o">=</span> <span class="mf">0</span>
+    <span class="k">with</span> <span class="n">x</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="k">nogil</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">bits_remaining</span> <span class="o">&lt;</span> <span class="n">width</span><span class="p">:</span>
+                <span class="n">buff</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">next_uint64</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">random_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">buff</span> <span class="o">&amp;</span> <span class="n">mask</span>
+            <span class="n">buff</span> <span class="o">&gt;&gt;=</span> <span class="n">width</span>
+
+    <span class="n">randoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">random_values</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">randoms</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="examples/cython/index.html#extending-cython-example"><span class="std std-ref">Extending numpy.random via Cython</span></a> for a complete working example including a
+minimal setup and cython files.</p>
+</div>
+<div class="section" id="cffi">
+<h2>CFFI<a class="headerlink" href="#cffi" title="Permalink to this headline">¶</a></h2>
+<p>CFFI can be used to directly access the functions in
+<code class="docutils literal notranslate"><span class="pre">include/numpy/random/distributions.h</span></code>. Some “massaging” of the header
+file is required:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Use cffi to access any of the underlying C functions from distributions.h</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cffi</span>
+<span class="kn">from</span> <span class="nn">.parse</span> <span class="kn">import</span> <span class="n">parse_distributions_h</span>
+<span class="n">ffi</span> <span class="o">=</span> <span class="n">cffi</span><span class="o">.</span><span class="n">FFI</span><span class="p">()</span>
+
+<span class="n">inc_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">get_include</span><span class="p">(),</span> <span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+
+<span class="c1"># Basic numpy types</span>
+<span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    typedef intptr_t npy_intp;</span>
+<span class="s1">    typedef unsigned char npy_bool;</span>
+
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">parse_distributions_h</span><span class="p">(</span><span class="n">ffi</span><span class="p">,</span> <span class="n">inc_dir</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Once the header is parsed by <code class="docutils literal notranslate"><span class="pre">ffi.cdef</span></code>, the functions can be accessed
+directly from the <code class="docutils literal notranslate"><span class="pre">_generator</span></code> shared object, using the <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.cffi.html#numpy.random.BitGenerator.cffi" title="numpy.random.BitGenerator.cffi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator.cffi</span></code></a> interface.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="c1"># Compare the distributions.h random_standard_normal_fill to</span>
+<span class="c1"># Generator.standard_random</span>
+<span class="n">bit_gen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">()</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">bit_gen</span><span class="p">)</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">bit_gen</span><span class="o">.</span><span class="n">state</span>
+
+<span class="n">interface</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">bit_generator</span><span class="o">.</span><span class="n">cffi</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">vals_cffi</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;double[</span><span class="si">%d</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">lib</span><span class="o">.</span><span class="n">random_standard_normal_fill</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">bit_generator</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">vals_cffi</span><span class="p">)</span>
+
+<span class="c1"># reset the state</span>
+<span class="n">bit_gen</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+
+<span class="n">vals</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">vals_cffi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="new-basic-rngs">
+<h2>New Basic RNGs<a class="headerlink" href="#new-basic-rngs" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="generator.html#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a> can be used with other user-provided BitGenerators. The simplest
+way to write a new BitGenerator is to examine the pyx file of one of the
+existing BitGenerators. The key structure that must be provided is the
+<code class="docutils literal notranslate"><span class="pre">capsule</span></code> which contains a <code class="docutils literal notranslate"><span class="pre">PyCapsule</span></code> to a struct pointer of type
+<code class="docutils literal notranslate"><span class="pre">bitgen_t</span></code>,</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">bitgen</span> <span class="p">{</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">state</span><span class="p">;</span>
+  <span class="kt">uint64_t</span> <span class="p">(</span><span class="o">*</span><span class="n">next_uint64</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">st</span><span class="p">);</span>
+  <span class="kt">uint32_t</span> <span class="p">(</span><span class="o">*</span><span class="n">next_uint32</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">st</span><span class="p">);</span>
+  <span class="kt">double</span> <span class="p">(</span><span class="o">*</span><span class="n">next_double</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">st</span><span class="p">);</span>
+  <span class="kt">uint64_t</span> <span class="p">(</span><span class="o">*</span><span class="n">next_raw</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">st</span><span class="p">);</span>
+<span class="p">}</span> <span class="n">bitgen_t</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>which provides 5 pointers. The first is an opaque pointer to the data structure
+used by the BitGenerators.  The next three are function pointers which return
+the next 64- and 32-bit unsigned integers, the next random double and the next
+raw value.  This final function is used for testing and so can be set to
+the next 64-bit unsigned integer function if not needed. Functions inside
+<code class="docutils literal notranslate"><span class="pre">Generator</span></code> use this structure as in</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">bitgen_state</span><span class="o">-&gt;</span><span class="n">next_uint64</span><span class="p">(</span><span class="n">bitgen_state</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/numba.html">Numba</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numba_cffi.html">CFFI + Numba</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/cython/index.html">Cython</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/cython/setup.py.html">setup.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/cython/extending.pyx.html">extending.pyx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/cython/extending_distributions.pyx.html">extending_distributions.pyx</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/cffi.html">CFFI</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

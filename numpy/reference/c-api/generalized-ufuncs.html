@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Generalized Universal Function API &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" >
+    <link rel="index" title="Index" href="../../genindex.html" >
+    <link rel="search" title="Search" href="../../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="up" title="NumPy C-API" href="index.html" >
+    <link rel="next" title="NumPy core libraries" href="coremath.html" >
+    <link rel="prev" title="UFunc API" href="ufunc.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../../index.html">
+      <img border=0 alt="NumPy" src="../../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="../index.html" >NumPy Reference</a></li>
+          <li class="active"><a href="index.html" accesskey="U">NumPy C-API</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="coremath.html" title="NumPy core libraries"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="ufunc.html" title="UFunc API"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Generalized Universal Function API</a><ul>
+<li><a class="reference internal" href="#definitions">Definitions</a></li>
+<li><a class="reference internal" href="#details-of-signature">Details of Signature</a></li>
+<li><a class="reference internal" href="#c-api-for-implementing-elementary-functions">C-API for implementing Elementary Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ufunc.html"
+                        title="previous chapter">UFunc API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="coremath.html"
+                        title="next chapter">NumPy core libraries</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="generalized-universal-function-api">
+<span id="c-api-generalized-ufuncs"></span><h1>Generalized Universal Function API<a class="headerlink" href="#generalized-universal-function-api" title="Permalink to this headline">¶</a></h1>
+<p>There is a general need for looping over not only functions on scalars
+but also over functions on vectors (or arrays).
+This concept is realized in NumPy by generalizing the universal functions
+(ufuncs).  In regular ufuncs, the elementary function is limited to
+element-by-element operations, whereas the generalized version (gufuncs)
+supports “sub-array” by “sub-array” operations.  The Perl vector library PDL
+provides a similar functionality and its terms are re-used in the following.</p>
+<p>Each generalized ufunc has information associated with it that states
+what the “core” dimensionality of the inputs is, as well as the
+corresponding dimensionality of the outputs (the element-wise ufuncs
+have zero core dimensions).  The list of the core dimensions for all
+arguments is called the “signature” of a ufunc.  For example, the
+ufunc numpy.add has signature <code class="docutils literal notranslate"><span class="pre">(),()-&gt;()</span></code> defining two scalar inputs
+and one scalar output.</p>
+<p>Another example is the function <code class="docutils literal notranslate"><span class="pre">inner1d(a,</span> <span class="pre">b)</span></code> with a signature of
+<code class="docutils literal notranslate"><span class="pre">(i),(i)-&gt;()</span></code>.  This applies the inner product along the last axis of
+each input, but keeps the remaining indices intact.
+For example, where <code class="docutils literal notranslate"><span class="pre">a</span></code> is of shape <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">5,</span> <span class="pre">N)</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> is of shape
+<code class="docutils literal notranslate"><span class="pre">(5,</span> <span class="pre">N)</span></code>, this will return an output of shape <code class="docutils literal notranslate"><span class="pre">(3,5)</span></code>.
+The underlying elementary function is called <code class="docutils literal notranslate"><span class="pre">3</span> <span class="pre">*</span> <span class="pre">5</span></code> times.  In the
+signature, we specify one core dimension <code class="docutils literal notranslate"><span class="pre">(i)</span></code> for each input and zero core
+dimensions <code class="docutils literal notranslate"><span class="pre">()</span></code> for the output, since it takes two 1-d arrays and
+returns a scalar.  By using the same name <code class="docutils literal notranslate"><span class="pre">i</span></code>, we specify that the two
+corresponding dimensions should be of the same size.</p>
+<p>The dimensions beyond the core dimensions are called “loop” dimensions.  In
+the above example, this corresponds to <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">5)</span></code>.</p>
+<p>The signature determines how the dimensions of each input/output array are
+split into core and loop dimensions:</p>
+<ol class="arabic simple">
+<li><p>Each dimension in the signature is matched to a dimension of the
+corresponding passed-in array, starting from the end of the shape tuple.
+These are the core dimensions, and they must be present in the arrays, or
+an error will be raised.</p></li>
+<li><p>Core dimensions assigned to the same label in the signature (e.g. the
+<code class="docutils literal notranslate"><span class="pre">i</span></code> in <code class="docutils literal notranslate"><span class="pre">inner1d</span></code>’s <code class="docutils literal notranslate"><span class="pre">(i),(i)-&gt;()</span></code>) must have exactly matching sizes,
+no broadcasting is performed.</p></li>
+<li><p>The core dimensions are removed from all inputs and the remaining
+dimensions are broadcast together, defining the loop dimensions.</p></li>
+<li><p>The shape of each output is determined from the loop dimensions plus the
+output’s core dimensions</p></li>
+</ol>
+<p>Typically, the size of all core dimensions in an output will be determined by
+the size of a core dimension with the same label in an input array. This is
+not a requirement, and it is possible to define a signature where a label
+comes up for the first time in an output, although some precautions must be
+taken when calling such a function. An example would be the function
+<code class="docutils literal notranslate"><span class="pre">euclidean_pdist(a)</span></code>, with signature <code class="docutils literal notranslate"><span class="pre">(n,d)-&gt;(p)</span></code>, that given an array of
+<code class="docutils literal notranslate"><span class="pre">n</span></code> <code class="docutils literal notranslate"><span class="pre">d</span></code>-dimensional vectors, computes all unique pairwise Euclidean
+distances among them. The output dimension <code class="docutils literal notranslate"><span class="pre">p</span></code> must therefore be equal to
+<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">*</span> <span class="pre">(n</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">2</span></code>, but it is the caller’s responsibility to pass in an
+output array of the right size. If the size of a core dimension of an output
+cannot be determined from a passed in input or output array, an error will be
+raised.</p>
+<p>Note: Prior to NumPy 1.10.0, less strict checks were in place: missing core
+dimensions were created by prepending 1’s to the shape as necessary, core
+dimensions with the same label were broadcast together, and undetermined
+dimensions were created with size 1.</p>
+<div class="section" id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>Elementary Function</dt><dd><p>Each ufunc consists of an elementary function that performs the
+most basic operation on the smallest portion of array arguments
+(e.g. adding two numbers is the most basic operation in adding two
+arrays).  The ufunc applies the elementary function multiple times
+on different parts of the arrays.  The input/output of elementary
+functions can be vectors; e.g., the elementary function of inner1d
+takes two vectors as input.</p>
+</dd>
+<dt>Signature</dt><dd><p>A signature is a string describing the input/output dimensions of
+the elementary function of a ufunc.  See section below for more
+details.</p>
+</dd>
+<dt>Core Dimension</dt><dd><p>The dimensionality of each input/output of an elementary function
+is defined by its core dimensions (zero core dimensions correspond
+to a scalar input/output).  The core dimensions are mapped to the
+last dimensions of the input/output arrays.</p>
+</dd>
+<dt>Dimension Name</dt><dd><p>A dimension name represents a core dimension in the signature.
+Different dimensions may share a name, indicating that they are of
+the same size.</p>
+</dd>
+<dt>Dimension Index</dt><dd><p>A dimension index is an integer representing a dimension name. It
+enumerates the dimension names according to the order of the first
+occurrence of each name in the signature.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="details-of-signature">
+<span id="id1"></span><h2>Details of Signature<a class="headerlink" href="#details-of-signature" title="Permalink to this headline">¶</a></h2>
+<p>The signature defines “core” dimensionality of input and output
+variables, and thereby also defines the contraction of the
+dimensions.  The signature is represented by a string of the
+following format:</p>
+<ul class="simple">
+<li><p>Core dimensions of each input or output array are represented by a
+list of dimension names in parentheses, <code class="docutils literal notranslate"><span class="pre">(i_1,...,i_N)</span></code>; a scalar
+input/output is denoted by <code class="docutils literal notranslate"><span class="pre">()</span></code>.  Instead of <code class="docutils literal notranslate"><span class="pre">i_1</span></code>, <code class="docutils literal notranslate"><span class="pre">i_2</span></code>,
+etc, one can use any valid Python variable name.</p></li>
+<li><p>Dimension lists for different arguments are separated by <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code>.
+Input/output arguments are separated by <code class="docutils literal notranslate"><span class="pre">&quot;-&gt;&quot;</span></code>.</p></li>
+<li><p>If one uses the same dimension name in multiple locations, this
+enforces the same size of the corresponding dimensions.</p></li>
+</ul>
+<p>The formal syntax of signatures is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Signature</span><span class="o">&gt;</span>            <span class="p">::</span><span class="o">=</span> <span class="o">&lt;</span><span class="n">Input</span> <span class="n">arguments</span><span class="o">&gt;</span> <span class="s2">&quot;-&gt;&quot;</span> <span class="o">&lt;</span><span class="n">Output</span> <span class="n">arguments</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Input</span> <span class="n">arguments</span><span class="o">&gt;</span>      <span class="p">::</span><span class="o">=</span> <span class="o">&lt;</span><span class="n">Argument</span> <span class="nb">list</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Output</span> <span class="n">arguments</span><span class="o">&gt;</span>     <span class="p">::</span><span class="o">=</span> <span class="o">&lt;</span><span class="n">Argument</span> <span class="nb">list</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Argument</span> <span class="nb">list</span><span class="o">&gt;</span>        <span class="p">::</span><span class="o">=</span> <span class="n">nil</span> <span class="o">|</span> <span class="o">&lt;</span><span class="n">Argument</span><span class="o">&gt;</span> <span class="o">|</span> <span class="o">&lt;</span><span class="n">Argument</span><span class="o">&gt;</span> <span class="s2">&quot;,&quot;</span> <span class="o">&lt;</span><span class="n">Argument</span> <span class="nb">list</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Argument</span><span class="o">&gt;</span>             <span class="p">::</span><span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">&lt;</span><span class="n">Core</span> <span class="n">dimension</span> <span class="nb">list</span><span class="o">&gt;</span> <span class="s2">&quot;)&quot;</span>
+<span class="o">&lt;</span><span class="n">Core</span> <span class="n">dimension</span> <span class="nb">list</span><span class="o">&gt;</span>  <span class="p">::</span><span class="o">=</span> <span class="n">nil</span> <span class="o">|</span> <span class="o">&lt;</span><span class="n">Core</span> <span class="n">dimension</span><span class="o">&gt;</span> <span class="o">|</span>
+                           <span class="o">&lt;</span><span class="n">Core</span> <span class="n">dimension</span><span class="o">&gt;</span> <span class="s2">&quot;,&quot;</span> <span class="o">&lt;</span><span class="n">Core</span> <span class="n">dimension</span> <span class="nb">list</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Core</span> <span class="n">dimension</span><span class="o">&gt;</span>       <span class="p">::</span><span class="o">=</span> <span class="o">&lt;</span><span class="n">Dimension</span> <span class="n">name</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">Dimension</span> <span class="n">modifier</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">Dimension</span> <span class="n">name</span><span class="o">&gt;</span>       <span class="p">::</span><span class="o">=</span> <span class="n">valid</span> <span class="n">Python</span> <span class="n">variable</span> <span class="n">name</span> <span class="o">|</span> <span class="n">valid</span> <span class="n">integer</span>
+<span class="o">&lt;</span><span class="n">Dimension</span> <span class="n">modifier</span><span class="o">&gt;</span>   <span class="p">::</span><span class="o">=</span> <span class="n">nil</span> <span class="o">|</span> <span class="s2">&quot;?&quot;</span>
+</pre></div>
+</div>
+<p>Notes:</p>
+<ol class="arabic simple">
+<li><p>All quotes are for clarity.</p></li>
+<li><p>Unmodified core dimensions that share the same name must have the same size.
+Each dimension name typically corresponds to one level of looping in the
+elementary function’s implementation.</p></li>
+<li><p>White spaces are ignored.</p></li>
+<li><p>An integer as a dimension name freezes that dimension to the value.</p></li>
+<li><p>If the name is suffixed with the “?” modifier, the dimension is a core
+dimension only if it exists on all inputs and outputs that share it;
+otherwise it is ignored (and replaced by a dimension of size 1 for the
+elementary function).</p></li>
+</ol>
+<p>Here are some examples of signatures:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 37%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>signature</p></th>
+<th class="head"><p>common usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>add</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(),()-&gt;()</span></code></p></td>
+<td><p>binary ufunc</p></td>
+</tr>
+<tr class="row-odd"><td><p>sum1d</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(i)-&gt;()</span></code></p></td>
+<td><p>reduction</p></td>
+</tr>
+<tr class="row-even"><td><p>inner1d</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(i),(i)-&gt;()</span></code></p></td>
+<td><p>vector-vector multiplication</p></td>
+</tr>
+<tr class="row-odd"><td><p>matmat</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(m,n),(n,p)-&gt;(m,p)</span></code></p></td>
+<td><p>matrix multiplication</p></td>
+</tr>
+<tr class="row-even"><td><p>vecmat</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(n),(n,p)-&gt;(p)</span></code></p></td>
+<td><p>vector-matrix multiplication</p></td>
+</tr>
+<tr class="row-odd"><td><p>matvec</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(m,n),(n)-&gt;(m)</span></code></p></td>
+<td><p>matrix-vector multiplication</p></td>
+</tr>
+<tr class="row-even"><td><p>matmul</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(m?,n),(n,p?)-&gt;(m?,p?)</span></code></p></td>
+<td><p>combination of the four above</p></td>
+</tr>
+<tr class="row-odd"><td><p>outer_inner</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(i,t),(j,t)-&gt;(i,j)</span></code></p></td>
+<td><p>inner over the last dimension,
+outer over the second to last,
+and loop/broadcast over the rest.</p></td>
+</tr>
+<tr class="row-even"><td><p>cross1d</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(3),(3)-&gt;(3)</span></code></p></td>
+<td><p>cross product where the last
+dimension is frozen and must be 3</p></td>
+</tr>
+</tbody>
+</table>
+<p id="frozen">The last is an instance of freezing a core dimension and can be used to
+improve ufunc performance</p>
+</div>
+<div class="section" id="c-api-for-implementing-elementary-functions">
+<h2>C-API for implementing Elementary Functions<a class="headerlink" href="#c-api-for-implementing-elementary-functions" title="Permalink to this headline">¶</a></h2>
+<p>The current interface remains unchanged, and <code class="docutils literal notranslate"><span class="pre">PyUFunc_FromFuncAndData</span></code>
+can still be used to implement (specialized) ufuncs, consisting of
+scalar elementary functions.</p>
+<p>One can use <code class="docutils literal notranslate"><span class="pre">PyUFunc_FromFuncAndDataAndSignature</span></code> to declare a more
+general ufunc.  The argument list is the same as
+<code class="docutils literal notranslate"><span class="pre">PyUFunc_FromFuncAndData</span></code>, with an additional argument specifying the
+signature as C string.</p>
+<p>Furthermore, the callback function is of the same type as before,
+<code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">(*foo)(char</span> <span class="pre">**args,</span> <span class="pre">intp</span> <span class="pre">*dimensions,</span> <span class="pre">intp</span> <span class="pre">*steps,</span> <span class="pre">void</span> <span class="pre">*func)</span></code>.
+When invoked, <code class="docutils literal notranslate"><span class="pre">args</span></code> is a list of length <code class="docutils literal notranslate"><span class="pre">nargs</span></code> containing
+the data of all input/output arguments.  For a scalar elementary
+function, <code class="docutils literal notranslate"><span class="pre">steps</span></code> is also of length <code class="docutils literal notranslate"><span class="pre">nargs</span></code>, denoting the strides used
+for the arguments. <code class="docutils literal notranslate"><span class="pre">dimensions</span></code> is a pointer to a single integer
+defining the size of the axis to be looped over.</p>
+<p>For a non-trivial signature, <code class="docutils literal notranslate"><span class="pre">dimensions</span></code> will also contain the sizes
+of the core dimensions as well, starting at the second entry.  Only
+one size is provided for each unique dimension name and the sizes are
+given according to the first occurrence of a dimension name in the
+signature.</p>
+<p>The first <code class="docutils literal notranslate"><span class="pre">nargs</span></code> elements of <code class="docutils literal notranslate"><span class="pre">steps</span></code> remain the same as for scalar
+ufuncs.  The following elements contain the strides of all core
+dimensions for all arguments in order.</p>
+<p>For example, consider a ufunc with signature <code class="docutils literal notranslate"><span class="pre">(i,j),(i)-&gt;()</span></code>.  In
+this case, <code class="docutils literal notranslate"><span class="pre">args</span></code> will contain three pointers to the data of the
+input/output arrays <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>.  Furthermore, <code class="docutils literal notranslate"><span class="pre">dimensions</span></code> will be
+<code class="docutils literal notranslate"><span class="pre">[N,</span> <span class="pre">I,</span> <span class="pre">J]</span></code> to define the size of <code class="docutils literal notranslate"><span class="pre">N</span></code> of the loop and the sizes <code class="docutils literal notranslate"><span class="pre">I</span></code> and <code class="docutils literal notranslate"><span class="pre">J</span></code>
+for the core dimensions <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code>.  Finally, <code class="docutils literal notranslate"><span class="pre">steps</span></code> will be
+<code class="docutils literal notranslate"><span class="pre">[a_N,</span> <span class="pre">b_N,</span> <span class="pre">c_N,</span> <span class="pre">a_i,</span> <span class="pre">a_j,</span> <span class="pre">b_i]</span></code>, containing all necessary strides.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

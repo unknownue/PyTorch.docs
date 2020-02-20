@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Packaging (numpy.distutils) &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="NumPy Reference" href="index.html" >
+    <link rel="next" title="distutils.misc_util" href="distutils/misc_util.html" >
+    <link rel="prev" title="numpy.kaiser" href="generated/numpy.kaiser.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" accesskey="U">NumPy Reference</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="distutils/misc_util.html" title="distutils.misc_util"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="generated/numpy.kaiser.html" title="numpy.kaiser"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Packaging (<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.distutils</span></code>)</a><ul>
+<li><a class="reference internal" href="#modules-in-numpy-distutils">Modules in <code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.distutils</span></code></a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration-class">Configuration class</a></li>
+<li><a class="reference internal" href="#building-installable-c-libraries">Building Installable C libraries</a><ul>
+<li><a class="reference internal" href="#npy-pkg-config-files">npy-pkg-config files</a></li>
+<li><a class="reference internal" href="#reusing-a-c-library-from-another-package">Reusing a C library from another package</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conversion-of-src-files">Conversion of <code class="docutils literal notranslate"><span class="pre">.src</span></code> files</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="generated/numpy.kaiser.html"
+                        title="previous chapter">numpy.kaiser</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="distutils/misc_util.html"
+                        title="next chapter">distutils.misc_util</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="module-numpy.distutils">
+<span id="packaging-numpy-distutils"></span><h1>Packaging (<a class="reference internal" href="#module-numpy.distutils" title="numpy.distutils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.distutils</span></code></a>)<a class="headerlink" href="#module-numpy.distutils" title="Permalink to this headline">¶</a></h1>
+<p>NumPy provides enhanced distutils functionality to make it easier to
+build and install sub-packages, auto-generate code, and extension
+modules that use Fortran-compiled libraries. To use features of NumPy
+distutils, use the <code class="xref py py-func docutils literal notranslate"><span class="pre">setup</span></code> command from
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.distutils.core</span></code>. A useful <a class="reference internal" href="#numpy.distutils.misc_util.Configuration" title="numpy.distutils.misc_util.Configuration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Configuration</span></code></a> class is also provided in
+<a class="reference internal" href="distutils/misc_util.html#module-numpy.distutils.misc_util" title="numpy.distutils.misc_util"><code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.distutils.misc_util</span></code></a> that can make it easier to construct
+keyword arguments to pass to the setup function (by passing the
+dictionary obtained from the todict() method of the class). More
+information is available in the <a class="reference internal" href="distutils_guide.html#distutils-user-guide"><span class="std std-ref">NumPy Distutils - Users Guide</span></a>.</p>
+<div class="section" id="modules-in-numpy-distutils">
+<span id="index-0"></span><h2>Modules in <a class="reference internal" href="#module-numpy.distutils" title="numpy.distutils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.distutils</span></code></a><a class="headerlink" href="#modules-in-numpy-distutils" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="distutils/misc_util.html">distutils.misc_util</a></li>
+</ul>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.distutils.ccompiler.html#module-numpy.distutils.ccompiler" title="numpy.distutils.ccompiler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccompiler</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.distutils.cpuinfo.cpu.html#numpy.distutils.cpuinfo.cpu" title="numpy.distutils.cpuinfo.cpu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cpuinfo.cpu</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.distutils.core.Extension.html#numpy.distutils.core.Extension" title="numpy.distutils.core.Extension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core.Extension</span></code></a>(name, sources[, …])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.distutils.exec_command.html#module-numpy.distutils.exec_command" title="numpy.distutils.exec_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exec_command</span></code></a></p></td>
+<td><p>exec_command</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.distutils.log.set_verbosity.html#numpy.distutils.log.set_verbosity" title="numpy.distutils.log.set_verbosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log.set_verbosity</span></code></a>(v[, force])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.distutils.system_info.get_info.html#numpy.distutils.system_info.get_info" title="numpy.distutils.system_info.get_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_info.get_info</span></code></a>(name[, notfound_action])</p></td>
+<td><p>notfound_action:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.distutils.system_info.get_standard_file.html#numpy.distutils.system_info.get_standard_file" title="numpy.distutils.system_info.get_standard_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_info.get_standard_file</span></code></a>(fname)</p></td>
+<td><p>Returns a list of files named ‘fname’ from 1) System-wide directory (directory-location of this module) 2) Users HOME directory (os.environ[‘HOME’]) 3) Local directory</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="configuration-class">
+<h2>Configuration class<a class="headerlink" href="#configuration-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="numpy.distutils.misc_util.Configuration">
+<em class="property">class </em><code class="sig-prename descclassname">numpy.distutils.misc_util.</code><code class="sig-name descname">Configuration</code><span class="sig-paren">(</span><em class="sig-param">package_name=None</em>, <em class="sig-param">parent_name=None</em>, <em class="sig-param">top_path=None</em>, <em class="sig-param">package_path=None</em>, <em class="sig-param">**attrs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L731-L2105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a configuration instance for the given package name. If
+<em>parent_name</em> is not None, then construct the package as a
+sub-package of the <em>parent_name</em> package. If <em>top_path</em> and
+<em>package_path</em> are None then they are assumed equal to
+the path of the file this instance was created in. The setup.py
+files in the numpy distribution are good examples of how to use
+the <a class="reference internal" href="#numpy.distutils.misc_util.Configuration" title="numpy.distutils.misc_util.Configuration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Configuration</span></code></a> instance.</p>
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.todict">
+<code class="sig-name descname">todict</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L838-L855"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.todict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary compatible with the keyword arguments of distutils
+setup function.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="o">.</span><span class="n">todict</span><span class="p">())</span>                           
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.get_distribution">
+<code class="sig-name descname">get_distribution</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L881-L884"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.get_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the distutils distribution object for self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.get_subpackage">
+<code class="sig-name descname">get_subpackage</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">subpackage_name</em>, <em class="sig-param">subpackage_path=None</em>, <em class="sig-param">parent_name=None</em>, <em class="sig-param">caller_level=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L949-L1008"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.get_subpackage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of subpackage configurations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>subpackage_name</strong><span class="classifier">str or None</span></dt><dd><p>Name of the subpackage to get the configuration. ‘*’ in
+subpackage_name is handled as a wildcard.</p>
+</dd>
+<dt><strong>subpackage_path</strong><span class="classifier">str</span></dt><dd><p>If None, then the path is assumed to be the local path plus the
+subpackage_name. If a setup.py file is not found in the
+subpackage_path, then a default configuration is used.</p>
+</dd>
+<dt><strong>parent_name</strong><span class="classifier">str</span></dt><dd><p>Parent name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_subpackage">
+<code class="sig-name descname">add_subpackage</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">subpackage_name</em>, <em class="sig-param">subpackage_path=None</em>, <em class="sig-param">standalone=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1010-L1051"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_subpackage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a sub-package to the current Configuration instance.</p>
+<p>This is useful in a setup.py script for adding sub-packages to a
+package.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>subpackage_name</strong><span class="classifier">str</span></dt><dd><p>name of the subpackage</p>
+</dd>
+<dt><strong>subpackage_path</strong><span class="classifier">str</span></dt><dd><p>if given, the subpackage path such as the subpackage is in
+subpackage_path / subpackage_name. If None,the subpackage is
+assumed to be located in the local path / subpackage_name.</p>
+</dd>
+<dt><strong>standalone</strong><span class="classifier">bool</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_data_files">
+<code class="sig-name descname">add_data_files</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*files</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1183-L1332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_data_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add data files to configuration data_files.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>files</strong><span class="classifier">sequence</span></dt><dd><p>Argument(s) can be either</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>2-sequence (&lt;datadir prefix&gt;,&lt;path to data file(s)&gt;)</p></li>
+<li><p>paths to data files where python datadir prefix defaults
+to package dir.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The form of each element of the files sequence is very flexible
+allowing many combinations of where to get the files from the package
+and where they should ultimately be installed on the system. The most
+basic usage is for an element of the files argument sequence to be a
+simple filename. This will cause that file from the local path to be
+installed to the installation path of the self.name package (package
+path). The file argument can also be a relative path in which case the
+entire relative path will be installed into the package directory.
+Finally, the file can be an absolute path name in which case the file
+will be found at the absolute path name but installed to the package
+path.</p>
+<p>This basic behavior can be augmented by passing a 2-tuple in as the
+file argument. The first element of the tuple should specify the
+relative path (under the package install directory) where the
+remaining sequence of files should be installed to (it has nothing to
+do with the file-names in the source distribution). The second element
+of the tuple is the sequence of files that should be installed. The
+files in this sequence can be filenames, relative paths, or absolute
+paths. For absolute paths the file will be installed in the top-level
+package installation directory (regardless of the first argument).
+Filenames and relative path names will be installed in the package
+install directory under the path name given as the first element of
+the tuple.</p>
+<p>Rules for installation paths:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>file.txt -&gt; (., file.txt)-&gt; parent/file.txt</p></li>
+<li><p>foo/file.txt -&gt; (foo, foo/file.txt) -&gt; parent/foo/file.txt</p></li>
+<li><p>/foo/bar/file.txt -&gt; (., /foo/bar/file.txt) -&gt; parent/file.txt</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code>.txt -&gt; parent/a.txt, parent/b.txt</p></li>
+<li><p>foo/<code class="docutils literal notranslate"><span class="pre">*</span></code>.txt`` -&gt; parent/foo/a.txt, parent/foo/b.txt</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*/*.txt</span></code> -&gt; (<code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code>/<code class="docutils literal notranslate"><span class="pre">*</span></code>.txt) -&gt; parent/c/a.txt, parent/d/b.txt</p></li>
+<li><p>(sun, file.txt) -&gt; parent/sun/file.txt</p></li>
+<li><p>(sun, bar/file.txt) -&gt; parent/sun/file.txt</p></li>
+<li><p>(sun, /foo/bar/file.txt) -&gt; parent/sun/file.txt</p></li>
+<li><p>(sun, <code class="docutils literal notranslate"><span class="pre">*</span></code>.txt) -&gt; parent/sun/a.txt, parent/sun/b.txt</p></li>
+<li><p>(sun, bar/<code class="docutils literal notranslate"><span class="pre">*</span></code>.txt) -&gt; parent/sun/a.txt, parent/sun/b.txt</p></li>
+<li><p>(sun/<code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code>/<code class="docutils literal notranslate"><span class="pre">*</span></code>.txt) -&gt; parent/sun/c/a.txt, parent/d/b.txt</p></li>
+</ol>
+</div></blockquote>
+<p>An additional feature is that the path to a data-file can actually be
+a function that takes no arguments and returns the actual path(s) to
+the data-files. This is useful when the data files are generated while
+building the package.</p>
+<p class="rubric">Examples</p>
+<p>Add files to the list of data_files to be included with the package.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">add_data_files</span><span class="p">(</span><span class="s1">&#39;foo.dat&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s1">&#39;fun&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;gun.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;nun/pun.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;/tmp/sun.dat&#39;</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s1">&#39;bar/cat.dat&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;/full/path/to/can.dat&#39;</span><span class="p">)</span>                   
+</pre></div>
+</div>
+<p>will install these data files to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">package</span> <span class="n">install</span> <span class="n">directory</span><span class="o">&gt;/</span>
+ <span class="n">foo</span><span class="o">.</span><span class="n">dat</span>
+ <span class="n">fun</span><span class="o">/</span>
+   <span class="n">gun</span><span class="o">.</span><span class="n">dat</span>
+   <span class="n">nun</span><span class="o">/</span>
+     <span class="n">pun</span><span class="o">.</span><span class="n">dat</span>
+ <span class="n">sun</span><span class="o">.</span><span class="n">dat</span>
+ <span class="n">bar</span><span class="o">/</span>
+   <span class="n">car</span><span class="o">.</span><span class="n">dat</span>
+ <span class="n">can</span><span class="o">.</span><span class="n">dat</span>
+</pre></div>
+</div>
+<p>where &lt;package install directory&gt; is the package (or sub-package)
+directory such as ‘/usr/lib/python2.4/site-packages/mypackage’ (‘C:
+Python2.4 Lib site-packages mypackage’) or
+‘/usr/lib/python2.4/site- packages/mypackage/mysubpackage’ (‘C:
+Python2.4 Lib site-packages mypackage mysubpackage’).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_data_dir">
+<code class="sig-name descname">add_data_dir</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">data_path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1053-L1172"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_data_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively add files under data_path to data_files list.</p>
+<p>Recursively add files under data_path to the list of data_files to be
+installed (and distributed). The data_path can be either a relative
+path-name, or an absolute path-name, or a 2-tuple where the first
+argument shows where in the install directory the data directory
+should be installed to.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>data_path</strong><span class="classifier">seq or str</span></dt><dd><p>Argument can be either</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>2-sequence (&lt;datadir suffix&gt;, &lt;path to data directory&gt;)</p></li>
+<li><p>path to data directory where python datadir suffix defaults
+to package dir.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Rules for installation paths:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span><span class="p">,</span> <span class="n">foo</span><span class="o">/</span><span class="n">bar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span>
+<span class="p">(</span><span class="n">gun</span><span class="p">,</span> <span class="n">foo</span><span class="o">/</span><span class="n">bar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">gun</span>
+<span class="n">foo</span><span class="o">/*</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">foo</span><span class="o">/</span><span class="n">a</span><span class="p">,</span> <span class="n">foo</span><span class="o">/</span><span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="n">foo</span><span class="o">/</span><span class="n">b</span><span class="p">,</span> <span class="n">foo</span><span class="o">/</span><span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">a</span><span class="p">,</span> <span class="n">parent</span><span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">b</span>
+<span class="p">(</span><span class="n">gun</span><span class="p">,</span> <span class="n">foo</span><span class="o">/*</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">gun</span><span class="p">,</span> <span class="n">foo</span><span class="o">/</span><span class="n">a</span><span class="p">),</span> <span class="p">(</span><span class="n">gun</span><span class="p">,</span> <span class="n">foo</span><span class="o">/</span><span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gun</span>
+<span class="p">(</span><span class="n">gun</span><span class="o">/*</span><span class="p">,</span> <span class="n">foo</span><span class="o">/*</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">gun</span><span class="o">/</span><span class="n">a</span><span class="p">,</span> <span class="n">parent</span><span class="o">/</span><span class="n">gun</span><span class="o">/</span><span class="n">b</span>
+<span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">bar</span>
+<span class="p">(</span><span class="n">gun</span><span class="p">,</span> <span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">gun</span>
+<span class="p">(</span><span class="n">fun</span><span class="o">/*/</span><span class="n">gun</span><span class="o">/*</span><span class="p">,</span> <span class="n">sun</span><span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">bar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parent</span><span class="o">/</span><span class="n">fun</span><span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">gun</span><span class="o">/</span><span class="n">bar</span>
+</pre></div>
+</div>
+<p class="rubric">Examples</p>
+<p>For example suppose the source directory contains fun/foo.dat and
+fun/bar/car.dat:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">add_data_dir</span><span class="p">(</span><span class="s1">&#39;fun&#39;</span><span class="p">)</span>                       
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">add_data_dir</span><span class="p">((</span><span class="s1">&#39;sun&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span><span class="p">))</span>              
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">add_data_dir</span><span class="p">((</span><span class="s1">&#39;gun&#39;</span><span class="p">,</span> <span class="s1">&#39;/full/path/to/fun&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Will install data-files to the locations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">package</span> <span class="n">install</span> <span class="n">directory</span><span class="o">&gt;/</span>
+  <span class="n">fun</span><span class="o">/</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">dat</span>
+    <span class="n">bar</span><span class="o">/</span>
+      <span class="n">car</span><span class="o">.</span><span class="n">dat</span>
+  <span class="n">sun</span><span class="o">/</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">dat</span>
+    <span class="n">bar</span><span class="o">/</span>
+      <span class="n">car</span><span class="o">.</span><span class="n">dat</span>
+  <span class="n">gun</span><span class="o">/</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">dat</span>
+    <span class="n">car</span><span class="o">.</span><span class="n">dat</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_include_dirs">
+<code class="sig-name descname">add_include_dirs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*paths</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1352-L1366"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_include_dirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add paths to configuration include directories.</p>
+<p>Add the given sequence of paths to the beginning of the include_dirs
+list. This list will be visible to all extension modules of the
+current package.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_headers">
+<code class="sig-name descname">add_headers</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*files</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1368-L1400"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add installable headers to configuration.</p>
+<p>Add the given sequence of files to the beginning of the headers list.
+By default, headers will be installed under &lt;python-
+include&gt;/&lt;self.name.replace(‘.’,’/’)&gt;/ directory. If an item of files
+is a tuple, then its first argument specifies the actual installation
+location relative to the &lt;python-include&gt; path.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>files</strong><span class="classifier">str or seq</span></dt><dd><p>Argument(s) can be either:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>2-sequence (&lt;includedir suffix&gt;,&lt;path to header file(s)&gt;)</p></li>
+<li><p>path(s) to header file(s) where python includedir suffix will
+default to package name.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_extension">
+<code class="sig-name descname">add_extension</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">sources</em>, <em class="sig-param">**kw</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1425-L1526"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add extension to configuration.</p>
+<p>Create and add an Extension instance to the ext_modules list. This
+method also takes the following optional keyword arguments that are
+passed on to the Extension constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>name of the extension</p>
+</dd>
+<dt><strong>sources</strong><span class="classifier">seq</span></dt><dd><p>list of the sources. The list of sources may contain functions
+(called source generators) which must take an extension instance
+and a build directory as inputs and return a source file or list of
+source files or None. If None is returned then no sources are
+generated. If the Extension instance has no sources after
+processing all source generators, then no extension module is
+built.</p>
+</dd>
+<dt><strong>include_dirs :</strong></dt><dd></dd>
+<dt><strong>define_macros :</strong></dt><dd></dd>
+<dt><strong>undef_macros :</strong></dt><dd></dd>
+<dt><strong>library_dirs :</strong></dt><dd></dd>
+<dt><strong>libraries :</strong></dt><dd></dd>
+<dt><strong>runtime_library_dirs :</strong></dt><dd></dd>
+<dt><strong>extra_objects :</strong></dt><dd></dd>
+<dt><strong>extra_compile_args :</strong></dt><dd></dd>
+<dt><strong>extra_link_args :</strong></dt><dd></dd>
+<dt><strong>extra_f77_compile_args :</strong></dt><dd></dd>
+<dt><strong>extra_f90_compile_args :</strong></dt><dd></dd>
+<dt><strong>export_symbols :</strong></dt><dd></dd>
+<dt><strong>swig_opts :</strong></dt><dd></dd>
+<dt><strong>depends :</strong></dt><dd><p>The depends list contains paths to files or directories that the
+sources of the extension module depend on. If any path in the
+depends list is newer than the extension module, then the module
+will be rebuilt.</p>
+</dd>
+<dt><strong>language :</strong></dt><dd></dd>
+<dt><strong>f2py_options :</strong></dt><dd></dd>
+<dt><strong>module_dirs :</strong></dt><dd></dd>
+<dt><strong>extra_info</strong><span class="classifier">dict or list</span></dt><dd><p>dict or list of dict of keywords to be appended to keywords.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The self.paths(…) method is applied to all lists that may contain
+paths.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_library">
+<code class="sig-name descname">add_library</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">sources</em>, <em class="sig-param">**build_info</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1528-L1562"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add library to configuration.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the extension.</p>
+</dd>
+<dt><strong>sources</strong><span class="classifier">sequence</span></dt><dd><p>List of the sources. The list of sources may contain functions
+(called source generators) which must take an extension instance
+and a build directory as inputs and return a source file or list of
+source files or None. If None is returned then no sources are
+generated. If the Extension instance has no sources after
+processing all source generators, then no extension module is
+built.</p>
+</dd>
+<dt><strong>build_info</strong><span class="classifier">dict, optional</span></dt><dd><p>The following keys are allowed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>depends</p></li>
+<li><p>macros</p></li>
+<li><p>include_dirs</p></li>
+<li><p>extra_compiler_args</p></li>
+<li><p>extra_f77_compile_args</p></li>
+<li><p>extra_f90_compile_args</p></li>
+<li><p>f2py_options</p></li>
+<li><p>language</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_scripts">
+<code class="sig-name descname">add_scripts</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*files</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1738-L1752"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add scripts to configuration.</p>
+<p>Add the sequence of files to the beginning of the scripts list.
+Scripts will be installed under the &lt;prefix&gt;/bin/ directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_installed_library">
+<code class="sig-name descname">add_installed_library</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">sources</em>, <em class="sig-param">install_dir</em>, <em class="sig-param">build_info=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1580-L1629"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_installed_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to add_library, but the specified library is installed.</p>
+<p>Most C libraries used with <a class="reference external" href="https://docs.python.org/dev/library/distutils.html#module-distutils" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distutils</span></code></a> are only used to build python
+extensions, but libraries built through this method will be installed
+so that they can be reused by third-party packages.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the installed library.</p>
+</dd>
+<dt><strong>sources</strong><span class="classifier">sequence</span></dt><dd><p>List of the library’s source files. See <a class="reference internal" href="#numpy.distutils.misc_util.Configuration.add_library" title="numpy.distutils.misc_util.Configuration.add_library"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_library</span></code></a> for details.</p>
+</dd>
+<dt><strong>install_dir</strong><span class="classifier">str</span></dt><dd><p>Path to install the library, relative to the current sub-package.</p>
+</dd>
+<dt><strong>build_info</strong><span class="classifier">dict, optional</span></dt><dd><p>The following keys are allowed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>depends</p></li>
+<li><p>macros</p></li>
+<li><p>include_dirs</p></li>
+<li><p>extra_compiler_args</p></li>
+<li><p>extra_f77_compile_args</p></li>
+<li><p>extra_f90_compile_args</p></li>
+<li><p>f2py_options</p></li>
+<li><p>language</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>None</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#numpy.distutils.misc_util.Configuration.add_library" title="numpy.distutils.misc_util.Configuration.add_library"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_library</span></code></a>, <a class="reference internal" href="#numpy.distutils.misc_util.Configuration.add_npy_pkg_config" title="numpy.distutils.misc_util.Configuration.add_npy_pkg_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_npy_pkg_config</span></code></a>, <a class="reference internal" href="distutils/misc_util.html#numpy.distutils.misc_util.get_info" title="numpy.distutils.misc_util.get_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_info</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The best way to encode the options required to link against the specified
+C libraries is to use a “libname.ini” file, and use <a class="reference internal" href="distutils/misc_util.html#numpy.distutils.misc_util.get_info" title="numpy.distutils.misc_util.get_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_info</span></code></a> to
+retrieve the required options (see <a class="reference internal" href="#numpy.distutils.misc_util.Configuration.add_npy_pkg_config" title="numpy.distutils.misc_util.Configuration.add_npy_pkg_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_npy_pkg_config</span></code></a> for more
+information).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.add_npy_pkg_config">
+<code class="sig-name descname">add_npy_pkg_config</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">template</em>, <em class="sig-param">install_dir</em>, <em class="sig-param">subst_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1631-L1735"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.add_npy_pkg_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and install a npy-pkg config file from a template.</p>
+<p>The config file generated from <em class="xref py py-obj">template</em> is installed in the
+given install directory, using <em class="xref py py-obj">subst_dict</em> for variable substitution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>template</strong><span class="classifier">str</span></dt><dd><p>The path of the template, relatively to the current package path.</p>
+</dd>
+<dt><strong>install_dir</strong><span class="classifier">str</span></dt><dd><p>Where to install the npy-pkg config file, relatively to the current
+package path.</p>
+</dd>
+<dt><strong>subst_dict</strong><span class="classifier">dict, optional</span></dt><dd><p>If given, any string of the form <code class="docutils literal notranslate"><span class="pre">&#64;key&#64;</span></code> will be replaced by
+<code class="docutils literal notranslate"><span class="pre">subst_dict[key]</span></code> in the template file when installed. The install
+prefix is always available through the variable <code class="docutils literal notranslate"><span class="pre">&#64;prefix&#64;</span></code>, since the
+install prefix is not easy to get reliably from setup.py.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#numpy.distutils.misc_util.Configuration.add_installed_library" title="numpy.distutils.misc_util.Configuration.add_installed_library"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_installed_library</span></code></a>, <a class="reference internal" href="distutils/misc_util.html#numpy.distutils.misc_util.get_info" title="numpy.distutils.misc_util.get_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_info</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>This works for both standard installs and in-place builds, i.e. the
+<code class="docutils literal notranslate"><span class="pre">&#64;prefix&#64;</span></code> refer to the source directory for in-place builds.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">add_npy_pkg_config</span><span class="p">(</span><span class="s1">&#39;foo.ini.in&#39;</span><span class="p">,</span> <span class="s1">&#39;lib&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="n">bar</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Assuming the foo.ini.in file has the following content:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">meta</span><span class="p">]</span>
+<span class="n">Name</span><span class="o">=</span><span class="nd">@foo</span><span class="o">@</span>
+<span class="n">Version</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="n">Description</span><span class="o">=</span><span class="n">dummy</span> <span class="n">description</span>
+
+<span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">Cflags</span><span class="o">=-</span><span class="n">I</span><span class="nd">@prefix</span><span class="o">@/</span><span class="n">include</span>
+<span class="n">Libs</span><span class="o">=</span>
+</pre></div>
+</div>
+<p>The generated file will have the following content:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">meta</span><span class="p">]</span>
+<span class="n">Name</span><span class="o">=</span><span class="n">bar</span>
+<span class="n">Version</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="n">Description</span><span class="o">=</span><span class="n">dummy</span> <span class="n">description</span>
+
+<span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">Cflags</span><span class="o">=-</span><span class="n">Iprefix_dir</span><span class="o">/</span><span class="n">include</span>
+<span class="n">Libs</span><span class="o">=</span>
+</pre></div>
+</div>
+<p>and will be installed as foo.ini in the ‘lib’ subpath.</p>
+<p>When cross-compiling with numpy distutils, it might be necessary to
+use modified npy-pkg-config files.  Using the default/generated files
+will link with the host libraries (i.e. libnpymath.a).  For
+cross-compilation you of-course need to link with target libraries,
+while using the host Python installation.</p>
+<p>You can copy out the numpy/core/lib/npy-pkg-config directory, add a
+pkgdir value to the .ini files and set NPY_PKG_CONFIG_PATH environment
+variable to point to the directory with the modified npy-pkg-config
+files.</p>
+<p>Example npymath.ini modified for cross-compilation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[meta]
+Name=npymath
+Description=Portable, core math library implementing C99 standard
+Version=0.1
+
+[variables]
+pkgname=numpy.core
+pkgdir=/build/arm-linux-gnueabi/sysroot/usr/lib/python3.7/site-packages/numpy/core
+prefix=${pkgdir}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+[default]
+Libs=-L${libdir} -lnpymath
+Cflags=-I${includedir}
+Requires=mlib
+
+[msvc]
+Libs=/LIBPATH:${libdir} npymath.lib
+Cflags=/INCLUDE:${includedir}
+Requires=mlib
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.paths">
+<code class="sig-name descname">paths</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*paths</em>, <em class="sig-param">**kws</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1402-L1415"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply glob to paths and prepend local_path if needed.</p>
+<p>Applies glob.glob(…) to each path in the sequence (if needed) and
+pre-pends the local_path if needed. Because this is called on all
+source lists, this allows wildcard characters to be specified in lists
+of sources for extension modules and libraries and scripts and allows
+path-names be relative to the source directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.get_config_cmd">
+<code class="sig-name descname">get_config_cmd</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1792-L1804"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.get_config_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the numpy.distutils config command instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.get_build_temp_dir">
+<code class="sig-name descname">get_build_temp_dir</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1806-L1813"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.get_build_temp_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a path to a temporary directory where temporary files should be
+placed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.have_f77c">
+<code class="sig-name descname">have_f77c</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1815-L1832"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.have_f77c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for availability of Fortran 77 compiler.</p>
+<p>Use it inside source generating function to ensure that
+setup distribution instance has been initialized.</p>
+<p class="rubric">Notes</p>
+<p>True if a Fortran 77 compiler is available (because a simple Fortran 77
+code was able to be compiled successfully).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.have_f90c">
+<code class="sig-name descname">have_f90c</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1834-L1851"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.have_f90c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for availability of Fortran 90 compiler.</p>
+<p>Use it inside source generating function to ensure that
+setup distribution instance has been initialized.</p>
+<p class="rubric">Notes</p>
+<p>True if a Fortran 90 compiler is available (because a simple Fortran
+90 code was able to be compiled successfully)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.get_version">
+<code class="sig-name descname">get_version</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">version_file=None</em>, <em class="sig-param">version_variable=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L1934-L2002"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to get version string of a package.</p>
+<p>Return a version string of the current package or None if the version
+information could not be detected.</p>
+<p class="rubric">Notes</p>
+<p>This method scans files named
+__version__.py, &lt;packagename&gt;_version.py, version.py, and
+__svn_version__.py for string variables version, __version__, and
+&lt;packagename&gt;_version, until a version number is found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.make_svn_version_py">
+<code class="sig-name descname">make_svn_version_py</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">delete=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L2004-L2043"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.make_svn_version_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a data function to the data_files list that will generate
+__svn_version__.py file to the current package directory.</p>
+<p>Generate package __svn_version__.py file from SVN revision number,
+it will be removed after python exits but will be available
+when sdist, etc commands are executed.</p>
+<p class="rubric">Notes</p>
+<p>If __svn_version__.py existed before, nothing is done.</p>
+<p>This is
+intended for working with source directories that are in an SVN
+repository.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.make_config_py">
+<code class="sig-name descname">make_config_py</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name='__config__'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L2085-L2093"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.make_config_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate package __config__.py file containing system_info
+information used during building the package.</p>
+<p>This file is installed to the
+package installation directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="numpy.distutils.misc_util.Configuration.get_info">
+<code class="sig-name descname">get_info</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*names</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/numpy/numpy/blob/v1.18.1/numpy/distutils/misc_util.py#L2095-L2105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#numpy.distutils.misc_util.Configuration.get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get resources information.</p>
+<p>Return information (from system_info.get_info) for all of the names in
+the argument list in a single dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="building-installable-c-libraries">
+<h2>Building Installable C libraries<a class="headerlink" href="#building-installable-c-libraries" title="Permalink to this headline">¶</a></h2>
+<p>Conventional C libraries (installed through <em class="xref py py-obj">add_library</em>) are not installed, and
+are just used during the build (they are statically linked).  An installable C
+library is a pure C library, which does not depend on the python C runtime, and
+is installed such that it may be used by third-party packages. To build and
+install the C library, you just use the method <em class="xref py py-obj">add_installed_library</em> instead of
+<em class="xref py py-obj">add_library</em>, which takes the same arguments except for an additional
+<code class="docutils literal notranslate"><span class="pre">install_dir</span></code> argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="o">.</span><span class="n">add_installed_library</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo.c&#39;</span><span class="p">],</span> <span class="n">install_dir</span><span class="o">=</span><span class="s1">&#39;lib&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="npy-pkg-config-files">
+<h3>npy-pkg-config files<a class="headerlink" href="#npy-pkg-config-files" title="Permalink to this headline">¶</a></h3>
+<p>To make the necessary build options available to third parties, you could use
+the <em class="xref py py-obj">npy-pkg-config</em> mechanism implemented in <a class="reference internal" href="#module-numpy.distutils" title="numpy.distutils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.distutils</span></code></a>. This mechanism is
+based on a .ini file which contains all the options. A .ini file is very
+similar to .pc files as used by the pkg-config unix utility:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[meta]
+Name: foo
+Version: 1.0
+Description: foo library
+
+[variables]
+prefix = /home/user/local
+libdir = ${prefix}/lib
+includedir = ${prefix}/include
+
+[default]
+cflags = -I${includedir}
+libs = -L${libdir} -lfoo
+</pre></div>
+</div>
+<p>Generally, the file needs to be generated during the build, since it needs some
+information known at build time only (e.g. prefix). This is mostly automatic if
+one uses the <a class="reference internal" href="#numpy.distutils.misc_util.Configuration" title="numpy.distutils.misc_util.Configuration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Configuration</span></code></a> method <em class="xref py py-obj">add_npy_pkg_config</em>. Assuming we have a
+template file foo.ini.in as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[meta]
+Name: foo
+Version: @version@
+Description: foo library
+
+[variables]
+prefix = @prefix@
+libdir = ${prefix}/lib
+includedir = ${prefix}/include
+
+[default]
+cflags = -I${includedir}
+libs = -L${libdir} -lfoo
+</pre></div>
+</div>
+<p>and the following code in setup.py:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="o">.</span><span class="n">add_installed_library</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo.c&#39;</span><span class="p">],</span> <span class="n">install_dir</span><span class="o">=</span><span class="s1">&#39;lib&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subst</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="o">.</span><span class="n">add_npy_pkg_config</span><span class="p">(</span><span class="s1">&#39;foo.ini.in&#39;</span><span class="p">,</span> <span class="s1">&#39;lib&#39;</span><span class="p">,</span> <span class="n">subst_dict</span><span class="o">=</span><span class="n">subst</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will install the file foo.ini into the directory package_dir/lib, and the
+foo.ini file will be generated from foo.ini.in, where each <code class="docutils literal notranslate"><span class="pre">&#64;version&#64;</span></code> will be
+replaced by <code class="docutils literal notranslate"><span class="pre">subst_dict['version']</span></code>. The dictionary has an additional prefix
+substitution rule automatically added, which contains the install prefix (since
+this is not easy to get from setup.py).  npy-pkg-config files can also be
+installed at the same location as used for numpy, using the path returned from
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">get_npy_pkg_dir</span></code> function.</p>
+</div>
+<div class="section" id="reusing-a-c-library-from-another-package">
+<h3>Reusing a C library from another package<a class="headerlink" href="#reusing-a-c-library-from-another-package" title="Permalink to this headline">¶</a></h3>
+<p>Info are easily retrieved from the <a class="reference internal" href="distutils/misc_util.html#numpy.distutils.misc_util.get_info" title="numpy.distutils.misc_util.get_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_info</span></code></a> function in
+<a class="reference internal" href="distutils/misc_util.html#module-numpy.distutils.misc_util" title="numpy.distutils.misc_util"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.distutils.misc_util</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">get_info</span><span class="p">(</span><span class="s1">&#39;npymath&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="o">.</span><span class="n">add_extension</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo.c&#39;</span><span class="p">],</span> <span class="n">extra_info</span><span class="o">=**</span><span class="n">info</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An additional list of paths to look for .ini files can be given to <a class="reference internal" href="distutils/misc_util.html#numpy.distutils.misc_util.get_info" title="numpy.distutils.misc_util.get_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_info</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="conversion-of-src-files">
+<h2>Conversion of <code class="docutils literal notranslate"><span class="pre">.src</span></code> files<a class="headerlink" href="#conversion-of-src-files" title="Permalink to this headline">¶</a></h2>
+<p>NumPy distutils supports automatic conversion of source files named
+&lt;somefile&gt;.src. This facility can be used to maintain very similar
+code blocks requiring only simple changes between blocks. During the
+build phase of setup, if a template file named &lt;somefile&gt;.src is
+encountered, a new file named &lt;somefile&gt; is constructed from the
+template and placed in the build directory to be used instead. Two
+forms of template conversion are supported. The first form occurs for
+files named &lt;file&gt;.ext.src where ext is a recognized Fortran
+extension (f, f90, f95, f77, for, ftn, pyf). The second form is used
+for all other cases. See <a class="reference internal" href="distutils_guide.html#templating"><span class="std std-ref">Conversion of .src files using Templates</span></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

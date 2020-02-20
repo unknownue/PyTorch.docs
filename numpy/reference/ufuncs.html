@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Universal functions (ufunc) &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="NumPy Reference" href="index.html" >
+    <link rel="next" title="numpy.setbufsize" href="generated/numpy.setbufsize.html" >
+    <link rel="prev" title="Constants" href="constants.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" accesskey="U">NumPy Reference</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="generated/numpy.setbufsize.html" title="numpy.setbufsize"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="constants.html" title="Constants"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Universal functions (<code class="xref py py-class docutils literal notranslate"><span class="pre">ufunc</span></code>)</a><ul>
+<li><a class="reference internal" href="#broadcasting">Broadcasting</a></li>
+<li><a class="reference internal" href="#output-type-determination">Output type determination</a></li>
+<li><a class="reference internal" href="#use-of-internal-buffers">Use of internal buffers</a></li>
+<li><a class="reference internal" href="#error-handling">Error handling</a></li>
+<li><a class="reference internal" href="#casting-rules">Casting Rules</a></li>
+<li><a class="reference internal" href="#overriding-ufunc-behavior">Overriding Ufunc behavior</a></li>
+<li><a class="reference internal" href="#ufunc"><code class="xref py py-class docutils literal notranslate"><span class="pre">ufunc</span></code></a><ul>
+<li><a class="reference internal" href="#optional-keyword-arguments">Optional keyword arguments</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#available-ufuncs">Available ufuncs</a><ul>
+<li><a class="reference internal" href="#math-operations">Math operations</a></li>
+<li><a class="reference internal" href="#trigonometric-functions">Trigonometric functions</a></li>
+<li><a class="reference internal" href="#bit-twiddling-functions">Bit-twiddling functions</a></li>
+<li><a class="reference internal" href="#comparison-functions">Comparison functions</a></li>
+<li><a class="reference internal" href="#floating-functions">Floating functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="constants.html"
+                        title="previous chapter">Constants</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="generated/numpy.setbufsize.html"
+                        title="next chapter">numpy.setbufsize</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="universal-functions-ufunc">
+<span id="ufuncs"></span><h1>Universal functions (<code class="xref py py-class docutils literal notranslate"><span class="pre">ufunc</span></code>)<a class="headerlink" href="#universal-functions-ufunc" title="Permalink to this headline">¶</a></h1>
+<p>A universal function (or <a class="reference internal" href="../glossary.html#term-ufunc"><span class="xref std std-term">ufunc</span></a> for short) is a function that
+operates on <a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarrays</span></code></a> in an element-by-element fashion,
+supporting <a class="reference internal" href="#ufuncs-broadcasting"><span class="std std-ref">array broadcasting</span></a>, <a class="reference internal" href="#ufuncs-casting"><span class="std std-ref">type
+casting</span></a>, and several other standard features. That
+is, a ufunc is a “<a class="reference internal" href="../glossary.html#term-vectorization"><span class="xref std std-term">vectorized</span></a>” wrapper for a function that
+takes a fixed number of specific inputs and produces a fixed number of
+specific outputs.</p>
+<p>In NumPy, universal functions are instances of the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ufunc</span></code> class. Many of the built-in functions are
+implemented in compiled C code. The basic ufuncs operate on scalars, but
+there is also a generalized kind for which the basic elements are sub-arrays
+(vectors, matrices, etc.), and broadcasting is done over other dimensions.
+One can also produce custom <code class="xref py py-class docutils literal notranslate"><span class="pre">ufunc</span></code> instances using the
+<a class="reference internal" href="generated/numpy.frompyfunc.html#numpy.frompyfunc" title="numpy.frompyfunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">frompyfunc</span></code></a> factory function.</p>
+<div class="section" id="broadcasting">
+<span id="ufuncs-broadcasting"></span><h2>Broadcasting<a class="headerlink" href="#broadcasting" title="Permalink to this headline">¶</a></h2>
+<p id="index-0">Each universal function takes array inputs and produces array outputs
+by performing the core function element-wise on the inputs (where an
+element is generally a scalar, but can be a vector or higher-order
+sub-array for generalized ufuncs). Standard
+broadcasting rules are applied so that inputs not sharing exactly the
+same shapes can still be usefully operated on. Broadcasting can be
+understood by four rules:</p>
+<ol class="arabic simple">
+<li><p>All input arrays with <a class="reference internal" href="generated/numpy.ndarray.ndim.html#numpy.ndarray.ndim" title="numpy.ndarray.ndim"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ndim</span></code></a> smaller than the
+input array of largest <a class="reference internal" href="generated/numpy.ndarray.ndim.html#numpy.ndarray.ndim" title="numpy.ndarray.ndim"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ndim</span></code></a>, have 1’s
+prepended to their shapes.</p></li>
+<li><p>The size in each dimension of the output shape is the maximum of all
+the input sizes in that dimension.</p></li>
+<li><p>An input can be used in the calculation if its size in a particular
+dimension either matches the output size in that dimension, or has
+value exactly 1.</p></li>
+<li><p>If an input has a dimension size of 1 in its shape, the first data
+entry in that dimension will be used for all calculations along
+that dimension. In other words, the stepping machinery of the
+<a class="reference internal" href="../glossary.html#term-ufunc"><span class="xref std std-term">ufunc</span></a> will simply not step along that dimension (the
+<a class="reference internal" href="arrays.ndarray.html#memory-layout"><span class="std std-ref">stride</span></a> will be 0 for that dimension).</p></li>
+</ol>
+<p>Broadcasting is used throughout NumPy to decide how to handle
+disparately shaped arrays; for example, all arithmetic operations (<code class="docutils literal notranslate"><span class="pre">+</span></code>,
+<code class="docutils literal notranslate"><span class="pre">-</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code>, …) between <a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarrays</span></code></a> broadcast the
+arrays before operation.</p>
+<span class="target" id="arrays-broadcasting-broadcastable"></span><p id="index-1">A set of arrays is called “broadcastable” to the same shape if
+the above rules produce a valid result, <em>i.e.</em>, one of the following
+is true:</p>
+<ol class="arabic simple">
+<li><p>The arrays all have exactly the same shape.</p></li>
+<li><p>The arrays all have the same number of dimensions and the length of
+each dimensions is either a common length or 1.</p></li>
+<li><p>The arrays that have too few dimensions can have their shapes prepended
+with a dimension of length 1 to satisfy property 2.</p></li>
+</ol>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">a.shape</span></code> is (5,1), <code class="docutils literal notranslate"><span class="pre">b.shape</span></code> is (1,6), <code class="docutils literal notranslate"><span class="pre">c.shape</span></code> is (6,)
+and <code class="docutils literal notranslate"><span class="pre">d.shape</span></code> is () so that <em>d</em> is a scalar, then <em>a</em>, <em>b</em>, <em>c</em>,
+and <em>d</em> are all broadcastable to dimension (5,6); and</p>
+<ul class="simple">
+<li><p><em>a</em> acts like a (5,6) array where <code class="docutils literal notranslate"><span class="pre">a[:,0]</span></code> is broadcast to the other
+columns,</p></li>
+<li><p><em>b</em> acts like a (5,6) array where <code class="docutils literal notranslate"><span class="pre">b[0,:]</span></code> is broadcast
+to the other rows,</p></li>
+<li><p><em>c</em> acts like a (1,6) array and therefore like a (5,6) array
+where <code class="docutils literal notranslate"><span class="pre">c[:]</span></code> is broadcast to every row, and finally,</p></li>
+<li><p><em>d</em> acts like a (5,6) array where the single value is repeated.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="output-type-determination">
+<span id="ufuncs-output-type"></span><h2>Output type determination<a class="headerlink" href="#output-type-determination" title="Permalink to this headline">¶</a></h2>
+<p>The output of the ufunc (and its methods) is not necessarily an
+<a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, if all input arguments are not <a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarrays</span></code></a>.
+Indeed, if any input defines an <a class="reference internal" href="arrays.classes.html#numpy.class.__array_ufunc__" title="numpy.class.__array_ufunc__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_ufunc__</span></code></a> method,
+control will be passed completely to that function, i.e., the ufunc is
+<a class="reference external" href="ufuncs.overrides">overridden</a>.</p>
+<p>If none of the inputs overrides the ufunc, then
+all output arrays will be passed to the <a class="reference internal" href="arrays.classes.html#numpy.class.__array_prepare__" title="numpy.class.__array_prepare__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_prepare__</span></code></a> and
+<a class="reference internal" href="arrays.classes.html#numpy.class.__array_wrap__" title="numpy.class.__array_wrap__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_wrap__</span></code></a> methods of the input (besides
+<a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarrays</span></code></a>, and scalars) that defines it <strong>and</strong> has
+the highest <a class="reference internal" href="arrays.classes.html#numpy.class.__array_priority__" title="numpy.class.__array_priority__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_priority__</span></code></a> of any other input to the
+universal function. The default <a class="reference internal" href="arrays.classes.html#numpy.class.__array_priority__" title="numpy.class.__array_priority__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_priority__</span></code></a> of the
+ndarray is 0.0, and the default <a class="reference internal" href="arrays.classes.html#numpy.class.__array_priority__" title="numpy.class.__array_priority__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_priority__</span></code></a> of a subtype
+is 0.0. Matrices have <a class="reference internal" href="arrays.classes.html#numpy.class.__array_priority__" title="numpy.class.__array_priority__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_priority__</span></code></a> equal to 10.0.</p>
+<p>All ufuncs can also take output arguments. If necessary, output will
+be cast to the data-type(s) of the provided output array(s). If a class
+with an <a class="reference internal" href="arrays.classes.html#numpy.class.__array__" title="numpy.class.__array__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array__</span></code></a> method is used for the output, results will be
+written to the object returned by <a class="reference internal" href="arrays.classes.html#numpy.class.__array__" title="numpy.class.__array__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array__</span></code></a>. Then, if the class
+also has an <a class="reference internal" href="arrays.classes.html#numpy.class.__array_prepare__" title="numpy.class.__array_prepare__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_prepare__</span></code></a> method, it is called so metadata
+may be determined based on the context of the ufunc (the context
+consisting of the ufunc itself, the arguments passed to the ufunc, and
+the ufunc domain.) The array object returned by
+<a class="reference internal" href="arrays.classes.html#numpy.class.__array_prepare__" title="numpy.class.__array_prepare__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_prepare__</span></code></a> is passed to the ufunc for computation.
+Finally, if the class also has an <a class="reference internal" href="arrays.classes.html#numpy.class.__array_wrap__" title="numpy.class.__array_wrap__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__array_wrap__</span></code></a> method, the returned
+<a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> result will be passed to that method just before
+passing control back to the caller.</p>
+</div>
+<div class="section" id="use-of-internal-buffers">
+<h2>Use of internal buffers<a class="headerlink" href="#use-of-internal-buffers" title="Permalink to this headline">¶</a></h2>
+<p id="index-2">Internally, buffers are used for misaligned data, swapped data, and
+data that has to be converted from one data type to another. The size
+of internal buffers is settable on a per-thread basis. There can
+be up to <img class="math" src="../_images/math/a4a87a8bb5b170d3ac24f33c8eaf35fd987b783c.svg" alt="2 (n_{\mathrm{inputs}} + n_{\mathrm{outputs}})"/>
+buffers of the specified size created to handle the data from all the
+inputs and outputs of a ufunc. The default size of a buffer is
+10,000 elements. Whenever buffer-based calculation would be needed,
+but all input arrays are smaller than the buffer size, those
+misbehaved or incorrectly-typed arrays will be copied before the
+calculation proceeds. Adjusting the size of the buffer may therefore
+alter the speed at which ufunc calculations of various sorts are
+completed. A simple interface for setting this variable is accessible
+using the function</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.setbufsize.html#numpy.setbufsize" title="numpy.setbufsize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setbufsize</span></code></a>(size)</p></td>
+<td><p>Set the size of the buffer used in ufuncs.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="error-handling">
+<h2>Error handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h2>
+<p id="index-3">Universal functions can trip special floating-point status registers
+in your hardware (such as divide-by-zero). If available on your
+platform, these registers will be regularly checked during
+calculation. Error handling is controlled on a per-thread basis,
+and can be configured using the functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.seterr.html#numpy.seterr" title="numpy.seterr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seterr</span></code></a>([all, divide, over, under, invalid])</p></td>
+<td><p>Set how floating-point errors are handled.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.seterrcall.html#numpy.seterrcall" title="numpy.seterrcall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seterrcall</span></code></a>(func)</p></td>
+<td><p>Set the floating-point error callback function or log object.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="casting-rules">
+<span id="ufuncs-casting"></span><h2>Casting Rules<a class="headerlink" href="#casting-rules" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note" id="index-4">
+<p class="admonition-title">Note</p>
+<p>In NumPy 1.6.0, a type promotion API was created to encapsulate the
+mechanism for determining output types. See the functions
+<a class="reference internal" href="generated/numpy.result_type.html#numpy.result_type" title="numpy.result_type"><code class="xref py py-func docutils literal notranslate"><span class="pre">result_type</span></code></a>, <a class="reference internal" href="generated/numpy.promote_types.html#numpy.promote_types" title="numpy.promote_types"><code class="xref py py-func docutils literal notranslate"><span class="pre">promote_types</span></code></a>, and
+<a class="reference internal" href="generated/numpy.min_scalar_type.html#numpy.min_scalar_type" title="numpy.min_scalar_type"><code class="xref py py-func docutils literal notranslate"><span class="pre">min_scalar_type</span></code></a> for more details.</p>
+</div>
+<p>At the core of every ufunc is a one-dimensional strided loop that
+implements the actual function for a specific type combination. When a
+ufunc is created, it is given a static list of inner loops and a
+corresponding list of type signatures over which the ufunc operates.
+The ufunc machinery uses this list to determine which inner loop to
+use for a particular case. You can inspect the <a class="reference internal" href="generated/numpy.ufunc.types.html#numpy.ufunc.types" title="numpy.ufunc.types"><code class="xref py py-attr docutils literal notranslate"><span class="pre">.types</span></code></a> attribute for a particular ufunc to see which type
+combinations have a defined inner loop and which output type they
+produce (<a class="reference internal" href="arrays.scalars.html#arrays-scalars-character-codes"><span class="std std-ref">character codes</span></a> are used
+in said output for brevity).</p>
+<p>Casting must be done on one or more of the inputs whenever the ufunc
+does not have a core loop implementation for the input types provided.
+If an implementation for the input types cannot be found, then the
+algorithm searches for an implementation with a type signature to
+which all of the inputs can be cast “safely.” The first one it finds
+in its internal list of loops is selected and performed, after all
+necessary type casting. Recall that internal copies during ufuncs (even
+for casting) are limited to the size of an internal buffer (which is user
+settable).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Universal functions in NumPy are flexible enough to have mixed type
+signatures. Thus, for example, a universal function could be defined
+that works with floating-point and integer values. See <a class="reference internal" href="generated/numpy.ldexp.html#numpy.ldexp" title="numpy.ldexp"><code class="xref py py-func docutils literal notranslate"><span class="pre">ldexp</span></code></a>
+for an example.</p>
+</div>
+<p>By the above description, the casting rules are essentially
+implemented by the question of when a data type can be cast “safely”
+to another data type. The answer to this question can be determined in
+Python with a function call: <a class="reference internal" href="generated/numpy.can_cast.html#numpy.can_cast" title="numpy.can_cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">can_cast(fromtype,</span> <span class="pre">totype)</span></code></a>. The Figure below shows the results of this call for
+the 24 internally supported types on the author’s 64-bit system. You
+can generate this table for your system with the code given in the Figure.</p>
+<div class="admonition-figure admonition">
+<p class="admonition-title">Figure</p>
+<p>Code segment showing the “can cast safely” table for a 64-bit system.
+Generally the output depends on the system; your system might result in
+a different table.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mark</span> <span class="o">=</span> <span class="p">{</span><span class="kc">False</span><span class="p">:</span> <span class="s1">&#39; -&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span> <span class="s1">&#39; Y&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_table</span><span class="p">(</span><span class="n">ntypes</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ntypes</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ntypes</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">ntypes</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="nb">print</span><span class="p">(</span><span class="n">mark</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">can_cast</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)],</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_table</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">typecodes</span><span class="p">[</span><span class="s1">&#39;All&#39;</span><span class="p">])</span>
+<span class="go">X ? b h i l q p B H I L Q P e f d g F D G S U V O M m</span>
+<span class="go">? Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y - Y</span>
+<span class="go">b - Y Y Y Y Y Y - - - - - - Y Y Y Y Y Y Y Y Y Y Y - Y</span>
+<span class="go">h - - Y Y Y Y Y - - - - - - - Y Y Y Y Y Y Y Y Y Y - Y</span>
+<span class="go">i - - - Y Y Y Y - - - - - - - - Y Y - Y Y Y Y Y Y - Y</span>
+<span class="go">l - - - - Y Y Y - - - - - - - - Y Y - Y Y Y Y Y Y - Y</span>
+<span class="go">q - - - - Y Y Y - - - - - - - - Y Y - Y Y Y Y Y Y - Y</span>
+<span class="go">p - - - - Y Y Y - - - - - - - - Y Y - Y Y Y Y Y Y - Y</span>
+<span class="go">B - - Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y - Y</span>
+<span class="go">H - - - Y Y Y Y - Y Y Y Y Y - Y Y Y Y Y Y Y Y Y Y - Y</span>
+<span class="go">I - - - - Y Y Y - - Y Y Y Y - - Y Y - Y Y Y Y Y Y - Y</span>
+<span class="go">L - - - - - - - - - - Y Y Y - - Y Y - Y Y Y Y Y Y - -</span>
+<span class="go">Q - - - - - - - - - - Y Y Y - - Y Y - Y Y Y Y Y Y - -</span>
+<span class="go">P - - - - - - - - - - Y Y Y - - Y Y - Y Y Y Y Y Y - -</span>
+<span class="go">e - - - - - - - - - - - - - Y Y Y Y Y Y Y Y Y Y Y - -</span>
+<span class="go">f - - - - - - - - - - - - - - Y Y Y Y Y Y Y Y Y Y - -</span>
+<span class="go">d - - - - - - - - - - - - - - - Y Y - Y Y Y Y Y Y - -</span>
+<span class="go">g - - - - - - - - - - - - - - - - Y - - Y Y Y Y Y - -</span>
+<span class="go">F - - - - - - - - - - - - - - - - - Y Y Y Y Y Y Y - -</span>
+<span class="go">D - - - - - - - - - - - - - - - - - - Y Y Y Y Y Y - -</span>
+<span class="go">G - - - - - - - - - - - - - - - - - - - Y Y Y Y Y - -</span>
+<span class="go">S - - - - - - - - - - - - - - - - - - - - Y Y Y Y - -</span>
+<span class="go">U - - - - - - - - - - - - - - - - - - - - - Y Y Y - -</span>
+<span class="go">V - - - - - - - - - - - - - - - - - - - - - - Y Y - -</span>
+<span class="go">O - - - - - - - - - - - - - - - - - - - - - - Y Y - -</span>
+<span class="go">M - - - - - - - - - - - - - - - - - - - - - - Y Y Y -</span>
+<span class="go">m - - - - - - - - - - - - - - - - - - - - - - Y Y - Y</span>
+</pre></div>
+</div>
+</div>
+<p>You should note that, while included in the table for completeness,
+the ‘S’, ‘U’, and ‘V’ types cannot be operated on by ufuncs. Also,
+note that on a 32-bit system the integer types may have different
+sizes, resulting in a slightly altered table.</p>
+<p>Mixed scalar-array operations use a different set of casting rules
+that ensure that a scalar cannot “upcast” an array unless the scalar is
+of a fundamentally different kind of data (<em>i.e.</em>, under a different
+hierarchy in the data-type hierarchy) than the array.  This rule
+enables you to use scalar constants in your code (which, as Python
+types, are interpreted accordingly in ufuncs) without worrying about
+whether the precision of the scalar constant will cause upcasting on
+your large (small precision) array.</p>
+</div>
+<div class="section" id="overriding-ufunc-behavior">
+<span id="ufuncs-overrides"></span><h2>Overriding Ufunc behavior<a class="headerlink" href="#overriding-ufunc-behavior" title="Permalink to this headline">¶</a></h2>
+<p>Classes (including ndarray subclasses) can override how ufuncs act on
+them by defining certain special methods.  For details, see
+<a class="reference internal" href="arrays.classes.html#arrays-classes"><span class="std std-ref">Standard array subclasses</span></a>.</p>
+</div>
+<div class="section" id="ufunc">
+<h2><code class="xref py py-class docutils literal notranslate"><span class="pre">ufunc</span></code><a class="headerlink" href="#ufunc" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="optional-keyword-arguments">
+<span id="ufuncs-kwargs"></span><h3>Optional keyword arguments<a class="headerlink" href="#optional-keyword-arguments" title="Permalink to this headline">¶</a></h3>
+<p>All ufuncs take optional keyword arguments. Most of these represent
+advanced usage and will not typically be used.</p>
+<p id="index-5"><em>out</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.</span></p>
+</div>
+<p>The first output can be provided as either a positional or a keyword
+parameter. Keyword ‘out’ arguments are incompatible with positional
+ones.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.10.</span></p>
+</div>
+<p>The ‘out’ keyword argument is expected to be a tuple with one entry per
+output (which can be None for arrays to be allocated by the ufunc).
+For ufuncs with a single output, passing a single array (instead of a
+tuple holding a single array) is also valid.</p>
+<p>Passing a single array in the ‘out’ keyword argument to a ufunc with
+multiple outputs is deprecated, and will raise a warning in numpy 1.10,
+and an error in a future release.</p>
+<p>If ‘out’ is None (the default), a uninitialized return array is created.
+The output array is then filled with the results of the ufunc in the places
+that the broadcast ‘where’ is True. If ‘where’ is the scalar True (the
+default), then this corresponds to the entire output being filled.
+Note that outputs not explicitly filled are left with their
+uninitialized values.</p>
+</div></blockquote>
+<p><em>where</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.7.</span></p>
+</div>
+<p>Accepts a boolean array which is broadcast together with the operands.
+Values of True indicate to calculate the ufunc at that position, values
+of False indicate to leave the value in the output alone. This argument
+cannot be used for generalized ufuncs as those take non-scalar input.</p>
+<p>Note that if an uninitialized return array is created, values of False
+will leave those values <strong>uninitialized</strong>.</p>
+</div></blockquote>
+<p><em>axes</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.15.</span></p>
+</div>
+<p>A list of tuples with indices of axes a generalized ufunc should operate
+on. For instance, for a signature of <code class="docutils literal notranslate"><span class="pre">(i,j),(j,k)-&gt;(i,k)</span></code> appropriate
+for matrix multiplication, the base elements are two-dimensional matrices
+and these are taken to be stored in the two last axes of each argument.
+The corresponding axes keyword would be <code class="docutils literal notranslate"><span class="pre">[(-2,</span> <span class="pre">-1),</span> <span class="pre">(-2,</span> <span class="pre">-1),</span> <span class="pre">(-2,</span> <span class="pre">-1)]</span></code>.
+For simplicity, for generalized ufuncs that operate on 1-dimensional arrays
+(vectors), a single integer is accepted instead of a single-element tuple,
+and for generalized ufuncs for which all outputs are scalars, the output
+tuples can be omitted.</p>
+</div></blockquote>
+<p><em>axis</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.15.</span></p>
+</div>
+<p>A single axis over which a generalized ufunc should operate. This is a
+short-cut for ufuncs that operate over a single, shared core dimension,
+equivalent to passing in <code class="docutils literal notranslate"><span class="pre">axes</span></code> with entries of <code class="docutils literal notranslate"><span class="pre">(axis,)</span></code> for each
+single-core-dimension argument and <code class="docutils literal notranslate"><span class="pre">()</span></code> for all others.  For instance,
+for a signature <code class="docutils literal notranslate"><span class="pre">(i),(i)-&gt;()</span></code>, it is equivalent to passing in
+<code class="docutils literal notranslate"><span class="pre">axes=[(axis,),</span> <span class="pre">(axis,),</span> <span class="pre">()]</span></code>.</p>
+</div></blockquote>
+<p><em>keepdims</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.15.</span></p>
+</div>
+<p>If this is set to <em class="xref py py-obj">True</em>, axes which are reduced over will be left in the
+result as a dimension with size one, so that the result will broadcast
+correctly against the inputs. This option can only be used for generalized
+ufuncs that operate on inputs that all have the same number of core
+dimensions and with outputs that have no core dimensions , i.e., with
+signatures like <code class="docutils literal notranslate"><span class="pre">(i),(i)-&gt;()</span></code> or <code class="docutils literal notranslate"><span class="pre">(m,m)-&gt;()</span></code>. If used, the location of
+the dimensions in the output can be controlled with <code class="docutils literal notranslate"><span class="pre">axes</span></code> and <code class="docutils literal notranslate"><span class="pre">axis</span></code>.</p>
+</div></blockquote>
+<p><em>casting</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.</span></p>
+</div>
+<p>May be ‘no’, ‘equiv’, ‘safe’, ‘same_kind’, or ‘unsafe’.
+See <a class="reference internal" href="generated/numpy.can_cast.html#numpy.can_cast" title="numpy.can_cast"><code class="xref py py-func docutils literal notranslate"><span class="pre">can_cast</span></code></a> for explanations of the parameter values.</p>
+<p>Provides a policy for what kind of casting is permitted. For compatibility
+with previous versions of NumPy, this defaults to ‘unsafe’ for numpy &lt; 1.7.
+In numpy 1.7 a transition to ‘same_kind’ was begun where ufuncs produce a
+DeprecationWarning for calls which are allowed under the ‘unsafe’
+rules, but not under the ‘same_kind’ rules. From numpy 1.10 and
+onwards, the default is ‘same_kind’.</p>
+</div></blockquote>
+<p><em>order</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.</span></p>
+</div>
+<p>Specifies the calculation iteration order/memory layout of the output array.
+Defaults to ‘K’. ‘C’ means the output should be C-contiguous, ‘F’ means
+F-contiguous, ‘A’ means F-contiguous if the inputs are F-contiguous and
+not also not C-contiguous, C-contiguous otherwise, and ‘K’ means to match
+the element ordering of the inputs as closely as possible.</p>
+</div></blockquote>
+<p><em>dtype</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.</span></p>
+</div>
+<p>Overrides the dtype of the calculation and output arrays. Similar to
+<em>signature</em>.</p>
+</div></blockquote>
+<p><em>subok</em></p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.6.</span></p>
+</div>
+<p>Defaults to true. If set to false, the output will always be a strict
+array, not a subtype.</p>
+</div></blockquote>
+<p><em>signature</em></p>
+<blockquote>
+<div><p>Either a data-type, a tuple of data-types, or a special signature
+string indicating the input and output types of a ufunc. This argument
+allows you to provide a specific signature for the 1-d loop to use
+in the underlying calculation. If the loop specified does not exist
+for the ufunc, then a TypeError is raised. Normally, a suitable loop is
+found automatically by comparing the input types with what is
+available and searching for a loop with data-types to which all inputs
+can be cast safely. This keyword argument lets you bypass that
+search and choose a particular loop. A list of available signatures is
+provided by the <strong>types</strong> attribute of the ufunc object. For backwards
+compatibility this argument can also be provided as <em>sig</em>, although
+the long form is preferred. Note that this should not be confused with
+the generalized ufunc <a class="reference internal" href="c-api/generalized-ufuncs.html#details-of-signature"><span class="std std-ref">signature</span></a> that is
+stored in the <strong>signature</strong> attribute of the of the ufunc object.</p>
+</div></blockquote>
+<p><em>extobj</em></p>
+<blockquote>
+<div><p>a list of length 1, 2, or 3 specifying the ufunc buffer-size, the
+error mode integer, and the error call-back function. Normally, these
+values are looked up in a thread-specific dictionary. Passing them
+here circumvents that look up and uses the low-level specification
+provided for the error mode. This may be useful, for example, as an
+optimization for calculations requiring many ufunc calls on small arrays
+in a loop.</p>
+</div></blockquote>
+</div>
+<div class="section" id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+<p>There are some informational attributes that universal functions
+possess. None of the attributes can be set.</p>
+<table class="docutils align-default" id="index-6">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 84%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>__doc__</strong></p></td>
+<td><p>A docstring for each ufunc. The first part of the docstring is
+dynamically generated from the number of outputs, the name, and
+the number of inputs. The second part of the docstring is
+provided at creation time and stored with the ufunc.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>__name__</strong></p></td>
+<td><p>The name of the ufunc.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.nin.html#numpy.ufunc.nin" title="numpy.ufunc.nin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.nin</span></code></a></p></td>
+<td><p>The number of inputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.ufunc.nout.html#numpy.ufunc.nout" title="numpy.ufunc.nout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.nout</span></code></a></p></td>
+<td><p>The number of outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.nargs.html#numpy.ufunc.nargs" title="numpy.ufunc.nargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.nargs</span></code></a></p></td>
+<td><p>The number of arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.ufunc.ntypes.html#numpy.ufunc.ntypes" title="numpy.ufunc.ntypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.ntypes</span></code></a></p></td>
+<td><p>The number of types.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.types.html#numpy.ufunc.types" title="numpy.ufunc.types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.types</span></code></a></p></td>
+<td><p>Returns a list with types grouped input-&gt;output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.ufunc.identity.html#numpy.ufunc.identity" title="numpy.ufunc.identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.identity</span></code></a></p></td>
+<td><p>The identity value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.signature.html#numpy.ufunc.signature" title="numpy.ufunc.signature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.signature</span></code></a></p></td>
+<td><p>Definition of the core elements a generalized ufunc operates on.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="methods">
+<span id="ufuncs-methods"></span><h3>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h3>
+<p>All ufuncs have four methods. However, these methods only make sense on scalar
+ufuncs that take two input arguments and return one output argument.
+Attempting to call these methods on other ufuncs will cause a
+<a class="reference external" href="https://docs.python.org/dev/library/exceptions.html#ValueError" title="(in Python v3.9)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a>. The reduce-like methods all take an <em>axis</em> keyword, a <em>dtype</em>
+keyword, and an <em>out</em> keyword, and the arrays must all have dimension &gt;= 1.
+The <em>axis</em> keyword specifies the axis of the array over which the reduction
+will take place (with negative values counting backwards). Generally, it is an
+integer, though for <a class="reference internal" href="generated/numpy.ufunc.reduce.html#numpy.ufunc.reduce" title="numpy.ufunc.reduce"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ufunc.reduce</span></code></a>, it can also be a tuple of <a class="reference external" href="https://docs.python.org/dev/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a> to
+reduce over several axes at once, or None, to reduce over all axes.
+The <em>dtype</em> keyword allows you to manage a very common problem that arises
+when naively using <a class="reference internal" href="generated/numpy.ufunc.reduce.html#numpy.ufunc.reduce" title="numpy.ufunc.reduce"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ufunc.reduce</span></code></a>. Sometimes you may
+have an array of a certain data type and wish to add up all of its
+elements, but the result does not fit into the data type of the
+array. This commonly happens if you have an array of single-byte
+integers. The <em>dtype</em> keyword allows you to alter the data type over which
+the reduction takes place (and therefore the type of the output). Thus,
+you can ensure that the output is a data type with precision large enough
+to handle your output. The responsibility of altering the reduce type is
+mostly up to you. There is one exception: if no <em>dtype</em> is given for a
+reduction on the “add” or “multiply” operations, then if the input type is
+an integer (or Boolean) data-type and smaller than the size of the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">int_</span></code> data type, it will be internally upcast to the <code class="xref py py-class docutils literal notranslate"><span class="pre">int_</span></code>
+(or <code class="xref py py-class docutils literal notranslate"><span class="pre">uint</span></code>) data-type. Finally, the <em>out</em> keyword allows you to provide
+an output array (for single-output ufuncs, which are currently the only ones
+supported; for future extension, however, a tuple with a single argument
+can be passed in). If <em>out</em> is given, the <em>dtype</em> argument is ignored.</p>
+<p>Ufuncs also have a fifth method that allows in place operations to be
+performed using fancy indexing. No buffering is used on the dimensions where
+fancy indexing is used, so the fancy index can list an item more than once and
+the operation will be performed on the result of the previous operation for
+that item.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.reduce.html#numpy.ufunc.reduce" title="numpy.ufunc.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.reduce</span></code></a>(a[, axis, dtype, out, …])</p></td>
+<td><p>Reduces <em class="xref py py-obj">a</em>’s dimension by one, by applying ufunc along one axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.ufunc.accumulate.html#numpy.ufunc.accumulate" title="numpy.ufunc.accumulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.accumulate</span></code></a>(array[, axis, dtype, out])</p></td>
+<td><p>Accumulate the result of applying the operator to all elements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.reduceat.html#numpy.ufunc.reduceat" title="numpy.ufunc.reduceat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.reduceat</span></code></a>(a, indices[, axis, dtype, out])</p></td>
+<td><p>Performs a (local) reduce with specified slices over a single axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.ufunc.outer.html#numpy.ufunc.outer" title="numpy.ufunc.outer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.outer</span></code></a>(A, B, **kwargs)</p></td>
+<td><p>Apply the ufunc <em class="xref py py-obj">op</em> to all pairs (a, b) with a in <em class="xref py py-obj">A</em> and b in <em class="xref py py-obj">B</em>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ufunc.at.html#numpy.ufunc.at" title="numpy.ufunc.at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ufunc.at</span></code></a>(a, indices[, b])</p></td>
+<td><p>Performs unbuffered in place operation on operand ‘a’ for elements specified by ‘indices’.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A reduce-like operation on an array with a data-type that has a
+range “too small” to handle the result will silently wrap. One
+should use <a class="reference internal" href="generated/numpy.dtype.html#numpy.dtype" title="numpy.dtype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtype</span></code></a> to increase the size of the data-type over which
+reduction takes place.</p>
+</div>
+</div>
+</div>
+<div class="section" id="available-ufuncs">
+<h2>Available ufuncs<a class="headerlink" href="#available-ufuncs" title="Permalink to this headline">¶</a></h2>
+<p>There are currently more than 60 universal functions defined in
+<a class="reference internal" href="index.html#module-numpy" title="numpy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy</span></code></a> on one or more types, covering a wide variety of
+operations. Some of these ufuncs are called automatically on arrays
+when the relevant infix notation is used (<em>e.g.</em>, <a class="reference internal" href="generated/numpy.add.html#numpy.add" title="numpy.add"><code class="xref py py-func docutils literal notranslate"><span class="pre">add(a,</span> <span class="pre">b)</span></code></a>
+is called internally when <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span></code> is written and <em>a</em> or <em>b</em> is an
+<a class="reference internal" href="generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>). Nevertheless, you may still want to use the ufunc
+call in order to use the optional output argument(s) to place the
+output(s) in an object (or objects) of your choice.</p>
+<p>Recall that each ufunc operates element-by-element. Therefore, each scalar
+ufunc will be described as if acting on a set of scalar inputs to
+return a set of scalar outputs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The ufunc still returns its output(s) even if you use the optional
+output argument(s).</p>
+</div>
+<div class="section" id="math-operations">
+<h3>Math operations<a class="headerlink" href="#math-operations" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.add.html#numpy.add" title="numpy.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(x1, x2, /[, out, where, casting, order, …])</p></td>
+<td><p>Add arguments element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.subtract.html#numpy.subtract" title="numpy.subtract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subtract</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Subtract arguments, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.multiply.html#numpy.multiply" title="numpy.multiply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiply</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Multiply arguments element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.divide.html#numpy.divide" title="numpy.divide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">divide</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Returns a true division of the inputs, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.logaddexp.html#numpy.logaddexp" title="numpy.logaddexp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logaddexp</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Logarithm of the sum of exponentiations of the inputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.logaddexp2.html#numpy.logaddexp2" title="numpy.logaddexp2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logaddexp2</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Logarithm of the sum of exponentiations of the inputs in base-2.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.true_divide.html#numpy.true_divide" title="numpy.true_divide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_divide</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Returns a true division of the inputs, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.floor_divide.html#numpy.floor_divide" title="numpy.floor_divide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">floor_divide</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Return the largest integer smaller or equal to the division of the inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.negative.html#numpy.negative" title="numpy.negative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negative</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Numerical negative, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.positive.html#numpy.positive" title="numpy.positive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positive</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Numerical positive, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.power.html#numpy.power" title="numpy.power"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>First array elements raised to powers from second array, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.remainder.html#numpy.remainder" title="numpy.remainder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remainder</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return element-wise remainder of division.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.mod.html#numpy.mod" title="numpy.mod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mod</span></code></a>(x1, x2, /[, out, where, casting, order, …])</p></td>
+<td><p>Return element-wise remainder of division.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fmod.html#numpy.fmod" title="numpy.fmod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fmod</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return the element-wise remainder of division.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.divmod.html#numpy.divmod" title="numpy.divmod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">divmod</span></code></a>(x1, x2[, out1, out2], / [[, out, …])</p></td>
+<td><p>Return element-wise quotient and remainder simultaneously.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.absolute.html#numpy.absolute" title="numpy.absolute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">absolute</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Calculate the absolute value element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fabs.html#numpy.fabs" title="numpy.fabs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fabs</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Compute the absolute values element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.rint.html#numpy.rint" title="numpy.rint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rint</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Round elements of the array to the nearest integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.sign.html#numpy.sign" title="numpy.sign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sign</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Returns an element-wise indication of the sign of a number.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.heaviside.html#numpy.heaviside" title="numpy.heaviside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heaviside</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Compute the Heaviside step function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.conj.html#numpy.conj" title="numpy.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the complex conjugate, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.conjugate.html#numpy.conjugate" title="numpy.conjugate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></a>(x, /[, out, where, casting, …])</p></td>
+<td><p>Return the complex conjugate, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.exp.html#numpy.exp" title="numpy.exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Calculate the exponential of all elements in the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.exp2.html#numpy.exp2" title="numpy.exp2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp2</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Calculate <em class="xref py py-obj">2**p</em> for all <em class="xref py py-obj">p</em> in the input array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.log.html#numpy.log" title="numpy.log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Natural logarithm, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.log2.html#numpy.log2" title="numpy.log2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log2</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Base-2 logarithm of <em class="xref py py-obj">x</em>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.log10.html#numpy.log10" title="numpy.log10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log10</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the base 10 logarithm of the input array, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.expm1.html#numpy.expm1" title="numpy.expm1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expm1</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Calculate <code class="docutils literal notranslate"><span class="pre">exp(x)</span> <span class="pre">-</span> <span class="pre">1</span></code> for all elements in the array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.log1p.html#numpy.log1p" title="numpy.log1p"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log1p</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the natural logarithm of one plus the input array, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.sqrt.html#numpy.sqrt" title="numpy.sqrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the non-negative square-root of an array, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.square.html#numpy.square" title="numpy.square"><code class="xref py py-obj docutils literal notranslate"><span class="pre">square</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the element-wise square of the input.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.cbrt.html#numpy.cbrt" title="numpy.cbrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cbrt</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the cube-root of an array, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.reciprocal.html#numpy.reciprocal" title="numpy.reciprocal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reciprocal</span></code></a>(x, /[, out, where, casting, …])</p></td>
+<td><p>Return the reciprocal of the argument, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.gcd.html#numpy.gcd" title="numpy.gcd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gcd</span></code></a>(x1, x2, /[, out, where, casting, order, …])</p></td>
+<td><p>Returns the greatest common divisor of <code class="docutils literal notranslate"><span class="pre">|x1|</span></code> and <code class="docutils literal notranslate"><span class="pre">|x2|</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.lcm.html#numpy.lcm" title="numpy.lcm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lcm</span></code></a>(x1, x2, /[, out, where, casting, order, …])</p></td>
+<td><p>Returns the lowest common multiple of <code class="docutils literal notranslate"><span class="pre">|x1|</span></code> and <code class="docutils literal notranslate"><span class="pre">|x2|</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The optional output arguments can be used to help you save memory
+for large calculations. If your arrays are large, complicated
+expressions can take longer than absolutely necessary due to the
+creation and (later) destruction of temporary calculation
+spaces. For example, the expression <code class="docutils literal notranslate"><span class="pre">G</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">*</span> <span class="pre">b</span> <span class="pre">+</span> <span class="pre">c</span></code> is equivalent to
+<code class="docutils literal notranslate"><span class="pre">t1</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">*</span> <span class="pre">B;</span> <span class="pre">G</span> <span class="pre">=</span> <span class="pre">T1</span> <span class="pre">+</span> <span class="pre">C;</span> <span class="pre">del</span> <span class="pre">t1</span></code>. It will be more quickly executed
+as <code class="docutils literal notranslate"><span class="pre">G</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">*</span> <span class="pre">B;</span> <span class="pre">add(G,</span> <span class="pre">C,</span> <span class="pre">G)</span></code> which is the same as
+<code class="docutils literal notranslate"><span class="pre">G</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">*</span> <span class="pre">B;</span> <span class="pre">G</span> <span class="pre">+=</span> <span class="pre">C</span></code>.</p>
+</div>
+</div>
+<div class="section" id="trigonometric-functions">
+<h3>Trigonometric functions<a class="headerlink" href="#trigonometric-functions" title="Permalink to this headline">¶</a></h3>
+<p>All trigonometric functions use radians when an angle is called for.
+The ratio of degrees to radians is <img class="math" src="../_images/math/5e0b611967c07a14089a363b43fea73295089863.svg" alt="180^{\circ}/\pi."/></p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.sin.html#numpy.sin" title="numpy.sin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sin</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Trigonometric sine, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.cos.html#numpy.cos" title="numpy.cos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cos</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Cosine element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.tan.html#numpy.tan" title="numpy.tan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tan</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Compute tangent element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.arcsin.html#numpy.arcsin" title="numpy.arcsin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arcsin</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Inverse sine, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.arccos.html#numpy.arccos" title="numpy.arccos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arccos</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Trigonometric inverse cosine, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.arctan.html#numpy.arctan" title="numpy.arctan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arctan</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Trigonometric inverse tangent, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.arctan2.html#numpy.arctan2" title="numpy.arctan2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arctan2</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Element-wise arc tangent of <code class="docutils literal notranslate"><span class="pre">x1/x2</span></code> choosing the quadrant correctly.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.hypot.html#numpy.hypot" title="numpy.hypot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hypot</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Given the “legs” of a right triangle, return its hypotenuse.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.sinh.html#numpy.sinh" title="numpy.sinh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sinh</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Hyperbolic sine, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.cosh.html#numpy.cosh" title="numpy.cosh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cosh</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Hyperbolic cosine, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.tanh.html#numpy.tanh" title="numpy.tanh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tanh</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Compute hyperbolic tangent element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.arcsinh.html#numpy.arcsinh" title="numpy.arcsinh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arcsinh</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Inverse hyperbolic sine element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.arccosh.html#numpy.arccosh" title="numpy.arccosh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arccosh</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Inverse hyperbolic cosine, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.arctanh.html#numpy.arctanh" title="numpy.arctanh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arctanh</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Inverse hyperbolic tangent element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.deg2rad.html#numpy.deg2rad" title="numpy.deg2rad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deg2rad</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Convert angles from degrees to radians.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.rad2deg.html#numpy.rad2deg" title="numpy.rad2deg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rad2deg</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Convert angles from radians to degrees.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="bit-twiddling-functions">
+<h3>Bit-twiddling functions<a class="headerlink" href="#bit-twiddling-functions" title="Permalink to this headline">¶</a></h3>
+<p>These function all require integer arguments and they manipulate the
+bit-pattern of those arguments.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.bitwise_and.html#numpy.bitwise_and" title="numpy.bitwise_and"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bitwise_and</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Compute the bit-wise AND of two arrays element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.bitwise_or.html#numpy.bitwise_or" title="numpy.bitwise_or"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bitwise_or</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Compute the bit-wise OR of two arrays element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.bitwise_xor.html#numpy.bitwise_xor" title="numpy.bitwise_xor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bitwise_xor</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Compute the bit-wise XOR of two arrays element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.invert.html#numpy.invert" title="numpy.invert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Compute bit-wise inversion, or bit-wise NOT, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.left_shift.html#numpy.left_shift" title="numpy.left_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">left_shift</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Shift the bits of an integer to the left.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.right_shift.html#numpy.right_shift" title="numpy.right_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">right_shift</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Shift the bits of an integer to the right.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="comparison-functions">
+<h3>Comparison functions<a class="headerlink" href="#comparison-functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.greater.html#numpy.greater" title="numpy.greater"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return the truth value of (x1 &gt; x2) element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.greater_equal.html#numpy.greater_equal" title="numpy.greater_equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_equal</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Return the truth value of (x1 &gt;= x2) element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.less.html#numpy.less" title="numpy.less"><code class="xref py py-obj docutils literal notranslate"><span class="pre">less</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return the truth value of (x1 &lt; x2) element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.less_equal.html#numpy.less_equal" title="numpy.less_equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">less_equal</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return the truth value of (x1 =&lt; x2) element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.not_equal.html#numpy.not_equal" title="numpy.not_equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">not_equal</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return (x1 != x2) element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.equal.html#numpy.equal" title="numpy.equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">equal</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return (x1 == x2) element-wise.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not use the Python keywords <code class="docutils literal notranslate"><span class="pre">and</span></code> and <code class="docutils literal notranslate"><span class="pre">or</span></code> to combine
+logical array expressions. These keywords will test the truth
+value of the entire array (not element-by-element as you might
+expect). Use the bitwise operators &amp; and | instead.</p>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.logical_and.html#numpy.logical_and" title="numpy.logical_and"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_and</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Compute the truth value of x1 AND x2 element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.logical_or.html#numpy.logical_or" title="numpy.logical_or"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_or</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Compute the truth value of x1 OR x2 element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.logical_xor.html#numpy.logical_xor" title="numpy.logical_xor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_xor</span></code></a>(x1, x2, /[, out, where, …])</p></td>
+<td><p>Compute the truth value of x1 XOR x2, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.logical_not.html#numpy.logical_not" title="numpy.logical_not"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_not</span></code></a>(x, /[, out, where, casting, …])</p></td>
+<td><p>Compute the truth value of NOT x element-wise.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The bit-wise operators &amp; and | are the proper way to perform
+element-by-element array comparisons. Be sure you understand the
+operator precedence: <code class="docutils literal notranslate"><span class="pre">(a</span> <span class="pre">&gt;</span> <span class="pre">2)</span> <span class="pre">&amp;</span> <span class="pre">(a</span> <span class="pre">&lt;</span> <span class="pre">5)</span></code> is the proper syntax because
+<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">2</span> <span class="pre">&amp;</span> <span class="pre">a</span> <span class="pre">&lt;</span> <span class="pre">5</span></code> will result in an error due to the fact that <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">&amp;</span> <span class="pre">a</span></code>
+is evaluated first.</p>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.maximum.html#numpy.maximum" title="numpy.maximum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Element-wise maximum of array elements.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The Python function <code class="docutils literal notranslate"><span class="pre">max()</span></code> will find the maximum over a one-dimensional
+array, but it will do so using a slower sequence interface. The reduce
+method of the maximum ufunc is much faster. Also, the <code class="docutils literal notranslate"><span class="pre">max()</span></code> method
+will not give answers you might expect for arrays with greater than
+one dimension. The reduce method of minimum also allows you to compute
+a total minimum over an array.</p>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.minimum.html#numpy.minimum" title="numpy.minimum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimum</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Element-wise minimum of array elements.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>the behavior of <code class="docutils literal notranslate"><span class="pre">maximum(a,</span> <span class="pre">b)</span></code> is different than that of <code class="docutils literal notranslate"><span class="pre">max(a,</span> <span class="pre">b)</span></code>.
+As a ufunc, <code class="docutils literal notranslate"><span class="pre">maximum(a,</span> <span class="pre">b)</span></code> performs an element-by-element comparison
+of <em class="xref py py-obj">a</em> and <em class="xref py py-obj">b</em> and chooses each element of the result according to which
+element in the two arrays is larger. In contrast, <code class="docutils literal notranslate"><span class="pre">max(a,</span> <span class="pre">b)</span></code> treats
+the objects <em class="xref py py-obj">a</em> and <em class="xref py py-obj">b</em> as a whole, looks at the (total) truth value of
+<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">b</span></code> and uses it to return either <em class="xref py py-obj">a</em> or <em class="xref py py-obj">b</em> (as a whole). A similar
+difference exists between <code class="docutils literal notranslate"><span class="pre">minimum(a,</span> <span class="pre">b)</span></code> and <code class="docutils literal notranslate"><span class="pre">min(a,</span> <span class="pre">b)</span></code>.</p>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fmax.html#numpy.fmax" title="numpy.fmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fmax</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Element-wise maximum of array elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.fmin.html#numpy.fmin" title="numpy.fmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fmin</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Element-wise minimum of array elements.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="floating-functions">
+<h3>Floating functions<a class="headerlink" href="#floating-functions" title="Permalink to this headline">¶</a></h3>
+<p>Recall that all of these functions work element-by-element over an
+array, returning an array output. The description details only a
+single operation.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.isfinite.html#numpy.isfinite" title="numpy.isfinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isfinite</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Test element-wise for finiteness (not infinity or not Not a Number).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.isinf.html#numpy.isinf" title="numpy.isinf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isinf</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Test element-wise for positive or negative infinity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.isnan.html#numpy.isnan" title="numpy.isnan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isnan</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Test element-wise for NaN and return result as a boolean array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.isnat.html#numpy.isnat" title="numpy.isnat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isnat</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Test element-wise for NaT (not a time) and return result as a boolean array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fabs.html#numpy.fabs" title="numpy.fabs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fabs</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Compute the absolute values element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.signbit.html#numpy.signbit" title="numpy.signbit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signbit</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Returns element-wise True where signbit is set (less than zero).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.copysign.html#numpy.copysign" title="numpy.copysign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copysign</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Change the sign of x1 to that of x2, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.nextafter.html#numpy.nextafter" title="numpy.nextafter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nextafter</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return the next floating-point value after x1 towards x2, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.spacing.html#numpy.spacing" title="numpy.spacing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacing</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the distance between x and the nearest adjacent number.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.modf.html#numpy.modf" title="numpy.modf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modf</span></code></a>(x[, out1, out2], / [[, out, where, …])</p></td>
+<td><p>Return the fractional and integral parts of an array, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ldexp.html#numpy.ldexp" title="numpy.ldexp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ldexp</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Returns x1 * 2**x2, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.frexp.html#numpy.frexp" title="numpy.frexp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frexp</span></code></a>(x[, out1, out2], / [[, out, where, …])</p></td>
+<td><p>Decompose the elements of x into mantissa and twos exponent.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.fmod.html#numpy.fmod" title="numpy.fmod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fmod</span></code></a>(x1, x2, /[, out, where, casting, …])</p></td>
+<td><p>Return the element-wise remainder of division.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.floor.html#numpy.floor" title="numpy.floor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">floor</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the floor of the input, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/numpy.ceil.html#numpy.ceil" title="numpy.ceil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ceil</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the ceiling of the input, element-wise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/numpy.trunc.html#numpy.trunc" title="numpy.trunc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trunc</span></code></a>(x, /[, out, where, casting, order, …])</p></td>
+<td><p>Return the truncated value of the input, element-wise.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

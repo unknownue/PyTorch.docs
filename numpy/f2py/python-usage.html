@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Using F2PY bindings in Python &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="F2PY Users Guide and Reference Manual" href="index.html" >
+    <link rel="next" title="Using F2PY" href="usage.html" >
+    <link rel="prev" title="Signature file" href="signature-file.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" accesskey="U">F2PY Users Guide and Reference Manual</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="usage.html" title="Using F2PY"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="signature-file.html" title="Signature file"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using F2PY bindings in Python</a><ul>
+<li><a class="reference internal" href="#scalar-arguments">Scalar arguments</a></li>
+<li><a class="reference internal" href="#string-arguments">String arguments</a></li>
+<li><a class="reference internal" href="#array-arguments">Array arguments</a></li>
+<li><a class="reference internal" href="#call-back-arguments">Call-back arguments</a><ul>
+<li><a class="reference internal" href="#resolving-arguments-to-call-back-functions">Resolving arguments to call-back functions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-blocks">Common blocks</a></li>
+<li><a class="reference internal" href="#fortran-90-module-data">Fortran 90 module data</a><ul>
+<li><a class="reference internal" href="#allocatable-arrays">Allocatable arrays</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="signature-file.html"
+                        title="previous chapter">Signature file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="usage.html"
+                        title="next chapter">Using F2PY</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="using-f2py-bindings-in-python">
+<h1>Using F2PY bindings in Python<a class="headerlink" href="#using-f2py-bindings-in-python" title="Permalink to this headline">¶</a></h1>
+<p>All wrappers for Fortran/C routines, common blocks, or for Fortran
+90 module data generated by F2PY are exposed to Python as <code class="docutils literal notranslate"><span class="pre">fortran</span></code>
+type objects.  Routine wrappers are callable <code class="docutils literal notranslate"><span class="pre">fortran</span></code> type objects
+while wrappers to Fortran data have attributes referring to data
+objects.</p>
+<p>All <code class="docutils literal notranslate"><span class="pre">fortran</span></code> type object have attribute <code class="docutils literal notranslate"><span class="pre">_cpointer</span></code> that contains
+CObject referring to the C pointer of the corresponding Fortran/C
+function or variable in C level. Such CObjects can be used as a
+callback argument of F2PY generated functions to bypass Python C/API
+layer of calling Python functions from Fortran or C when the
+computational part of such functions is implemented in C or Fortran
+and wrapped with F2PY (or any other tool capable of providing CObject
+of a function).</p>
+<p>Consider a Fortran 77 file <code class="docutils literal notranslate"><span class="pre">ftype.f</span></code>:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="n">FILE</span><span class="p">:</span> <span class="n">FTYPE</span><span class="o">.</span><span class="n">F</span>
+      <span class="n">SUBROUTINE</span> <span class="n">FOO</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+      <span class="n">INTEGER</span> <span class="n">N</span>
+<span class="n">Cf2py</span> <span class="n">integer</span> <span class="n">optional</span><span class="p">,</span><span class="n">intent</span><span class="p">(</span><span class="ow">in</span><span class="p">)</span> <span class="p">::</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">13</span>
+      <span class="n">REAL</span> <span class="n">A</span><span class="p">,</span><span class="n">X</span>
+      <span class="n">COMMON</span> <span class="o">/</span><span class="n">DATA</span><span class="o">/</span> <span class="n">A</span><span class="p">,</span><span class="n">X</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;IN FOO: N=&quot;</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="s2">&quot; A=&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="s2">&quot; X=[&quot;</span><span class="p">,</span><span class="n">X</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">X</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">X</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="s2">&quot;]&quot;</span>
+      <span class="n">END</span>
+<span class="n">C</span> <span class="n">END</span> <span class="n">OF</span> <span class="n">FTYPE</span><span class="o">.</span><span class="n">F</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and build a wrapper using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">ftype.f</span> <span class="pre">-m</span> <span class="pre">ftype</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ftype</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">ftype</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">This module &#39;ftype&#39; is auto-generated with f2py (version:2.28.198-1366).</span>
+<span class="go">Functions:</span>
+<span class="go">  foo(n=13)</span>
+<span class="go">COMMON blocks:</span>
+<span class="go">  /data/ a,x(3)</span>
+<span class="go">.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">ftype</span><span class="o">.</span><span class="n">foo</span><span class="p">),</span><span class="nb">type</span><span class="p">(</span><span class="n">ftype</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="go">(&lt;type &#39;fortran&#39;&gt;, &lt;type &#39;fortran&#39;&gt;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> IN FOO: N= 13 A=  0. X=[  0.  0.  0.]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> IN FOO: N= 13 A=  3. X=[  1.  2.  3.]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">45</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span>
+<span class="go"> IN FOO: N= 24 A=  3. X=[  1.  45.  3.]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ftype</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span>
+<span class="go">array([  1.,  45.,   3.],&#39;f&#39;)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="section" id="scalar-arguments">
+<h2>Scalar arguments<a class="headerlink" href="#scalar-arguments" title="Permalink to this headline">¶</a></h2>
+<p>In general, a scalar argument of a F2PY generated wrapper function can
+be ordinary Python scalar (integer, float, complex number) as well as
+an arbitrary sequence object (list, tuple, array, string) of
+scalars. In the latter case, the first element of the sequence object
+is passed to Fortran routine as a scalar argument.</p>
+<p>Note that when type-casting is required and there is possible loss of
+information (e.g. when type-casting float to integer or complex to
+float), F2PY does not raise any exception. In complex to real
+type-casting only the real part of a complex number is used.</p>
+<p><code class="docutils literal notranslate"><span class="pre">intent(inout)</span></code> scalar arguments are assumed to be array objects in
+order to <em>in situ</em> changes to be effective. It is recommended to use
+arrays with proper type but also other types work.</p>
+<p>Consider the following Fortran 77 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="n">FILE</span><span class="p">:</span> <span class="n">SCALAR</span><span class="o">.</span><span class="n">F</span>
+      <span class="n">SUBROUTINE</span> <span class="n">FOO</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
+      <span class="n">REAL</span><span class="o">*</span><span class="mi">8</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span>
+<span class="n">Cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="ow">in</span><span class="p">)</span> <span class="n">a</span>
+<span class="n">Cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span> <span class="n">b</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;    A=&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="s2">&quot; B=&quot;</span><span class="p">,</span><span class="n">B</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;INCREMENT A AND B&quot;</span>
+      <span class="n">A</span> <span class="o">=</span> <span class="n">A</span> <span class="o">+</span> <span class="mi">1</span><span class="n">D0</span>
+      <span class="n">B</span> <span class="o">=</span> <span class="n">B</span> <span class="o">+</span> <span class="mi">1</span><span class="n">D0</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;NEW A=&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="s2">&quot; B=&quot;</span><span class="p">,</span><span class="n">B</span>
+      <span class="n">END</span>
+<span class="n">C</span> <span class="n">END</span> <span class="n">OF</span> <span class="n">FILE</span> <span class="n">SCALAR</span><span class="o">.</span><span class="n">F</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">scalar</span> <span class="pre">scalar.f</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scalar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">scalar</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">foo - Function signature:</span>
+<span class="go">  foo(a,b)</span>
+<span class="go">Required arguments:</span>
+<span class="go">  a : input float</span>
+<span class="go">  b : in/output rank-0 array(float,&#39;d&#39;)</span>
+<span class="go"> </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scalar</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>   
+<span class="go">     A=  2. B=  3.</span>
+<span class="go"> INCREMENT A AND B</span>
+<span class="go"> NEW A=  3. B=  4.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>   <span class="c1"># these are integer rank-0 arrays</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scalar</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="go">     A=  2. B=  3.</span>
+<span class="go"> INCREMENT A AND B</span>
+<span class="go"> NEW A=  3. B=  4.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span>            <span class="c1"># note that only b is changed in situ</span>
+<span class="go">2 4</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="string-arguments">
+<h2>String arguments<a class="headerlink" href="#string-arguments" title="Permalink to this headline">¶</a></h2>
+<p>F2PY generated wrapper functions accept (almost) any Python object as
+a string argument, <code class="docutils literal notranslate"><span class="pre">str</span></code> is applied for non-string objects.
+Exceptions are NumPy arrays that must have type code <code class="docutils literal notranslate"><span class="pre">'c'</span></code> or
+<code class="docutils literal notranslate"><span class="pre">'1'</span></code> when used as string arguments.</p>
+<p>A string can have arbitrary length when using it as a string argument
+to F2PY generated wrapper function. If the length is greater than
+expected, the string is truncated. If the length is smaller that
+expected, additional memory is allocated and filled with <code class="docutils literal notranslate"><span class="pre">\0</span></code>.</p>
+<p>Because Python strings are immutable, an <code class="docutils literal notranslate"><span class="pre">intent(inout)</span></code> argument
+expects an array version of a string in order to <em>in situ</em> changes to
+be effective.</p>
+<p>Consider the following Fortran 77 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="n">FILE</span><span class="p">:</span> <span class="n">STRING</span><span class="o">.</span><span class="n">F</span>
+      <span class="n">SUBROUTINE</span> <span class="n">FOO</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">D</span><span class="p">)</span>
+      <span class="n">CHARACTER</span><span class="o">*</span><span class="mi">5</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span>
+      <span class="n">CHARACTER</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="n">C</span><span class="p">,</span><span class="n">D</span>
+<span class="n">Cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="ow">in</span><span class="p">)</span> <span class="n">a</span><span class="p">,</span><span class="n">c</span>
+<span class="n">Cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span> <span class="n">b</span><span class="p">,</span><span class="n">d</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;A=&quot;</span><span class="p">,</span><span class="n">A</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;B=&quot;</span><span class="p">,</span><span class="n">B</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;C=&quot;</span><span class="p">,</span><span class="n">C</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;D=&quot;</span><span class="p">,</span><span class="n">D</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;CHANGE A,B,C,D&quot;</span>
+      <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+      <span class="n">B</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+      <span class="n">C</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s1">&#39;C&#39;</span>
+      <span class="n">D</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s1">&#39;D&#39;</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;A=&quot;</span><span class="p">,</span><span class="n">A</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;B=&quot;</span><span class="p">,</span><span class="n">B</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;C=&quot;</span><span class="p">,</span><span class="n">C</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;D=&quot;</span><span class="p">,</span><span class="n">D</span>
+      <span class="n">END</span>
+<span class="n">C</span> <span class="n">END</span> <span class="n">OF</span> <span class="n">FILE</span> <span class="n">STRING</span><span class="o">.</span><span class="n">F</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">mystring</span> <span class="pre">string.f</span></code>.</p>
+<p>Python session:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">mystring</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">mystring</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">foo - Function signature:</span>
+<span class="go">  foo(a,b,c,d)</span>
+<span class="go">Required arguments:</span>
+<span class="go">  a : input string(len=5)</span>
+<span class="go">  b : in/output rank-0 array(string(len=5),&#39;c&#39;)</span>
+<span class="go">  c : input string(len=-1)</span>
+<span class="go">  d : in/output rank-0 array(string(len=-1),&#39;c&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mystring</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">)</span>
+<span class="go"> A=123</span>
+<span class="go"> B=123</span>
+<span class="go"> C=123</span>
+<span class="go"> D=123</span>
+<span class="go"> CHANGE A,B,C,D</span>
+<span class="go"> A=A23</span>
+<span class="go"> B=B23</span>
+<span class="go"> C=C23</span>
+<span class="go"> D=D23</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span><span class="n">b</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span><span class="n">c</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span><span class="n">d</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
+<span class="go">(&#39;123&#39;, &#39;B23&#39;, &#39;123&#39;, &#39;D23&#39;)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="array-arguments">
+<h2>Array arguments<a class="headerlink" href="#array-arguments" title="Permalink to this headline">¶</a></h2>
+<p>In general, array arguments of F2PY generated wrapper functions accept
+arbitrary sequences that can be transformed to NumPy array objects.
+An exception is <code class="docutils literal notranslate"><span class="pre">intent(inout)</span></code> array arguments that always must be
+proper-contiguous and have proper type, otherwise an exception is
+raised. Another exception is <code class="docutils literal notranslate"><span class="pre">intent(inplace)</span></code> array arguments that
+attributes will be changed in-situ if the argument has different type
+than expected (see <code class="docutils literal notranslate"><span class="pre">intent(inplace)</span></code> attribute for more
+information).</p>
+<p>In general, if a NumPy array is proper-contiguous and has a proper
+type then it is directly passed to wrapped Fortran/C function.
+Otherwise, an element-wise copy of an input array is made and the
+copy, being proper-contiguous and with proper type, is used as an
+array argument.</p>
+<p>There are two types of proper-contiguous NumPy arrays:</p>
+<ul class="simple">
+<li><p>Fortran-contiguous arrays when data is stored column-wise,
+i.e. indexing of data as stored in memory starts from the lowest
+dimension;</p></li>
+<li><p>C-contiguous or simply contiguous arrays when data is stored
+row-wise, i.e. indexing of data as stored in memory starts from the
+highest dimension.</p></li>
+</ul>
+<p>For one-dimensional arrays these notions coincide.</p>
+<p>For example, a 2x2 array <code class="docutils literal notranslate"><span class="pre">A</span></code> is Fortran-contiguous if its elements
+are stored in memory in the following order:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>and C-contiguous if the order is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To test whether an array is C-contiguous, use <code class="docutils literal notranslate"><span class="pre">.iscontiguous()</span></code>
+method of NumPy arrays.  To test for Fortran contiguity, all
+F2PY generated extension modules provide a function
+<code class="docutils literal notranslate"><span class="pre">has_column_major_storage(&lt;array&gt;)</span></code>. This function is equivalent to
+<code class="docutils literal notranslate"><span class="pre">&lt;array&gt;.flags.f_contiguous</span></code> but more efficient.</p>
+<p>Usually there is no need to worry about how the arrays are stored in
+memory and whether the wrapped functions, being either Fortran or C
+functions, assume one or another storage order. F2PY automatically
+ensures that wrapped functions get arguments with proper storage
+order; the corresponding algorithm is designed to make copies of
+arrays only when absolutely necessary. However, when dealing with very
+large multidimensional input arrays with sizes close to the size of
+the physical memory in your computer, then a care must be taken to use
+always proper-contiguous and proper type arguments.</p>
+<p>To transform input arrays to column major storage order before passing
+them to Fortran routines, use a function
+<code class="docutils literal notranslate"><span class="pre">as_column_major_storage(&lt;array&gt;)</span></code> that is provided by all F2PY
+generated extension modules.</p>
+<p>Consider Fortran 77 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="n">FILE</span><span class="p">:</span> <span class="n">ARRAY</span><span class="o">.</span><span class="n">F</span>
+      <span class="n">SUBROUTINE</span> <span class="n">FOO</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+<span class="n">C</span>
+<span class="n">C</span>     <span class="n">INCREMENT</span> <span class="n">THE</span> <span class="n">FIRST</span> <span class="n">ROW</span> <span class="n">AND</span> <span class="n">DECREMENT</span> <span class="n">THE</span> <span class="n">FIRST</span> <span class="n">COLUMN</span> <span class="n">OF</span> <span class="n">A</span>
+<span class="n">C</span>
+      <span class="n">INTEGER</span> <span class="n">N</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">I</span><span class="p">,</span><span class="n">J</span>
+      <span class="n">REAL</span><span class="o">*</span><span class="mi">8</span> <span class="n">A</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+<span class="n">Cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="ow">in</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="n">copy</span><span class="p">)</span> <span class="n">a</span>
+<span class="n">Cf2py</span> <span class="n">integer</span> <span class="n">intent</span><span class="p">(</span><span class="n">hide</span><span class="p">),</span><span class="n">depend</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="p">::</span> <span class="n">n</span><span class="o">=</span><span class="n">shape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">m</span><span class="o">=</span><span class="n">shape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+      <span class="n">DO</span> <span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">M</span>
+         <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">J</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">J</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">D0</span>
+      <span class="n">ENDDO</span>
+      <span class="n">DO</span> <span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span>
+         <span class="n">A</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="n">D0</span>
+      <span class="n">ENDDO</span>
+      <span class="n">END</span>
+<span class="n">C</span> <span class="n">END</span> <span class="n">OF</span> <span class="n">FILE</span> <span class="n">ARRAY</span><span class="o">.</span><span class="n">F</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">arr</span> <span class="pre">array.f</span> <span class="pre">-DF2PY_REPORT_ON_ARRAY_COPY=1</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">arr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">arr</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">foo - Function signature:</span>
+<span class="go">  a = foo(a,[overwrite_a])</span>
+<span class="go">Required arguments:</span>
+<span class="go">  a : input rank-2 array(&#39;d&#39;) with bounds (n,m)</span>
+<span class="go">Optional arguments:</span>
+<span class="go">  overwrite_a := 0 input int</span>
+<span class="go">Return objects:</span>
+<span class="go">  a : rank-2 array(&#39;d&#39;) with bounds (n,m)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">foo</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>           <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
+<span class="go">copied an array using PyArray_CopyFromObject: size=6, elsize=8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">a</span>
+<span class="go">[[ 1.  3.  4.]</span>
+<span class="go"> [ 3.  5.  6.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">iscontiguous</span><span class="p">(),</span> <span class="n">arr</span><span class="o">.</span><span class="n">has_column_major_storage</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">(0, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>              <span class="c1"># even if a is proper-contiguous</span>
+<span class="gp">... </span>                          <span class="c1"># and has proper type, a copy is made</span>
+<span class="gp">... </span>                          <span class="c1"># forced by intent(copy) attribute</span>
+<span class="gp">... </span>                          <span class="c1"># to preserve its original contents</span>
+<span class="gp">... </span>
+<span class="go">copied an array using copy_ND_array: size=6, elsize=8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">a</span>
+<span class="go">[[ 1.  3.  4.]</span>
+<span class="go"> [ 3.  5.  6.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">b</span>
+<span class="go">[[ 1.  4.  5.]</span>
+<span class="go"> [ 2.  5.  6.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">overwrite_a</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># a is passed directly to Fortran</span>
+<span class="gp">... </span>                           <span class="c1"># routine and its contents is discarded</span>
+<span class="gp">... </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">a</span>
+<span class="go">[[ 1.  4.  5.]</span>
+<span class="go"> [ 2.  5.  6.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">b</span>
+<span class="go">[[ 1.  4.  5.]</span>
+<span class="go"> [ 2.  5.  6.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="ow">is</span> <span class="n">b</span>                       <span class="c1"># a and b are actually the same objects</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">arr</span><span class="o">.</span><span class="n">foo</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>       <span class="c1"># different rank arrays are allowed</span>
+<span class="go">copied an array using PyArray_CopyFromObject: size=3, elsize=8</span>
+<span class="go">[ 1.  1.  2.]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">arr</span><span class="o">.</span><span class="n">foo</span><span class="p">([[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">]]])</span>
+<span class="go">copied an array using PyArray_CopyFromObject: size=3, elsize=8</span>
+<span class="go">[ [[ 1.]</span>
+<span class="go">  [ 3.]</span>
+<span class="go">  [ 4.]]]</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Creating arrays with column major data storage order:</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">as_column_major_storage</span><span class="p">(</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]]))</span>
+<span class="go">copied an array using copy_ND_array: size=6, elsize=4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span><span class="o">.</span><span class="n">has_column_major_storage</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">s</span>
+<span class="go">[[1 2 3]</span>
+<span class="go"> [4 5 6]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s2</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">as_column_major_storage</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s2</span> <span class="ow">is</span> <span class="n">s</span>    <span class="c1"># an array with column major storage order </span>
+<span class="go">               # is returned immediately</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="call-back-arguments">
+<span id="id1"></span><h2>Call-back arguments<a class="headerlink" href="#call-back-arguments" title="Permalink to this headline">¶</a></h2>
+<p>F2PY supports calling Python functions from Fortran or C codes.</p>
+<p>Consider the following Fortran 77 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="n">FILE</span><span class="p">:</span> <span class="n">CALLBACK</span><span class="o">.</span><span class="n">F</span>
+      <span class="n">SUBROUTINE</span> <span class="n">FOO</span><span class="p">(</span><span class="n">FUN</span><span class="p">,</span><span class="n">R</span><span class="p">)</span>
+      <span class="n">EXTERNAL</span> <span class="n">FUN</span>
+      <span class="n">INTEGER</span> <span class="n">I</span>
+      <span class="n">REAL</span><span class="o">*</span><span class="mi">8</span> <span class="n">R</span>
+<span class="n">Cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="n">r</span>
+      <span class="n">R</span> <span class="o">=</span> <span class="mi">0</span><span class="n">D0</span>
+      <span class="n">DO</span> <span class="n">I</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span>
+         <span class="n">R</span> <span class="o">=</span> <span class="n">R</span> <span class="o">+</span> <span class="n">FUN</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+      <span class="n">ENDDO</span>
+      <span class="n">END</span>
+<span class="n">C</span> <span class="n">END</span> <span class="n">OF</span> <span class="n">FILE</span> <span class="n">CALLBACK</span><span class="o">.</span><span class="n">F</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">callback</span> <span class="pre">callback.f</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">callback</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">foo - Function signature:</span>
+<span class="go">  r = foo(fun,[fun_extra_args])</span>
+<span class="go">Required arguments:</span>
+<span class="go">  fun : call-back function</span>
+<span class="go">Optional arguments:</span>
+<span class="go">  fun_extra_args := () input tuple</span>
+<span class="go">Return objects:</span>
+<span class="go">  r : float</span>
+<span class="go">Call-back functions:</span>
+<span class="go">  def fun(i): return r</span>
+<span class="go">  Required arguments:</span>
+<span class="go">    i : input int</span>
+<span class="go">  Return objects:</span>
+<span class="go">    r : float</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="k">return</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+<span class="gp">... </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">callback</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>     
+<span class="go">110.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">callback</span><span class="o">.</span><span class="n">foo</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">11.0</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>In the above example F2PY was able to guess accurately the signature
+of a call-back function. However, sometimes F2PY cannot establish the
+signature as one would wish and then the signature of a call-back
+function must be modified in the signature file manually. Namely,
+signature files may contain special modules (the names of such modules
+contain a substring <code class="docutils literal notranslate"><span class="pre">__user__</span></code>) that collect various signatures of
+call-back functions.  Callback arguments in routine signatures have
+attribute <code class="docutils literal notranslate"><span class="pre">external</span></code> (see also <code class="docutils literal notranslate"><span class="pre">intent(callback)</span></code> attribute).  To
+relate a callback argument and its signature in <code class="docutils literal notranslate"><span class="pre">__user__</span></code> module
+block, use <code class="docutils literal notranslate"><span class="pre">use</span></code> statement as illustrated below. The same signature
+of a callback argument can be referred in different routine
+signatures.</p>
+<p>We use the same Fortran 77 code as in previous example but now
+we’ll pretend that F2PY was not able to guess the signatures of
+call-back arguments correctly. First, we create an initial signature
+file <code class="docutils literal notranslate"><span class="pre">callback2.pyf</span></code> using F2PY:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f2py</span> <span class="o">-</span><span class="n">m</span> <span class="n">callback2</span> <span class="o">-</span><span class="n">h</span> <span class="n">callback2</span><span class="o">.</span><span class="n">pyf</span> <span class="n">callback</span><span class="o">.</span><span class="n">f</span>
+</pre></div>
+</div>
+<p>Then modify it as follows</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!    -*- f90 -*-
+python module __user__routines 
+    interface
+        function fun(i) result (r)
+            integer :: i
+            real*8 :: r
+        end function fun
+    end interface
+end python module __user__routines
+
+python module callback2
+    interface
+        subroutine foo(f,r)
+            use __user__routines, f=&gt;fun
+            external f
+            real*8 intent(out) :: r
+        end subroutine foo
+    end interface 
+end python module callback2
+</pre></div>
+</div>
+</div></blockquote>
+<p>Finally, build the extension module using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">callback2.pyf</span> <span class="pre">callback.f</span></code>.</p>
+<p>An example Python session would be identical to the previous example
+except that argument names would differ.</p>
+<p>Sometimes a Fortran package may require that users provide routines
+that the package will use. F2PY can construct an interface to such
+routines so that Python functions could be called from Fortran.</p>
+<p>Consider the following Fortran 77 subroutine that takes an array
+and applies a function <code class="docutils literal notranslate"><span class="pre">func</span></code> to its elements.</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">subroutine</span> <span class="n">calculate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+<span class="n">cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="n">func</span>
+      <span class="n">external</span> <span class="n">func</span>
+<span class="n">c</span>     <span class="n">The</span> <span class="n">following</span> <span class="n">lines</span> <span class="n">define</span> <span class="n">the</span> <span class="n">signature</span> <span class="n">of</span> <span class="n">func</span> <span class="k">for</span> <span class="n">F2PY</span><span class="p">:</span>
+<span class="n">cf2py</span> <span class="n">real</span><span class="o">*</span><span class="mi">8</span> <span class="n">y</span>
+<span class="n">cf2py</span> <span class="n">y</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="n">c</span>
+<span class="n">cf2py</span> <span class="n">intent</span><span class="p">(</span><span class="ow">in</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="n">copy</span><span class="p">)</span> <span class="n">x</span>
+      <span class="n">integer</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span>
+      <span class="n">real</span><span class="o">*</span><span class="mi">8</span> <span class="n">x</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+      <span class="n">do</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span>
+         <span class="n">x</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+      <span class="n">end</span> <span class="n">do</span>
+      <span class="n">end</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>It is expected that function <code class="docutils literal notranslate"><span class="pre">func</span></code> has been defined
+externally. In order to use a Python function as <code class="docutils literal notranslate"><span class="pre">func</span></code>, it must
+have an attribute <code class="docutils literal notranslate"><span class="pre">intent(callback)</span></code> (it must be specified before
+the <code class="docutils literal notranslate"><span class="pre">external</span></code> statement).</p>
+<p>Finally, build an extension module using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">foo</span> <span class="pre">calculate.f</span></code></p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">foo</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+<span class="go">array([  0.,   1.,   4.,   9.,  16.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">)</span>
+<span class="go">array([  1.        ,   2.71828175,   7.38905621,  20.08553696,  54.59814835])</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The function is included as an argument to the python function call to
+the Fortran subroutine even though it was <em>not</em> in the Fortran subroutine argument
+list. The “external” refers to the C function generated by f2py, not the python
+function itself. The python function must be supplied to the C function.</p>
+<p>The callback function may also be explicitly set in the module.
+Then it is not necessary to pass the function in the argument list to
+the Fortran function. This may be desired if the Fortran function calling
+the python callback function is itself called by another Fortran function.</p>
+<p>Consider the following Fortran 77 subroutine:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">subroutine</span> <span class="n">f1</span><span class="p">()</span>
+         <span class="nb">print</span> <span class="o">*</span><span class="p">,</span> <span class="s2">&quot;in f1, calling f2 twice..&quot;</span>
+         <span class="n">call</span> <span class="n">f2</span><span class="p">()</span>
+         <span class="n">call</span> <span class="n">f2</span><span class="p">()</span>
+         <span class="k">return</span>
+      <span class="n">end</span>
+      
+      <span class="n">subroutine</span> <span class="n">f2</span><span class="p">()</span>
+<span class="n">cf2py</span>    <span class="n">intent</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">hide</span><span class="p">)</span> <span class="n">fpy</span>
+         <span class="n">external</span> <span class="n">fpy</span>
+         <span class="nb">print</span> <span class="o">*</span><span class="p">,</span> <span class="s2">&quot;in f2, calling f2py..&quot;</span>
+         <span class="n">call</span> <span class="n">fpy</span><span class="p">()</span>
+         <span class="k">return</span>
+      <span class="n">end</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">pfromf</span> <span class="pre">extcallback.f</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pfromf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfromf</span><span class="o">.</span><span class="n">f2</span><span class="p">()</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">?</span>
+<span class="gr">pfromf.error</span>: <span class="n">Callback fpy not defined (as an argument or module pfromf attribute).</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">():</span> <span class="nb">print</span> <span class="s2">&quot;python f&quot;</span>
+<span class="gp">... </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfromf</span><span class="o">.</span><span class="n">fpy</span> <span class="o">=</span> <span class="n">f</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfromf</span><span class="o">.</span><span class="n">f2</span><span class="p">()</span>
+<span class="go"> in f2, calling f2py..</span>
+<span class="go">python f</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfromf</span><span class="o">.</span><span class="n">f1</span><span class="p">()</span>
+<span class="go"> in f1, calling f2 twice..</span>
+<span class="go"> in f2, calling f2py..</span>
+<span class="go">python f</span>
+<span class="go"> in f2, calling f2py..</span>
+<span class="go">python f</span>
+<span class="gp">&gt;&gt;&gt; </span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="section" id="resolving-arguments-to-call-back-functions">
+<h3>Resolving arguments to call-back functions<a class="headerlink" href="#resolving-arguments-to-call-back-functions" title="Permalink to this headline">¶</a></h3>
+<p>F2PY generated interface is very flexible with respect to call-back
+arguments.  For each call-back argument an additional optional
+argument <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;_extra_args</span></code> is introduced by F2PY. This argument
+can be used to pass extra arguments to user provided call-back
+arguments.</p>
+<p>If a F2PY generated wrapper function expects the following call-back
+argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">a_1</span><span class="p">,</span><span class="o">...</span><span class="p">,</span><span class="n">a_n</span><span class="p">):</span>
+   <span class="o">...</span>
+   <span class="k">return</span> <span class="n">x_1</span><span class="p">,</span><span class="o">...</span><span class="p">,</span><span class="n">x_k</span>
+</pre></div>
+</div>
+<p>but the following Python function</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">gun</span><span class="p">(</span><span class="n">b_1</span><span class="p">,</span><span class="o">...</span><span class="p">,</span><span class="n">b_m</span><span class="p">):</span>
+   <span class="o">...</span>
+   <span class="k">return</span> <span class="n">y_1</span><span class="p">,</span><span class="o">...</span><span class="p">,</span><span class="n">y_l</span>
+</pre></div>
+</div>
+<p>is provided by a user, and in addition,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fun_extra_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">e_1</span><span class="p">,</span><span class="o">...</span><span class="p">,</span><span class="n">e_p</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>is used, then the following rules are applied when a Fortran or C
+function calls the call-back argument <code class="docutils literal notranslate"><span class="pre">gun</span></code>:</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">p</span> <span class="pre">==</span> <span class="pre">0</span></code> then <code class="docutils literal notranslate"><span class="pre">gun(a_1,</span> <span class="pre">...,</span> <span class="pre">a_q)</span></code> is called, here
+<code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">min(m,</span> <span class="pre">n)</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">+</span> <span class="pre">p</span> <span class="pre">&lt;=</span> <span class="pre">m</span></code> then <code class="docutils literal notranslate"><span class="pre">gun(a_1,</span> <span class="pre">...,</span> <span class="pre">a_n,</span> <span class="pre">e_1,</span> <span class="pre">...,</span> <span class="pre">e_p)</span></code> is called.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">p</span> <span class="pre">&lt;=</span> <span class="pre">m</span> <span class="pre">&lt;</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">p</span></code> then <code class="docutils literal notranslate"><span class="pre">gun(a_1,</span> <span class="pre">...,</span> <span class="pre">a_q,</span> <span class="pre">e_1,</span> <span class="pre">...,</span> <span class="pre">e_p)</span></code> is called, here
+<code class="docutils literal notranslate"><span class="pre">q=m-p</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">p</span> <span class="pre">&gt;</span> <span class="pre">m</span></code> then <code class="docutils literal notranslate"><span class="pre">gun(e_1,</span> <span class="pre">...,</span> <span class="pre">e_m)</span></code> is called.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">+</span> <span class="pre">p</span></code> is less than the number of required arguments to <code class="docutils literal notranslate"><span class="pre">gun</span></code>
+then an exception is raised.</p></li>
+</ul>
+<p>The function <code class="docutils literal notranslate"><span class="pre">gun</span></code> may return any number of objects as a tuple. Then
+following rules are applied:</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&lt;</span> <span class="pre">l</span></code>, then <code class="docutils literal notranslate"><span class="pre">y_{k</span> <span class="pre">+</span> <span class="pre">1},</span> <span class="pre">...,</span> <span class="pre">y_l</span></code> are ignored.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;</span> <span class="pre">l</span></code>, then only <code class="docutils literal notranslate"><span class="pre">x_1,</span> <span class="pre">...,</span> <span class="pre">x_l</span></code> are set.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="common-blocks">
+<h2>Common blocks<a class="headerlink" href="#common-blocks" title="Permalink to this headline">¶</a></h2>
+<p>F2PY generates wrappers to <code class="docutils literal notranslate"><span class="pre">common</span></code> blocks defined in a routine
+signature block. Common blocks are visible by all Fortran codes linked
+with the current extension module, but not to other extension modules
+(this restriction is due to how Python imports shared libraries).  In
+Python, the F2PY wrappers to <code class="docutils literal notranslate"><span class="pre">common</span></code> blocks are <code class="docutils literal notranslate"><span class="pre">fortran</span></code> type
+objects that have (dynamic) attributes related to data members of
+common blocks. When accessed, these attributes return as NumPy array
+objects (multidimensional arrays are Fortran-contiguous) that
+directly link to data members in common blocks. Data members can be
+changed by direct assignment or by in-place changes to the
+corresponding array objects.</p>
+<p>Consider the following Fortran 77 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="n">FILE</span><span class="p">:</span> <span class="n">COMMON</span><span class="o">.</span><span class="n">F</span>
+      <span class="n">SUBROUTINE</span> <span class="n">FOO</span>
+      <span class="n">INTEGER</span> <span class="n">I</span><span class="p">,</span><span class="n">X</span>
+      <span class="n">REAL</span> <span class="n">A</span>
+      <span class="n">COMMON</span> <span class="o">/</span><span class="n">DATA</span><span class="o">/</span> <span class="n">I</span><span class="p">,</span><span class="n">X</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="n">A</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;I=&quot;</span><span class="p">,</span><span class="n">I</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;X=[&quot;</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="s2">&quot;]&quot;</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;A=[&quot;</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s2">&quot;]&quot;</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">A</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s2">&quot;]&quot;</span>
+      <span class="n">PRINT</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span>
+      <span class="n">END</span>
+<span class="n">C</span> <span class="n">END</span> <span class="n">OF</span> <span class="n">COMMON</span><span class="o">.</span><span class="n">F</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">common</span> <span class="pre">common.f</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">common</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">common</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">i - &#39;i&#39;-scalar</span>
+<span class="go">x - &#39;i&#39;-array(4)</span>
+<span class="go">a - &#39;f&#39;-array(2,3)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> I= 5</span>
+<span class="go"> X=[ 0 2 0 0]</span>
+<span class="go"> A=[</span>
+<span class="go"> [  1.,  2.,  3.]</span>
+<span class="go"> [  4.,  5.,  6.]</span>
+<span class="go"> ]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">45</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> I= 5</span>
+<span class="go"> X=[ 0 2 0 0]</span>
+<span class="go"> A=[</span>
+<span class="go"> [  1.,  2.,  3.]</span>
+<span class="go"> [  45.,  45.,  45.]</span>
+<span class="go"> ]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">a</span>                 <span class="c1"># a is Fortran-contiguous</span>
+<span class="go">array([[  1.,   2.,   3.],</span>
+<span class="go">       [ 45.,  45.,  45.]],&#39;f&#39;)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="fortran-90-module-data">
+<h2>Fortran 90 module data<a class="headerlink" href="#fortran-90-module-data" title="Permalink to this headline">¶</a></h2>
+<p>The F2PY interface to Fortran 90 module data is similar to Fortran 77
+common blocks.</p>
+<p>Consider the following Fortran 90 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">mod</span>
+  <span class="n">integer</span> <span class="n">i</span>
+  <span class="n">integer</span> <span class="p">::</span> <span class="n">x</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="n">real</span><span class="p">,</span> <span class="n">dimension</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="p">::</span> <span class="n">a</span>
+  <span class="n">real</span><span class="p">,</span> <span class="n">allocatable</span><span class="p">,</span> <span class="n">dimension</span><span class="p">(:,:)</span> <span class="p">::</span> <span class="n">b</span> 
+<span class="n">contains</span>
+  <span class="n">subroutine</span> <span class="n">foo</span>
+    <span class="n">integer</span> <span class="n">k</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;i=&quot;</span><span class="p">,</span><span class="n">i</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;x=[&quot;</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="s2">&quot;]&quot;</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;a=[&quot;</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s2">&quot;]&quot;</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="n">a</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">a</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="s2">&quot;,&quot;</span><span class="p">,</span><span class="n">a</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="s2">&quot;]&quot;</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span>
+    <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;Setting a(1,2)=a(1,2)+3&quot;</span>
+    <span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="n">a</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span>
+  <span class="n">end</span> <span class="n">subroutine</span> <span class="n">foo</span>
+<span class="n">end</span> <span class="n">module</span> <span class="n">mod</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">moddata</span> <span class="pre">moddata.f90</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">moddata</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">moddata</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">i - &#39;i&#39;-scalar</span>
+<span class="go">x - &#39;i&#39;-array(4)</span>
+<span class="go">a - &#39;f&#39;-array(2,3)</span>
+<span class="go">foo - Function signature:</span>
+<span class="go">  foo()</span>
+
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">moddata</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">5</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">moddata</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">moddata</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">moddata</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>                
+<span class="go"> i=           5</span>
+<span class="go"> x=[           1           2           0           0 ]</span>
+<span class="go"> a=[</span>
+<span class="go"> [   1.000000     ,   2.000000     ,   3.000000     ]</span>
+<span class="go"> [   4.000000     ,   5.000000     ,   6.000000     ]</span>
+<span class="go"> ]</span>
+<span class="go"> Setting a(1,2)=a(1,2)+3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">moddata</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">a</span>               <span class="c1"># a is Fortran-contiguous</span>
+<span class="go">array([[ 1.,  5.,  3.],</span>
+<span class="go">       [ 4.,  5.,  6.]],&#39;f&#39;)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="section" id="allocatable-arrays">
+<h3>Allocatable arrays<a class="headerlink" href="#allocatable-arrays" title="Permalink to this headline">¶</a></h3>
+<p>F2PY has basic support for Fortran 90 module allocatable arrays.</p>
+<p>Consider the following Fortran 90 code:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">mod</span>
+  <span class="n">real</span><span class="p">,</span> <span class="n">allocatable</span><span class="p">,</span> <span class="n">dimension</span><span class="p">(:,:)</span> <span class="p">::</span> <span class="n">b</span> 
+<span class="n">contains</span>
+  <span class="n">subroutine</span> <span class="n">foo</span>
+    <span class="n">integer</span> <span class="n">k</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">allocated</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="n">then</span>
+       <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;b=[&quot;</span>
+       <span class="n">do</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+          <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="n">b</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">size</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+       <span class="n">enddo</span>
+       <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span>
+    <span class="k">else</span>
+       <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;b is not allocated&quot;</span>
+    <span class="n">endif</span>
+  <span class="n">end</span> <span class="n">subroutine</span> <span class="n">foo</span>
+<span class="n">end</span> <span class="n">module</span> <span class="n">mod</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>and wrap it using <code class="docutils literal notranslate"><span class="pre">f2py</span> <span class="pre">-c</span> <span class="pre">-m</span> <span class="pre">allocarr</span> <span class="pre">allocarr.f90</span></code>.</p>
+<p>In Python:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">allocarr</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">b - &#39;f&#39;-array(-1,-1), not allocated</span>
+<span class="go">foo - Function signature:</span>
+<span class="go">  foo()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>  
+<span class="go"> b is not allocated</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]]</span>         <span class="c1"># allocate/initialize b</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> b=[</span>
+<span class="go">   1.000000       2.000000       3.000000    </span>
+<span class="go">   4.000000       5.000000       6.000000    </span>
+<span class="go"> ]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">b</span>                             <span class="c1"># b is Fortran-contiguous</span>
+<span class="go">array([[ 1.,  2.,  3.],</span>
+<span class="go">       [ 4.,  5.,  6.]],&#39;f&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">]]</span> <span class="c1"># reallocate/initialize b</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> b=[</span>
+<span class="go">   1.000000       2.000000       3.000000    </span>
+<span class="go">   4.000000       5.000000       6.000000    </span>
+<span class="go">   7.000000       8.000000       9.000000    </span>
+<span class="go"> ]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="kc">None</span>                      <span class="c1"># deallocate array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allocarr</span><span class="o">.</span><span class="n">mod</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+<span class="go"> b is not allocated</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Importing data with genfromtxt &mdash; NumPy v1.18 Manual</title>
+    
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
+    <link rel="stylesheet" href="../_static/scipy.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" >
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" >
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.18.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/js/copybutton.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" >
+    <link rel="index" title="Index" href="../genindex.html" >
+    <link rel="search" title="Search" href="../search.html" >
+    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="up" title="I/O with NumPy" href="basics.io.html" >
+    <link rel="next" title="Indexing" href="basics.indexing.html" >
+    <link rel="prev" title="I/O with NumPy" href="basics.io.html" > 
+  </head>
+  <body>
+<div class="container">
+  <div class="top-scipy-org-logo-header" style="background-color: #a2bae8;">
+    <a href="../index.html">
+      <img border=0 alt="NumPy" src="../_static/numpy_logo.png"></a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="container">
+      <div class="main">
+        
+	<div class="row-fluid">
+	  <div class="span12">
+	    <div class="spc-navbar">
+              
+    <ul class="nav nav-pills pull-left">
+        <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
+        <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
+        
+        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        
+
+          <li class="active"><a href="index.html" >NumPy User Guide</a></li>
+          <li class="active"><a href="basics.html" >NumPy basics</a></li>
+          <li class="active"><a href="basics.io.html" accesskey="U">I/O with NumPy</a></li> 
+    </ul>
+              
+              
+    <ul class="nav nav-pills pull-right">
+      <li class="active">
+        <a href="../genindex.html" title="General Index"
+           accesskey="I">index</a>
+      </li>
+      <li class="active">
+        <a href="basics.indexing.html" title="Indexing"
+           accesskey="N">next</a>
+      </li>
+      <li class="active">
+        <a href="basics.io.html" title="I/O with NumPy"
+           accesskey="P">previous</a>
+      </li>
+    </ul>
+              
+	    </div>
+	  </div>
+	</div>
+        
+
+	<div class="row-fluid">
+      <div class="spc-rightsidebar span3">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Importing data with <code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a><ul>
+<li><a class="reference internal" href="#defining-the-input">Defining the input</a></li>
+<li><a class="reference internal" href="#splitting-the-lines-into-columns">Splitting the lines into columns</a><ul>
+<li><a class="reference internal" href="#the-delimiter-argument">The <code class="docutils literal notranslate"><span class="pre">delimiter</span></code> argument</a></li>
+<li><a class="reference internal" href="#the-autostrip-argument">The <code class="docutils literal notranslate"><span class="pre">autostrip</span></code> argument</a></li>
+<li><a class="reference internal" href="#the-comments-argument">The <code class="docutils literal notranslate"><span class="pre">comments</span></code> argument</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#skipping-lines-and-choosing-columns">Skipping lines and choosing columns</a><ul>
+<li><a class="reference internal" href="#the-skip-header-and-skip-footer-arguments">The <code class="docutils literal notranslate"><span class="pre">skip_header</span></code> and <code class="docutils literal notranslate"><span class="pre">skip_footer</span></code> arguments</a></li>
+<li><a class="reference internal" href="#the-usecols-argument">The <code class="docutils literal notranslate"><span class="pre">usecols</span></code> argument</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#choosing-the-data-type">Choosing the data type</a></li>
+<li><a class="reference internal" href="#setting-the-names">Setting the names</a><ul>
+<li><a class="reference internal" href="#the-names-argument">The <code class="docutils literal notranslate"><span class="pre">names</span></code> argument</a></li>
+<li><a class="reference internal" href="#the-defaultfmt-argument">The <code class="docutils literal notranslate"><span class="pre">defaultfmt</span></code> argument</a></li>
+<li><a class="reference internal" href="#validating-names">Validating names</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tweaking-the-conversion">Tweaking the conversion</a><ul>
+<li><a class="reference internal" href="#the-converters-argument">The <code class="docutils literal notranslate"><span class="pre">converters</span></code> argument</a></li>
+<li><a class="reference internal" href="#using-missing-and-filling-values">Using missing and filling values</a></li>
+<li><a class="reference internal" href="#missing-values"><code class="docutils literal notranslate"><span class="pre">missing_values</span></code></a></li>
+<li><a class="reference internal" href="#filling-values"><code class="docutils literal notranslate"><span class="pre">filling_values</span></code></a></li>
+<li><a class="reference internal" href="#usemask"><code class="docutils literal notranslate"><span class="pre">usemask</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#shortcut-functions">Shortcut functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basics.io.html"
+                        title="previous chapter">I/O with NumPy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basics.indexing.html"
+                        title="next chapter">Indexing</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h4>Quick search</h4>
+    <div>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" style="width: inherit;" name="q" />
+      <input type="submit" value="search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+          <div class="span9">
+            
+        <div class="bodywrapper">
+          <div class="body" id="spc-section-body">
+            
+  <div class="section" id="importing-data-with-genfromtxt">
+<h1>Importing data with <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a><a class="headerlink" href="#importing-data-with-genfromtxt" title="Permalink to this headline">¶</a></h1>
+<p>NumPy provides several functions to create arrays from tabular data.
+We focus here on the <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a> function.</p>
+<p>In a nutshell, <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a> runs two main loops.  The first
+loop converts each line of the file in a sequence of strings.  The second
+loop converts each string to the appropriate data type.  This mechanism is
+slower than a single loop, but gives more flexibility.  In particular,
+<a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a> is able to take missing data into account, when
+other faster and simpler functions like <a class="reference internal" href="../reference/generated/numpy.loadtxt.html#numpy.loadtxt" title="numpy.loadtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">loadtxt</span></code></a> cannot.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When giving examples, we will use the following conventions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="defining-the-input">
+<h2>Defining the input<a class="headerlink" href="#defining-the-input" title="Permalink to this headline">¶</a></h2>
+<p>The only mandatory argument of <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a> is the source of
+the data. It can be a string, a list of strings, a generator or an open
+file-like object with a <code class="xref py py-meth docutils literal notranslate"><span class="pre">read</span></code> method, for example, a file or
+<a class="reference external" href="https://docs.python.org/dev/library/io.html#io.StringIO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.StringIO</span></code></a> object. If a single string is provided, it is assumed
+to be the name of a local or remote file. If a list of strings or a generator
+returning strings is provided, each string is treated as one line in a file.
+When the URL of a remote file is passed, the file is automatically downloaded
+to the current directory and opened.</p>
+<p>Recognized file types are text files and archives.  Currently, the function
+recognizes <code class="xref py py-class docutils literal notranslate"><span class="pre">gzip</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">bz2</span></code> (<em class="xref py py-obj">bzip2</em>) archives.  The type of
+the archive is determined from the extension of the file: if the filename
+ends with <code class="docutils literal notranslate"><span class="pre">'.gz'</span></code>, a <code class="xref py py-class docutils literal notranslate"><span class="pre">gzip</span></code> archive is expected; if it ends with
+<code class="docutils literal notranslate"><span class="pre">'bz2'</span></code>, a <code class="xref py py-class docutils literal notranslate"><span class="pre">bzip2</span></code> archive is assumed.</p>
+</div>
+<div class="section" id="splitting-the-lines-into-columns">
+<h2>Splitting the lines into columns<a class="headerlink" href="#splitting-the-lines-into-columns" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-delimiter-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">delimiter</span></code> argument<a class="headerlink" href="#the-delimiter-argument" title="Permalink to this headline">¶</a></h3>
+<p>Once the file is defined and open for reading, <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a>
+splits each non-empty line into a sequence of strings.  Empty or commented
+lines are just skipped.  The <code class="docutils literal notranslate"><span class="pre">delimiter</span></code> keyword is used to define
+how the splitting should take place.</p>
+<p>Quite often, a single character marks the separation between columns.  For
+example, comma-separated files (CSV) use a comma (<code class="docutils literal notranslate"><span class="pre">,</span></code>) or a semicolon
+(<code class="docutils literal notranslate"><span class="pre">;</span></code>) as delimiter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;1, 2, 3</span><span class="se">\n</span><span class="s2">4, 5, 6&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+<span class="go">array([[ 1.,  2.,  3.],</span>
+<span class="go">       [ 4.,  5.,  6.]])</span>
+</pre></div>
+</div>
+<p>Another common separator is <code class="docutils literal notranslate"><span class="pre">&quot;\t&quot;</span></code>, the tabulation character.  However,
+we are not limited to a single character, any string will do.  By default,
+<a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a> assumes <code class="docutils literal notranslate"><span class="pre">delimiter=None</span></code>, meaning that the line
+is split along white spaces (including tabs) and that consecutive white
+spaces are considered as a single white space.</p>
+<p>Alternatively, we may be dealing with a fixed-width file, where columns are
+defined as a given number of characters.  In that case, we need to set
+<code class="docutils literal notranslate"><span class="pre">delimiter</span></code> to a single integer (if all the columns have the same
+size) or to a sequence of integers (if columns can have different sizes):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;  1  2  3</span><span class="se">\n</span><span class="s2">  4  5 67</span><span class="se">\n</span><span class="s2">890123  4&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">array([[   1.,    2.,    3.],</span>
+<span class="go">       [   4.,    5.,   67.],</span>
+<span class="go">       [ 890.,  123.,    4.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;123456789</span><span class="se">\n</span><span class="s2">   4  7 9</span><span class="se">\n</span><span class="s2">   4567 9&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">array([[ 1234.,   567.,    89.],</span>
+<span class="go">       [    4.,     7.,     9.],</span>
+<span class="go">       [    4.,   567.,     9.]])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-autostrip-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">autostrip</span></code> argument<a class="headerlink" href="#the-autostrip-argument" title="Permalink to this headline">¶</a></h3>
+<p>By default, when a line is decomposed into a series of strings, the
+individual entries are not stripped of leading nor trailing white spaces.
+This behavior can be overwritten by setting the optional argument
+<code class="docutils literal notranslate"><span class="pre">autostrip</span></code> to a value of <code class="docutils literal notranslate"><span class="pre">True</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;1, abc , 2</span><span class="se">\n</span><span class="s2"> 3, xxx, 4&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Without autostrip</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|U5&quot;</span><span class="p">)</span>
+<span class="go">array([[&#39;1&#39;, &#39; abc &#39;, &#39; 2&#39;],</span>
+<span class="go">       [&#39;3&#39;, &#39; xxx&#39;, &#39; 4&#39;]], dtype=&#39;&lt;U5&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># With autostrip</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|U5&quot;</span><span class="p">,</span> <span class="n">autostrip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([[&#39;1&#39;, &#39;abc&#39;, &#39;2&#39;],</span>
+<span class="go">       [&#39;3&#39;, &#39;xxx&#39;, &#39;4&#39;]], dtype=&#39;&lt;U5&#39;)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-comments-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">comments</span></code> argument<a class="headerlink" href="#the-comments-argument" title="Permalink to this headline">¶</a></h3>
+<p>The optional argument <code class="docutils literal notranslate"><span class="pre">comments</span></code> is used to define a character
+string that marks the beginning of a comment.  By default,
+<a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a> assumes <code class="docutils literal notranslate"><span class="pre">comments='#'</span></code>.  The comment marker may
+occur anywhere on the line.  Any character present after the comment
+marker(s) is simply ignored:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;&quot;&quot;#</span>
+<span class="gp">... </span><span class="s2"># Skip me !</span>
+<span class="gp">... </span><span class="s2"># Skip me too !</span>
+<span class="gp">... </span><span class="s2">1, 2</span>
+<span class="gp">... </span><span class="s2">3, 4</span>
+<span class="gp">... </span><span class="s2">5, 6 #This is the third line of the data</span>
+<span class="gp">... </span><span class="s2">7, 8</span>
+<span class="gp">... </span><span class="s2"># And here comes the last line</span>
+<span class="gp">... </span><span class="s2">9, 0</span>
+<span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+<span class="go">array([[1., 2.],</span>
+<span class="go">       [3., 4.],</span>
+<span class="go">       [5., 6.],</span>
+<span class="go">       [7., 8.],</span>
+<span class="go">       [9., 0.]])</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.7.0: </span>When <code class="docutils literal notranslate"><span class="pre">comments</span></code> is set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, no lines are treated as comments.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is one notable exception to this behavior: if the optional argument
+<code class="docutils literal notranslate"><span class="pre">names=True</span></code>, the first commented line will be examined for names.</p>
+</div>
+</div>
+</div>
+<div class="section" id="skipping-lines-and-choosing-columns">
+<h2>Skipping lines and choosing columns<a class="headerlink" href="#skipping-lines-and-choosing-columns" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-skip-header-and-skip-footer-arguments">
+<h3>The <code class="docutils literal notranslate"><span class="pre">skip_header</span></code> and <code class="docutils literal notranslate"><span class="pre">skip_footer</span></code> arguments<a class="headerlink" href="#the-skip-header-and-skip-footer-arguments" title="Permalink to this headline">¶</a></h3>
+<p>The presence of a header in the file can hinder data processing.  In that
+case, we need to use the <code class="docutils literal notranslate"><span class="pre">skip_header</span></code> optional argument.  The
+values of this argument must be an integer which corresponds to the number
+of lines to skip at the beginning of the file, before any other action is
+performed.  Similarly, we can skip the last <code class="docutils literal notranslate"><span class="pre">n</span></code> lines of the file by
+using the <code class="docutils literal notranslate"><span class="pre">skip_footer</span></code> attribute and giving it a value of <code class="docutils literal notranslate"><span class="pre">n</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),)</span>
+<span class="go">array([ 0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+<span class="gp">... </span>              <span class="n">skip_header</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">skip_footer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">array([ 3.,  4.])</span>
+</pre></div>
+</div>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">skip_header=0</span></code> and <code class="docutils literal notranslate"><span class="pre">skip_footer=0</span></code>, meaning that no lines
+are skipped.</p>
+</div>
+<div class="section" id="the-usecols-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">usecols</span></code> argument<a class="headerlink" href="#the-usecols-argument" title="Permalink to this headline">¶</a></h3>
+<p>In some cases, we are not interested in all the columns of the data but
+only a few of them.  We can select which columns to import with the
+<code class="docutils literal notranslate"><span class="pre">usecols</span></code> argument.  This argument accepts a single integer or a
+sequence of integers corresponding to the indices of the columns to import.
+Remember that by convention, the first column has an index of 0.  Negative
+integers behave the same as regular Python negative indexes.</p>
+<p>For example, if we want to import only the first and the last columns, we
+can use <code class="docutils literal notranslate"><span class="pre">usecols=(0,</span> <span class="pre">-1)</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2">4 5 6&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">array([[ 1.,  3.],</span>
+<span class="go">       [ 4.,  6.]])</span>
+</pre></div>
+</div>
+<p>If the columns have names, we can also select which columns to import by
+giving their name to the <code class="docutils literal notranslate"><span class="pre">usecols</span></code> argument, either as a sequence
+of strings or a comma-separated string:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2">4 5 6&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+<span class="gp">... </span>              <span class="n">names</span><span class="o">=</span><span class="s2">&quot;a, b, c&quot;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">))</span>
+<span class="go">array([(1.0, 3.0), (4.0, 6.0)],</span>
+<span class="go">      dtype=[(&#39;a&#39;, &#39;&lt;f8&#39;), (&#39;c&#39;, &#39;&lt;f8&#39;)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+<span class="gp">... </span>              <span class="n">names</span><span class="o">=</span><span class="s2">&quot;a, b, c&quot;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;a, c&quot;</span><span class="p">))</span>
+<span class="go">    array([(1.0, 3.0), (4.0, 6.0)],</span>
+<span class="go">          dtype=[(&#39;a&#39;, &#39;&lt;f8&#39;), (&#39;c&#39;, &#39;&lt;f8&#39;)])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="choosing-the-data-type">
+<h2>Choosing the data type<a class="headerlink" href="#choosing-the-data-type" title="Permalink to this headline">¶</a></h2>
+<p>The main way to control how the sequences of strings we have read from the
+file are converted to other types is to set the <code class="docutils literal notranslate"><span class="pre">dtype</span></code> argument.
+Acceptable values for this argument are:</p>
+<ul class="simple">
+<li><p>a single type, such as <code class="docutils literal notranslate"><span class="pre">dtype=float</span></code>.
+The output will be 2D with the given dtype, unless a name has been
+associated with each column with the use of the <code class="docutils literal notranslate"><span class="pre">names</span></code> argument
+(see below).  Note that <code class="docutils literal notranslate"><span class="pre">dtype=float</span></code> is the default for
+<a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a>.</p></li>
+<li><p>a sequence of types, such as <code class="docutils literal notranslate"><span class="pre">dtype=(int,</span> <span class="pre">float,</span> <span class="pre">float)</span></code>.</p></li>
+<li><p>a comma-separated string, such as <code class="docutils literal notranslate"><span class="pre">dtype=&quot;i4,f8,|U3&quot;</span></code>.</p></li>
+<li><p>a dictionary with two keys <code class="docutils literal notranslate"><span class="pre">'names'</span></code> and <code class="docutils literal notranslate"><span class="pre">'formats'</span></code>.</p></li>
+<li><p>a sequence of tuples <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">type)</span></code>, such as
+<code class="docutils literal notranslate"><span class="pre">dtype=[('A',</span> <span class="pre">int),</span> <span class="pre">('B',</span> <span class="pre">float)]</span></code>.</p></li>
+<li><p>an existing <a class="reference internal" href="../reference/generated/numpy.dtype.html#numpy.dtype" title="numpy.dtype"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.dtype</span></code></a> object.</p></li>
+<li><p>the special value <code class="docutils literal notranslate"><span class="pre">None</span></code>.
+In that case, the type of the columns will be determined from the data
+itself (see below).</p></li>
+</ul>
+<p>In all the cases but the first one, the output will be a 1D array with a
+structured dtype.  This dtype has as many fields as items in the sequence.
+The field names are defined with the <code class="docutils literal notranslate"><span class="pre">names</span></code> keyword.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">dtype=None</span></code>, the type of each column is determined iteratively from
+its data.  We start by checking whether a string can be converted to a
+boolean (that is, if the string matches <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code> in lower
+cases); then whether it can be converted to an integer, then to a float,
+then to a complex and eventually to a string.  This behavior may be changed
+by modifying the default mapper of the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">StringConverter</span></code> class.</p>
+<p>The option <code class="docutils literal notranslate"><span class="pre">dtype=None</span></code> is provided for convenience.  However, it is
+significantly slower than setting the dtype explicitly.</p>
+</div>
+<div class="section" id="setting-the-names">
+<h2>Setting the names<a class="headerlink" href="#setting-the-names" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-names-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">names</span></code> argument<a class="headerlink" href="#the-names-argument" title="Permalink to this headline">¶</a></h3>
+<p>A natural approach when dealing with tabular data is to allocate a name to
+each column.  A first possibility is to use an explicit structured dtype,
+as mentioned previously:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="n">_</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="s2">&quot;abc&quot;</span><span class="p">])</span>
+<span class="go">array([(1, 2, 3), (4, 5, 6)],</span>
+<span class="go">      dtype=[(&#39;a&#39;, &#39;&lt;i8&#39;), (&#39;b&#39;, &#39;&lt;i8&#39;), (&#39;c&#39;, &#39;&lt;i8&#39;)])</span>
+</pre></div>
+</div>
+<p>Another simpler possibility is to use the <code class="docutils literal notranslate"><span class="pre">names</span></code> keyword with a
+sequence of strings or a comma-separated string:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;A, B, C&quot;</span><span class="p">)</span>
+<span class="go">array([(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)],</span>
+<span class="go">      dtype=[(&#39;A&#39;, &#39;&lt;f8&#39;), (&#39;B&#39;, &#39;&lt;f8&#39;), (&#39;C&#39;, &#39;&lt;f8&#39;)])</span>
+</pre></div>
+</div>
+<p>In the example above, we used the fact that by default, <code class="docutils literal notranslate"><span class="pre">dtype=float</span></code>.
+By giving a sequence of names, we are forcing the output to a structured
+dtype.</p>
+<p>We may sometimes need to define the column names from the data itself.  In
+that case, we must use the <code class="docutils literal notranslate"><span class="pre">names</span></code> keyword with a value of
+<code class="docutils literal notranslate"><span class="pre">True</span></code>.  The names will then be read from the first line (after the
+<code class="docutils literal notranslate"><span class="pre">skip_header</span></code> ones), even if the line is commented out:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;So it goes</span><span class="se">\n</span><span class="s2">#a b c</span><span class="se">\n</span><span class="s2">1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)],</span>
+<span class="go">      dtype=[(&#39;a&#39;, &#39;&lt;f8&#39;), (&#39;b&#39;, &#39;&lt;f8&#39;), (&#39;c&#39;, &#39;&lt;f8&#39;)])</span>
+</pre></div>
+</div>
+<p>The default value of <code class="docutils literal notranslate"><span class="pre">names</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.  If we give any other
+value to the keyword, the new names will overwrite the field names we may
+have defined with the dtype:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ndtype</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ndtype</span><span class="p">)</span>
+<span class="go">array([(1, 2.0, 3), (4, 5.0, 6)],</span>
+<span class="go">      dtype=[(&#39;A&#39;, &#39;&lt;i8&#39;), (&#39;B&#39;, &#39;&lt;f8&#39;), (&#39;C&#39;, &#39;&lt;i8&#39;)])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-defaultfmt-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">defaultfmt</span></code> argument<a class="headerlink" href="#the-defaultfmt-argument" title="Permalink to this headline">¶</a></h3>
+<p>If <code class="docutils literal notranslate"><span class="pre">names=None</span></code> but a structured dtype is expected, names are defined
+with the standard NumPy default of <code class="docutils literal notranslate"><span class="pre">&quot;f%i&quot;</span></code>, yielding names like <code class="docutils literal notranslate"><span class="pre">f0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">f1</span></code> and so forth:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span>
+<span class="go">array([(1, 2.0, 3), (4, 5.0, 6)],</span>
+<span class="go">      dtype=[(&#39;f0&#39;, &#39;&lt;i8&#39;), (&#39;f1&#39;, &#39;&lt;f8&#39;), (&#39;f2&#39;, &#39;&lt;i8&#39;)])</span>
+</pre></div>
+</div>
+<p>In the same way, if we don’t give enough names to match the length of the
+dtype, the missing names will be defined with this default template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+<span class="go">array([(1, 2.0, 3), (4, 5.0, 6)],</span>
+<span class="go">      dtype=[(&#39;a&#39;, &#39;&lt;i8&#39;), (&#39;f0&#39;, &#39;&lt;f8&#39;), (&#39;f1&#39;, &#39;&lt;i8&#39;)])</span>
+</pre></div>
+</div>
+<p>We can overwrite this default with the <code class="docutils literal notranslate"><span class="pre">defaultfmt</span></code> argument, that
+takes any format string:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1 2 3</span><span class="se">\n</span><span class="s2"> 4 5 6&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="n">defaultfmt</span><span class="o">=</span><span class="s2">&quot;var_</span><span class="si">%02i</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">array([(1, 2.0, 3), (4, 5.0, 6)],</span>
+<span class="go">      dtype=[(&#39;var_00&#39;, &#39;&lt;i8&#39;), (&#39;var_01&#39;, &#39;&lt;f8&#39;), (&#39;var_02&#39;, &#39;&lt;i8&#39;)])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We need to keep in mind that <code class="docutils literal notranslate"><span class="pre">defaultfmt</span></code> is used only if some names
+are expected but not defined.</p>
+</div>
+</div>
+<div class="section" id="validating-names">
+<h3>Validating names<a class="headerlink" href="#validating-names" title="Permalink to this headline">¶</a></h3>
+<p>NumPy arrays with a structured dtype can also be viewed as
+<a class="reference internal" href="../reference/generated/numpy.recarray.html#numpy.recarray" title="numpy.recarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">recarray</span></code></a>, where a field can be accessed as if it were an
+attribute.  For that reason, we may need to make sure that the field name
+doesn’t contain any space or invalid character, or that it does not
+correspond to the name of a standard attribute (like <code class="docutils literal notranslate"><span class="pre">size</span></code> or
+<code class="docutils literal notranslate"><span class="pre">shape</span></code>), which would confuse the interpreter.  <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a>
+accepts three optional arguments that provide a finer control on the names:</p>
+<blockquote>
+<div><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">deletechars</span></code></dt><dd><p>Gives a string combining all the characters that must be deleted from
+the name. By default, invalid characters are
+<code class="docutils literal notranslate"><span class="pre">~!&#64;#$%^&amp;*()-=+~\|]}[{';:</span>
+<span class="pre">/?.&gt;,&lt;</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">excludelist</span></code></dt><dd><p>Gives a list of the names to exclude, such as <code class="docutils literal notranslate"><span class="pre">return</span></code>, <code class="docutils literal notranslate"><span class="pre">file</span></code>,
+<code class="docutils literal notranslate"><span class="pre">print</span></code>…  If one of the input name is part of this list, an
+underscore character (<code class="docutils literal notranslate"><span class="pre">'_'</span></code>) will be appended to it.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">case_sensitive</span></code></dt><dd><p>Whether the names should be case-sensitive (<code class="docutils literal notranslate"><span class="pre">case_sensitive=True</span></code>),
+converted to upper case (<code class="docutils literal notranslate"><span class="pre">case_sensitive=False</span></code> or
+<code class="docutils literal notranslate"><span class="pre">case_sensitive='upper'</span></code>) or to lower case
+(<code class="docutils literal notranslate"><span class="pre">case_sensitive='lower'</span></code>).</p>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="tweaking-the-conversion">
+<h2>Tweaking the conversion<a class="headerlink" href="#tweaking-the-conversion" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-converters-argument">
+<h3>The <code class="docutils literal notranslate"><span class="pre">converters</span></code> argument<a class="headerlink" href="#the-converters-argument" title="Permalink to this headline">¶</a></h3>
+<p>Usually, defining a dtype is sufficient to define how the sequence of
+strings must be converted.  However, some additional control may sometimes
+be required.  For example, we may want to make sure that a date in a format
+<code class="docutils literal notranslate"><span class="pre">YYYY/MM/DD</span></code> is converted to a <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> object, or that a string
+like <code class="docutils literal notranslate"><span class="pre">xx%</span></code> is properly converted to a float between 0 and 1.  In such
+cases, we should define conversion functions with the <code class="docutils literal notranslate"><span class="pre">converters</span></code>
+arguments.</p>
+<p>The value of this argument is typically a dictionary with column indices or
+column names as keys and a conversion functions as values.  These
+conversion functions can either be actual functions or lambda functions. In
+any case, they should accept only a string as input and output only a
+single element of the wanted type.</p>
+<p>In the following example, the second column is converted from as string
+representing a percentage to a float between 0 and 1:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">convertfunc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%&quot;</span><span class="p">))</span><span class="o">/</span><span class="mf">100.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;1, 2.3%, 45.</span><span class="se">\n</span><span class="s2">6, 78.9%, 0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># General case .....</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+<span class="go">array([(1., nan, 45.), (6., nan, 0.)],</span>
+<span class="go">      dtype=[(&#39;i&#39;, &#39;&lt;f8&#39;), (&#39;p&#39;, &#39;&lt;f8&#39;), (&#39;n&#39;, &#39;&lt;f8&#39;)])</span>
+</pre></div>
+</div>
+<p>We need to keep in mind that by default, <code class="docutils literal notranslate"><span class="pre">dtype=float</span></code>.  A float is
+therefore expected for the second column.  However, the strings <code class="docutils literal notranslate"><span class="pre">'</span> <span class="pre">2.3%'</span></code>
+and <code class="docutils literal notranslate"><span class="pre">'</span> <span class="pre">78.9%'</span></code> cannot be converted to float and we end up having
+<code class="docutils literal notranslate"><span class="pre">np.nan</span></code> instead.  Let’s now use a converter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Converted case ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">converters</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">convertfunc</span><span class="p">})</span>
+<span class="go">array([(1.0, 0.023, 45.0), (6.0, 0.78900000000000003, 0.0)],</span>
+<span class="go">      dtype=[(&#39;i&#39;, &#39;&lt;f8&#39;), (&#39;p&#39;, &#39;&lt;f8&#39;), (&#39;n&#39;, &#39;&lt;f8&#39;)])</span>
+</pre></div>
+</div>
+<p>The same results can be obtained by using the name of the second column
+(<code class="docutils literal notranslate"><span class="pre">&quot;p&quot;</span></code>) as key instead of its index (1):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Using a name for the converter ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">converters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">convertfunc</span><span class="p">})</span>
+<span class="go">array([(1.0, 0.023, 45.0), (6.0, 0.78900000000000003, 0.0)],</span>
+<span class="go">      dtype=[(&#39;i&#39;, &#39;&lt;f8&#39;), (&#39;p&#39;, &#39;&lt;f8&#39;), (&#39;n&#39;, &#39;&lt;f8&#39;)])</span>
+</pre></div>
+</div>
+<p>Converters can also be used to provide a default for missing entries.  In
+the following example, the converter <code class="docutils literal notranslate"><span class="pre">convert</span></code> transforms a stripped
+string into the corresponding float or into -999 if the string is empty.
+We need to explicitly strip the string from white spaces as it is not done
+by default:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;1, , 3</span><span class="se">\n</span><span class="s2"> 4, 5, 6&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">converters</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">convert</span><span class="p">})</span>
+<span class="go">array([[   1., -999.,    3.],</span>
+<span class="go">       [   4.,    5.,    6.]])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-missing-and-filling-values">
+<h3>Using missing and filling values<a class="headerlink" href="#using-missing-and-filling-values" title="Permalink to this headline">¶</a></h3>
+<p>Some entries may be missing in the dataset we are trying to import.  In a
+previous example, we used a converter to transform an empty string into a
+float.  However, user-defined converters may rapidly become cumbersome to
+manage.</p>
+<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code> function provides two other complementary
+mechanisms: the <code class="docutils literal notranslate"><span class="pre">missing_values</span></code> argument is used to recognize
+missing data and a second argument, <code class="docutils literal notranslate"><span class="pre">filling_values</span></code>, is used to
+process these missing data.</p>
+</div>
+<div class="section" id="missing-values">
+<h3><code class="docutils literal notranslate"><span class="pre">missing_values</span></code><a class="headerlink" href="#missing-values" title="Permalink to this headline">¶</a></h3>
+<p>By default, any empty string is marked as missing.  We can also consider
+more complex strings, such as <code class="docutils literal notranslate"><span class="pre">&quot;N/A&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;???&quot;</span></code> to represent missing
+or invalid data.  The <code class="docutils literal notranslate"><span class="pre">missing_values</span></code> argument accepts three kind
+of values:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>a string or a comma-separated string</dt><dd><p>This string will be used as the marker for missing data for all the
+columns</p>
+</dd>
+<dt>a sequence of strings</dt><dd><p>In that case, each item is associated to a column, in order.</p>
+</dd>
+<dt>a dictionary</dt><dd><p>Values of the dictionary are strings or sequence of strings.  The
+corresponding keys can be column indices (integers) or column names
+(strings). In addition, the special key <code class="docutils literal notranslate"><span class="pre">None</span></code> can be used to
+define a default applicable to all columns.</p>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="filling-values">
+<h3><code class="docutils literal notranslate"><span class="pre">filling_values</span></code><a class="headerlink" href="#filling-values" title="Permalink to this headline">¶</a></h3>
+<p>We know how to recognize missing data, but we still need to provide a value
+for these missing entries.  By default, this value is determined from the
+expected dtype according to this table:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Expected type</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">np.nan</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">complex</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">np.nan+0j</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'???'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>We can get a finer control on the conversion of missing values with the
+<code class="docutils literal notranslate"><span class="pre">filling_values</span></code> optional argument.  Like
+<code class="docutils literal notranslate"><span class="pre">missing_values</span></code>, this argument accepts different kind of values:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>a single value</dt><dd><p>This will be the default for all columns</p>
+</dd>
+<dt>a sequence of values</dt><dd><p>Each entry will be the default for the corresponding column</p>
+</dd>
+<dt>a dictionary</dt><dd><p>Each key can be a column index or a column name, and the
+corresponding value should be a single object.  We can use the
+special key <code class="docutils literal notranslate"><span class="pre">None</span></code> to define a default for all columns.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>In the following example, we suppose that the missing values are flagged
+with <code class="docutils literal notranslate"><span class="pre">&quot;N/A&quot;</span></code> in the first column and by <code class="docutils literal notranslate"><span class="pre">&quot;???&quot;</span></code> in the third column.
+We wish to transform these missing values to 0 if they occur in the first
+and second column, and to -999 if they occur in the last column:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;N/A, 2, 3</span><span class="se">\n</span><span class="s2">4, ,???&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">names</span><span class="o">=</span><span class="s2">&quot;a,b,c&quot;</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">missing_values</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s2">&quot;N/A&quot;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s2">&quot;???&quot;</span><span class="p">},</span>
+<span class="gp">... </span>              <span class="n">filling_values</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">999</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="go">array([(0, 2, 3), (4, 0, -999)],</span>
+<span class="go">      dtype=[(&#39;a&#39;, &#39;&lt;i8&#39;), (&#39;b&#39;, &#39;&lt;i8&#39;), (&#39;c&#39;, &#39;&lt;i8&#39;)])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="usemask">
+<h3><code class="docutils literal notranslate"><span class="pre">usemask</span></code><a class="headerlink" href="#usemask" title="Permalink to this headline">¶</a></h3>
+<p>We may also want to keep track of the occurrence of missing data by
+constructing a boolean mask, with <code class="docutils literal notranslate"><span class="pre">True</span></code> entries where data was missing
+and <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  To do that, we just have to set the optional
+argument <code class="docutils literal notranslate"><span class="pre">usemask</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> (the default is <code class="docutils literal notranslate"><span class="pre">False</span></code>).  The
+output array will then be a <a class="reference internal" href="../reference/maskedarray.baseclass.html#numpy.ma.MaskedArray" title="numpy.ma.MaskedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaskedArray</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="shortcut-functions">
+<h2>Shortcut functions<a class="headerlink" href="#shortcut-functions" title="Permalink to this headline">¶</a></h2>
+<p>In addition to <a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a>, the <code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy.lib.io</span></code> module
+provides several convenience functions derived from
+<a class="reference internal" href="../reference/generated/numpy.genfromtxt.html#numpy.genfromtxt" title="numpy.genfromtxt"><code class="xref py py-func docutils literal notranslate"><span class="pre">genfromtxt</span></code></a>.  These functions work the same way as the
+original, but they have different default values.</p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">recfromtxt</span></code></dt><dd><p>Returns a standard <a class="reference internal" href="../reference/generated/numpy.recarray.html#numpy.recarray" title="numpy.recarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.recarray</span></code></a> (if <code class="docutils literal notranslate"><span class="pre">usemask=False</span></code>) or a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">MaskedRecords</span></code> array (if <code class="docutils literal notranslate"><span class="pre">usemaske=True</span></code>).  The
+default dtype is <code class="docutils literal notranslate"><span class="pre">dtype=None</span></code>, meaning that the types of each column
+will be automatically determined.</p>
+</dd>
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">recfromcsv</span></code></dt><dd><p>Like <code class="xref py py-func docutils literal notranslate"><span class="pre">recfromtxt</span></code>, but with a default <code class="docutils literal notranslate"><span class="pre">delimiter=&quot;,&quot;</span></code>.</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container container-navbar-bottom">
+      <div class="spc-navbar">
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="footer">
+    <div class="row-fluid">
+    <ul class="inline pull-left">
+      <li>
+        &copy; Copyright 2008-2019, The SciPy community.
+      </li>
+      <li>
+      Last updated on Feb 20, 2020.
+      </li>
+      <li>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+  </body>
+</html>
