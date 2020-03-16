@@ -1,0 +1,615 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>6.4. Imputation of missing values &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/modules/impute.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../index.html">
+            <img
+              class="sk-brand-img"
+              src="../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="preprocessing.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="6.3. Preprocessing data">Prev</a><a href="../data_transforms.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="6. Dataset transformations">Up</a>
+            <a href="unsupervised_reduction.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="6.5. Unsupervised dimensionality reduction">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">6.4. Imputation of missing values</a><ul>
+<li><a class="reference internal" href="#univariate-vs-multivariate-imputation">6.4.1. Univariate vs. Multivariate Imputation</a></li>
+<li><a class="reference internal" href="#univariate-feature-imputation">6.4.2. Univariate feature imputation</a></li>
+<li><a class="reference internal" href="#multivariate-feature-imputation">6.4.3. Multivariate feature imputation</a><ul>
+<li><a class="reference internal" href="#flexibility-of-iterativeimputer">6.4.3.1. Flexibility of IterativeImputer</a></li>
+<li><a class="reference internal" href="#multiple-vs-single-imputation">6.4.3.2. Multiple vs. Single Imputation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#references">6.4.4. References</a></li>
+<li><a class="reference internal" href="#nearest-neighbors-imputation">6.4.5. Nearest neighbors imputation</a></li>
+<li><a class="reference internal" href="#marking-imputed-values">6.4.6. Marking imputed values</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="section" id="imputation-of-missing-values">
+<span id="impute"></span><h1>6.4. Imputation of missing values<a class="headerlink" href="#imputation-of-missing-values" title="Permalink to this headline">¶</a></h1>
+<p>For various reasons, many real world datasets contain missing values, often
+encoded as blanks, NaNs or other placeholders. Such datasets however are
+incompatible with scikit-learn estimators which assume that all values in an
+array are numerical, and that all have and hold meaning. A basic strategy to
+use incomplete datasets is to discard entire rows and/or columns containing
+missing values. However, this comes at the price of losing data which may be
+valuable (even though incomplete). A better strategy is to impute the missing
+values, i.e., to infer them from the known part of the data. See the
+<a class="reference internal" href="../glossary.html#glossary"><span class="std std-ref">Glossary of Common Terms and API Elements</span></a> entry on imputation.</p>
+<div class="section" id="univariate-vs-multivariate-imputation">
+<h2>6.4.1. Univariate vs. Multivariate Imputation<a class="headerlink" href="#univariate-vs-multivariate-imputation" title="Permalink to this headline">¶</a></h2>
+<p>One type of imputation algorithm is univariate, which imputes values in the
+i-th feature dimension using only non-missing values in that feature dimension
+(e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">impute.SimpleImputer</span></code>). By contrast, multivariate imputation
+algorithms use the entire set of available feature dimensions to estimate the
+missing values (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">impute.IterativeImputer</span></code>).</p>
+</div>
+<div class="section" id="univariate-feature-imputation">
+<span id="single-imputer"></span><h2>6.4.2. Univariate feature imputation<a class="headerlink" href="#univariate-feature-imputation" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="generated/sklearn.impute.SimpleImputer.html#sklearn.impute.SimpleImputer" title="sklearn.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleImputer</span></code></a> class provides basic strategies for imputing missing
+values. Missing values can be imputed with a provided constant value, or using
+the statistics (mean, median or most frequent) of each column in which the
+missing values are located. This class also allows for different missing values
+encodings.</p>
+<p>The following snippet demonstrates how to replace missing values,
+encoded as <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>, using the mean value of the columns (axis 0)
+that contain the missing values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">missing_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span><span class="o">.</span><span class="n">fit</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="go">SimpleImputer()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">imp</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+<span class="go">[[4.          2.        ]</span>
+<span class="go"> [6.          3.666...]</span>
+<span class="go"> [7.          6.        ]]</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="generated/sklearn.impute.SimpleImputer.html#sklearn.impute.SimpleImputer" title="sklearn.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleImputer</span></code></a> class also supports sparse matrices:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">missing_values</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="go">SimpleImputer(missing_values=-1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_test</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">imp</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span>
+<span class="go">[[3. 2.]</span>
+<span class="go"> [6. 3.]</span>
+<span class="go"> [7. 6.]]</span>
+</pre></div>
+</div>
+<p>Note that this format is not meant to be used to implicitly store missing
+values in the matrix because it would densify it at transform time. Missing
+values encoded by 0 must be used with dense input.</p>
+<p>The <a class="reference internal" href="generated/sklearn.impute.SimpleImputer.html#sklearn.impute.SimpleImputer" title="sklearn.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleImputer</span></code></a> class also supports categorical data represented as
+string values or pandas categoricals when using the <code class="docutils literal notranslate"><span class="pre">'most_frequent'</span></code> or
+<code class="docutils literal notranslate"><span class="pre">'constant'</span></code> strategy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                   <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                   <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span>
+<span class="gp">... </span>                   <span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;most_frequent&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">imp</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+<span class="go">[[&#39;a&#39; &#39;x&#39;]</span>
+<span class="go"> [&#39;a&#39; &#39;y&#39;]</span>
+<span class="go"> [&#39;a&#39; &#39;y&#39;]</span>
+<span class="go"> [&#39;b&#39; &#39;y&#39;]]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multivariate-feature-imputation">
+<span id="iterative-imputer"></span><h2>6.4.3. Multivariate feature imputation<a class="headerlink" href="#multivariate-feature-imputation" title="Permalink to this headline">¶</a></h2>
+<p>A more sophisticated approach is to use the <a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> class,
+which models each feature with missing values as a function of other features,
+and uses that estimate for imputation. It does so in an iterated round-robin
+fashion: at each step, a feature column is designated as output <code class="docutils literal notranslate"><span class="pre">y</span></code> and the
+other feature columns are treated as inputs <code class="docutils literal notranslate"><span class="pre">X</span></code>. A regressor is fit on <code class="docutils literal notranslate"><span class="pre">(X,</span>
+<span class="pre">y)</span></code> for known <code class="docutils literal notranslate"><span class="pre">y</span></code>. Then, the regressor is used to predict the missing values
+of <code class="docutils literal notranslate"><span class="pre">y</span></code>.  This is done for each feature in an iterative fashion, and then is
+repeated for <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> imputation rounds. The results of the final
+imputation round are returned.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This estimator is still <strong>experimental</strong> for now: the predictions
+and the API might change without any deprecation cycle. To use it,
+you need to explicitly import <code class="docutils literal notranslate"><span class="pre">enable_iterative_imputer</span></code>.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.experimental</span> <span class="kn">import</span> <span class="n">enable_iterative_imputer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">IterativeImputer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span> <span class="o">=</span> <span class="n">IterativeImputer</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span><span class="o">.</span><span class="n">fit</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]])</span>
+<span class="go">IterativeImputer(random_state=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_test</span> <span class="o">=</span> <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the model learns that the second feature is double the first</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">imp</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)))</span>
+<span class="go">[[ 1.  2.]</span>
+<span class="go"> [ 6. 12.]</span>
+<span class="go"> [ 3.  6.]]</span>
+</pre></div>
+</div>
+<p>Both <a class="reference internal" href="generated/sklearn.impute.SimpleImputer.html#sklearn.impute.SimpleImputer" title="sklearn.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleImputer</span></code></a> and <a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> can be used in a
+Pipeline as a way to build a composite estimator that supports imputation.
+See <a class="reference internal" href="../auto_examples/impute/plot_missing_values.html#sphx-glr-auto-examples-impute-plot-missing-values-py"><span class="std std-ref">Imputing missing values before building an estimator</span></a>.</p>
+<div class="section" id="flexibility-of-iterativeimputer">
+<h3>6.4.3.1. Flexibility of IterativeImputer<a class="headerlink" href="#flexibility-of-iterativeimputer" title="Permalink to this headline">¶</a></h3>
+<p>There are many well-established imputation packages in the R data science
+ecosystem: Amelia, mi, mice, missForest, etc. missForest is popular, and turns
+out to be a particular instance of different sequential imputation algorithms
+that can all be implemented with <a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> by passing in
+different regressors to be used for predicting missing feature values. In the
+case of missForest, this regressor is a Random Forest.
+See <a class="reference internal" href="../auto_examples/impute/plot_iterative_imputer_variants_comparison.html#sphx-glr-auto-examples-impute-plot-iterative-imputer-variants-comparison-py"><span class="std std-ref">Imputing missing values with variants of IterativeImputer</span></a>.</p>
+</div>
+<div class="section" id="multiple-vs-single-imputation">
+<span id="multiple-imputation"></span><h3>6.4.3.2. Multiple vs. Single Imputation<a class="headerlink" href="#multiple-vs-single-imputation" title="Permalink to this headline">¶</a></h3>
+<p>In the statistics community, it is common practice to perform multiple
+imputations, generating, for example, <code class="docutils literal notranslate"><span class="pre">m</span></code> separate imputations for a single
+feature matrix. Each of these <code class="docutils literal notranslate"><span class="pre">m</span></code> imputations is then put through the
+subsequent analysis pipeline (e.g. feature engineering, clustering, regression,
+classification). The <code class="docutils literal notranslate"><span class="pre">m</span></code> final analysis results (e.g. held-out validation
+errors) allow the data scientist to obtain understanding of how analytic
+results may differ as a consequence of the inherent uncertainty caused by the
+missing values. The above practice is called multiple imputation.</p>
+<p>Our implementation of <a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> was inspired by the R MICE
+package (Multivariate Imputation by Chained Equations) <a class="footnote-reference brackets" href="#id3" id="id1">1</a>, but differs from
+it by returning a single imputation instead of multiple imputations.  However,
+<a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> can also be used for multiple imputations by applying
+it repeatedly to the same dataset with different random seeds when
+<code class="docutils literal notranslate"><span class="pre">sample_posterior=True</span></code>. See <a class="footnote-reference brackets" href="#id4" id="id2">2</a>, chapter 4 for more discussion on multiple
+vs. single imputations.</p>
+<p>It is still an open problem as to how useful single vs. multiple imputation is
+in the context of prediction and classification when the user is not
+interested in measuring uncertainty due to missing values.</p>
+<p>Note that a call to the <code class="docutils literal notranslate"><span class="pre">transform</span></code> method of <a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> is
+not allowed to change the number of samples. Therefore multiple imputations
+cannot be achieved by a single call to <code class="docutils literal notranslate"><span class="pre">transform</span></code>.</p>
+</div>
+</div>
+<div class="section" id="references">
+<h2>6.4.4. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Stef van Buuren, Karin Groothuis-Oudshoorn (2011). “mice: Multivariate
+Imputation by Chained Equations in R”. Journal of Statistical Software 45:
+1-67.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Roderick J A Little and Donald B Rubin (1986). “Statistical Analysis
+with Missing Data”. John Wiley &amp; Sons, Inc., New York, NY, USA.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="nearest-neighbors-imputation">
+<span id="knnimpute"></span><h2>6.4.5. Nearest neighbors imputation<a class="headerlink" href="#nearest-neighbors-imputation" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="generated/sklearn.impute.KNNImputer.html#sklearn.impute.KNNImputer" title="sklearn.impute.KNNImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">KNNImputer</span></code></a> class provides imputation for filling in missing values
+using the k-Nearest Neighbors approach. By default, a euclidean distance metric
+that supports missing values, <code class="xref py py-func docutils literal notranslate"><span class="pre">nan_euclidean_distances</span></code>,
+is used to find the nearest neighbors. Each missing feature is imputed using
+values from <code class="docutils literal notranslate"><span class="pre">n_neighbors</span></code> nearest neighbors that have a value for the
+feature. The feature of the neighbors are averaged uniformly or weighted by
+distance to each neighbor. If a sample has more than one feature missing, then
+the neighbors for that sample can be different depending on the particular
+feature being imputed. When the number of available neighbors is less than
+<code class="docutils literal notranslate"><span class="pre">n_neighbors</span></code> and there are no defined distances to the training set, the
+training set average for that feature is used during imputation. If there is at
+least one neighbor with a defined distance, the weighted or unweighted average
+of the remaining neighbors will be used during imputation. If a feature is
+always missing in training, it is removed during <code class="docutils literal notranslate"><span class="pre">transform</span></code>. For more
+information on the methodology, see ref. <a class="reference internal" href="#ol2001" id="id5"><span>[OL2001]</span></a>.</p>
+<p>The following snippet demonstrates how to replace missing values,
+encoded as <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>, using the mean feature value of the two nearest
+neighbors of samples with missing values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">KNNImputer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="n">nan</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imputer</span> <span class="o">=</span> <span class="n">KNNImputer</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;uniform&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="go">array([[1. , 2. , 4. ],</span>
+<span class="go">       [3. , 4. , 3. ],</span>
+<span class="go">       [5.5, 6. , 5. ],</span>
+<span class="go">       [8. , 8. , 7. ]])</span>
+</pre></div>
+</div>
+<dl class="citation">
+<dt class="label" id="ol2001"><span class="brackets"><a class="fn-backref" href="#id5">OL2001</a></span></dt>
+<dd><p>Olga Troyanskaya, Michael Cantor, Gavin Sherlock, Pat Brown,
+Trevor Hastie, Robert Tibshirani, David Botstein and Russ B. Altman,
+Missing value estimation methods for DNA microarrays, BIOINFORMATICS
+Vol. 17 no. 6, 2001 Pages 520-525.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="marking-imputed-values">
+<span id="missing-indicator"></span><h2>6.4.6. Marking imputed values<a class="headerlink" href="#marking-imputed-values" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="generated/sklearn.impute.MissingIndicator.html#sklearn.impute.MissingIndicator" title="sklearn.impute.MissingIndicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingIndicator</span></code></a> transformer is useful to transform a dataset into
+corresponding binary matrix indicating the presence of missing values in the
+dataset. This transformation is useful in conjunction with imputation. When
+using imputation, preserving the information about which values had been
+missing can be informative. Note that both the <a class="reference internal" href="generated/sklearn.impute.SimpleImputer.html#sklearn.impute.SimpleImputer" title="sklearn.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleImputer</span></code></a> and
+<a class="reference internal" href="generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer" title="sklearn.impute.IterativeImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IterativeImputer</span></code></a> have the boolean parameter <code class="docutils literal notranslate"><span class="pre">add_indicator</span></code>
+(<code class="docutils literal notranslate"><span class="pre">False</span></code> by default) which when set to <code class="docutils literal notranslate"><span class="pre">True</span></code> provides a convenient way of
+stacking the output of the <a class="reference internal" href="generated/sklearn.impute.MissingIndicator.html#sklearn.impute.MissingIndicator" title="sklearn.impute.MissingIndicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingIndicator</span></code></a> transformer with the
+output of the imputer.</p>
+<p><code class="docutils literal notranslate"><span class="pre">NaN</span></code> is usually used as the placeholder for missing values. However, it
+enforces the data type to be float. The parameter <code class="docutils literal notranslate"><span class="pre">missing_values</span></code> allows to
+specify other placeholder such as integer. In the following example, we will
+use <code class="docutils literal notranslate"><span class="pre">-1</span></code> as missing values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">MissingIndicator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">indicator</span> <span class="o">=</span> <span class="n">MissingIndicator</span><span class="p">(</span><span class="n">missing_values</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask_missing_values_only</span> <span class="o">=</span> <span class="n">indicator</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask_missing_values_only</span>
+<span class="go">array([[ True,  True, False],</span>
+<span class="go">       [False,  True,  True],</span>
+<span class="go">       [False,  True, False]])</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">features</span></code> parameter is used to choose the features for which the mask is
+constructed. By default, it is <code class="docutils literal notranslate"><span class="pre">'missing-only'</span></code> which returns the imputer
+mask of the features containing missing values at <code class="docutils literal notranslate"><span class="pre">fit</span></code> time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">indicator</span><span class="o">.</span><span class="n">features_</span>
+<span class="go">array([0, 1, 3])</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">features</span></code> parameter can be set to <code class="docutils literal notranslate"><span class="pre">'all'</span></code> to return all features
+whether or not they contain missing values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">indicator</span> <span class="o">=</span> <span class="n">MissingIndicator</span><span class="p">(</span><span class="n">missing_values</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask_all</span> <span class="o">=</span> <span class="n">indicator</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask_all</span>
+<span class="go">array([[ True,  True, False, False],</span>
+<span class="go">       [False,  True, False,  True],</span>
+<span class="go">       [False,  True, False, False]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">indicator</span><span class="o">.</span><span class="n">features_</span>
+<span class="go">array([0, 1, 2, 3])</span>
+</pre></div>
+</div>
+<p>When using the <a class="reference internal" href="generated/sklearn.impute.MissingIndicator.html#sklearn.impute.MissingIndicator" title="sklearn.impute.MissingIndicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingIndicator</span></code></a> in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>, be sure to use
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureUnion</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnTransformer</span></code> to add the indicator
+features to the regular features. First we obtain the <code class="docutils literal notranslate"><span class="pre">iris</span></code> dataset, and add
+some missing values to it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span><span class="p">,</span> <span class="n">MissingIndicator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">FeatureUnion</span><span class="p">,</span> <span class="n">make_pipeline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="gp">... </span>                                               <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we create a <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureUnion</span></code>. All features will be imputed using
+<a class="reference internal" href="generated/sklearn.impute.SimpleImputer.html#sklearn.impute.SimpleImputer" title="sklearn.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleImputer</span></code></a>, in order to enable classifiers to work with this data.
+Additionally, it adds the the indicator variables from
+<a class="reference internal" href="generated/sklearn.impute.MissingIndicator.html#sklearn.impute.MissingIndicator" title="sklearn.impute.MissingIndicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingIndicator</span></code></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformer</span> <span class="o">=</span> <span class="n">FeatureUnion</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">transformer_list</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)),</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s1">&#39;indicators&#39;</span><span class="p">,</span> <span class="n">MissingIndicator</span><span class="p">())])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformer</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 8)</span>
+</pre></div>
+</div>
+<p>Of course, we cannot use the transformer to make any predictions. We should
+wrap this in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code> with a classifier (e.g., a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionTreeClassifier</span></code>) to be able to make predictions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">transformer</span><span class="p">,</span> <span class="n">DecisionTreeClassifier</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100,)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../_sources/modules/impute.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

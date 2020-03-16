@@ -1,0 +1,746 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>Out-of-core classification of text documents &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/applications/plot_out_of_core_classification.html" />
+
+  
+  <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../../index.html">
+        <img
+          class="sk-brand-img"
+          src="../../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../../index.html">
+            <img
+              class="sk-brand-img"
+              src="../../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="plot_prediction_latency.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Prediction Latency">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="../feature_selection/plot_rfe_digits.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Recursive feature elimination">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">Out-of-core classification of text documents</a><ul>
+<li><a class="reference internal" href="#reuters-dataset-related-routines">Reuters Dataset related routines</a></li>
+<li><a class="reference internal" href="#main">Main</a></li>
+<li><a class="reference internal" href="#plot-results">Plot results</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-applications-plot-out-of-core-classification-py"><span class="std std-ref">here</span></a> to download the full example code or to run this example in your browser via Binder</p>
+</div>
+<div class="sphx-glr-example-title section" id="out-of-core-classification-of-text-documents">
+<span id="sphx-glr-auto-examples-applications-plot-out-of-core-classification-py"></span><h1>Out-of-core classification of text documents<a class="headerlink" href="#out-of-core-classification-of-text-documents" title="Permalink to this headline">¶</a></h1>
+<p>This is an example showing how scikit-learn can be used for classification
+using an out-of-core approach: learning from data that doesn’t fit into main
+memory. We make use of an online classifier, i.e., one that supports the
+partial_fit method, that will be fed with batches of examples. To guarantee
+that the features space remains the same over time we leverage a
+HashingVectorizer that will project each example into the same feature space.
+This is especially useful in the case of text classification where new
+features (words) may appear in each batch.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Authors: Eustache Diemert &lt;eustache@diemert.fr&gt;</span>
+<span class="c1">#          @FedericoV &lt;https://github.com/FedericoV/&gt;</span>
+<span class="c1"># License: BSD 3 clause</span>
+
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rcParams</span>
+
+<span class="kn">from</span> <span class="nn">html.parser</span> <span class="kn">import</span> <span class="n">HTMLParser</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlretrieve</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">get_data_home</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">HashingVectorizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">PassiveAggressiveClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Perceptron</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
+
+
+<span class="k">def</span> <span class="nf">_not_in_sphinx</span><span class="p">():</span>
+    <span class="c1"># Hack to detect whether we are running by the sphinx builder</span>
+    <span class="k">return</span> <span class="s1">&#39;__file__&#39;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="reuters-dataset-related-routines">
+<h2>Reuters Dataset related routines<a class="headerlink" href="#reuters-dataset-related-routines" title="Permalink to this headline">¶</a></h2>
+<p>The dataset used in this example is Reuters-21578 as provided by the UCI ML
+repository. It will be automatically downloaded and uncompressed on first
+run.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ReutersParser</span><span class="p">(</span><span class="n">HTMLParser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Utility class to parse a SGML file and yield documents one at a time.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin-1&#39;</span><span class="p">):</span>
+        <span class="n">HTMLParser</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
+
+    <span class="k">def</span> <span class="nf">handle_starttag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;start_&#39;</span> <span class="o">+</span> <span class="n">tag</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">None</span><span class="p">)(</span><span class="n">attrs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">handle_endtag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;end_&#39;</span> <span class="o">+</span> <span class="n">tag</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="kc">None</span><span class="p">)()</span>
+
+    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_title</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_body</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_topics</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_topic_d</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topic_d</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">fd</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">doc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">handle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_body</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">+=</span> <span class="n">data</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_title</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">+=</span> <span class="n">data</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_topic_d</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">topic_d</span> <span class="o">+=</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">start_reuters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">end_reuters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                          <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
+                          <span class="s1">&#39;topics&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">topics</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">start_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_title</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">end_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_title</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">start_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_body</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">end_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_body</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">start_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_topics</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">end_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_topics</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">start_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_topic_d</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">end_d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_topic_d</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topic_d</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">stream_reuters_documents</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Iterate over documents of the Reuters dataset.</span>
+
+<span class="sd">    The Reuters archive will automatically be downloaded and uncompressed if</span>
+<span class="sd">    the `data_path` directory does not exist.</span>
+
+<span class="sd">    Documents are represented as dictionaries with &#39;body&#39; (str),</span>
+<span class="sd">    &#39;title&#39; (str), &#39;topics&#39; (list(str)) keys.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DOWNLOAD_URL</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;http://archive.ics.uci.edu/ml/machine-learning-databases/&#39;</span>
+                    <span class="s1">&#39;reuters21578-mld/reuters21578.tar.gz&#39;</span><span class="p">)</span>
+    <span class="n">ARCHIVE_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;reuters21578.tar.gz&#39;</span>
+
+    <span class="k">if</span> <span class="n">data_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_data_home</span><span class="p">(),</span> <span class="s2">&quot;reuters&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Download the dataset.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;downloading dataset (once and for all) into </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+              <span class="n">data_path</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">blocknum</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+            <span class="n">total_sz_mb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> MB&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+            <span class="n">current_sz_mb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> MB&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="n">blocknum</span> <span class="o">*</span> <span class="n">bs</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_not_in_sphinx</span><span class="p">():</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="se">\r</span><span class="s1">downloaded </span><span class="si">%s</span><span class="s1"> / </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">current_sz_mb</span><span class="p">,</span> <span class="n">total_sz_mb</span><span class="p">))</span>
+
+        <span class="n">archive_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">ARCHIVE_FILENAME</span><span class="p">)</span>
+        <span class="n">urlretrieve</span><span class="p">(</span><span class="n">DOWNLOAD_URL</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">archive_path</span><span class="p">,</span>
+                    <span class="n">reporthook</span><span class="o">=</span><span class="n">progress</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_not_in_sphinx</span><span class="p">():</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;untarring Reuters dataset...&quot;</span><span class="p">)</span>
+        <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">archive_path</span><span class="p">,</span> <span class="s1">&#39;r:gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;done.&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ReutersParser</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;*.sgm&quot;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">doc</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="main">
+<h2>Main<a class="headerlink" href="#main" title="Permalink to this headline">¶</a></h2>
+<p>Create the vectorizer and limit the number of features to a reasonable
+maximum</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">HashingVectorizer</span><span class="p">(</span><span class="n">decode_error</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">18</span><span class="p">,</span>
+                               <span class="n">alternate_sign</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="c1"># Iterator over parsed Reuters SGML files.</span>
+<span class="n">data_stream</span> <span class="o">=</span> <span class="n">stream_reuters_documents</span><span class="p">()</span>
+
+<span class="c1"># We learn a binary classification between the &quot;acq&quot; class and all the others.</span>
+<span class="c1"># &quot;acq&quot; was chosen as it is more or less evenly distributed in the Reuters</span>
+<span class="c1"># files. For other datasets, one should take care of creating a test set with</span>
+<span class="c1"># a realistic portion of positive instances.</span>
+<span class="n">all_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">positive_class</span> <span class="o">=</span> <span class="s1">&#39;acq&#39;</span>
+
+<span class="c1"># Here are some classifiers that support the `partial_fit` method</span>
+<span class="n">partial_fit_classifiers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SGD&#39;</span><span class="p">:</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="s1">&#39;Perceptron&#39;</span><span class="p">:</span> <span class="n">Perceptron</span><span class="p">(),</span>
+    <span class="s1">&#39;NB Multinomial&#39;</span><span class="p">:</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">),</span>
+    <span class="s1">&#39;Passive-Aggressive&#39;</span><span class="p">:</span> <span class="n">PassiveAggressiveClassifier</span><span class="p">(),</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">get_minibatch</span><span class="p">(</span><span class="n">doc_iter</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="n">positive_class</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract a minibatch of examples, return a tuple X_text, y.</span>
+
+<span class="sd">    Note: size is before excluding invalid docs with no topics assigned.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;</span><span class="si">{title}</span><span class="se">\n\n</span><span class="si">{body}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">doc</span><span class="p">),</span> <span class="n">pos_class</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="n">doc_iter</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">X_text</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X_text</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">iter_minibatches</span><span class="p">(</span><span class="n">doc_iter</span><span class="p">,</span> <span class="n">minibatch_size</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generator of minibatches.&quot;&quot;&quot;</span>
+    <span class="n">X_text</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">get_minibatch</span><span class="p">(</span><span class="n">doc_iter</span><span class="p">,</span> <span class="n">minibatch_size</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_text</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">X_text</span><span class="p">,</span> <span class="n">y</span>
+        <span class="n">X_text</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">get_minibatch</span><span class="p">(</span><span class="n">doc_iter</span><span class="p">,</span> <span class="n">minibatch_size</span><span class="p">)</span>
+
+
+<span class="c1"># test data statistics</span>
+<span class="n">test_stats</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_test&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;n_test_pos&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+<span class="c1"># First we hold out a number of examples to estimate accuracy</span>
+<span class="n">n_test_documents</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">tick</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">X_test_text</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">get_minibatch</span><span class="p">(</span><span class="n">data_stream</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">parsing_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tick</span>
+<span class="n">tick</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test_text</span><span class="p">)</span>
+<span class="n">vectorizing_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tick</span>
+<span class="n">test_stats</span><span class="p">[</span><span class="s1">&#39;n_test&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span>
+<span class="n">test_stats</span><span class="p">[</span><span class="s1">&#39;n_test_pos&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test set is </span><span class="si">%d</span><span class="s2"> documents (</span><span class="si">%d</span><span class="s2"> positive)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">y_test</span><span class="p">)))</span>
+
+
+<span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">cls_name</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Report progress information, return a string.&quot;&quot;&quot;</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;t0&#39;</span><span class="p">]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%20s</span><span class="s2"> classifier : </span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cls_name</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%(n_train)6d</span><span class="s2"> train docs (</span><span class="si">%(n_train_pos)6d</span><span class="s2"> positive) &quot;</span> <span class="o">%</span> <span class="n">stats</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%(n_test)6d</span><span class="s2"> test docs (</span><span class="si">%(n_test_pos)6d</span><span class="s2"> positive) &quot;</span> <span class="o">%</span> <span class="n">test_stats</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;accuracy: </span><span class="si">%(accuracy).3f</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">stats</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;in </span><span class="si">%.2f</span><span class="s2">s (</span><span class="si">%5d</span><span class="s2"> docs/s)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;n_train&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">duration</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="n">cls_stats</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">cls_name</span> <span class="ow">in</span> <span class="n">partial_fit_classifiers</span><span class="p">:</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_train&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;n_train_pos&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;accuracy_history&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="s1">&#39;t0&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span>
+             <span class="s1">&#39;runtime_history&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="s1">&#39;total_fit_time&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+    <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats</span>
+
+<span class="n">get_minibatch</span><span class="p">(</span><span class="n">data_stream</span><span class="p">,</span> <span class="n">n_test_documents</span><span class="p">)</span>
+<span class="c1"># Discard test set</span>
+
+<span class="c1"># We will feed the classifier with mini-batches of 1000 documents; this means</span>
+<span class="c1"># we have at most 1000 docs in memory at any time.  The smaller the document</span>
+<span class="c1"># batch, the bigger the relative overhead of the partial fit methods.</span>
+<span class="n">minibatch_size</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="c1"># Create the data_stream that parses Reuters SGML files and iterates on</span>
+<span class="c1"># documents as a stream.</span>
+<span class="n">minibatch_iterators</span> <span class="o">=</span> <span class="n">iter_minibatches</span><span class="p">(</span><span class="n">data_stream</span><span class="p">,</span> <span class="n">minibatch_size</span><span class="p">)</span>
+<span class="n">total_vect_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<span class="c1"># Main loop : iterate on mini-batches of examples</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">X_train_text</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">minibatch_iterators</span><span class="p">):</span>
+
+    <span class="n">tick</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">X_train</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train_text</span><span class="p">)</span>
+    <span class="n">total_vect_time</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tick</span>
+
+    <span class="k">for</span> <span class="n">cls_name</span><span class="p">,</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">partial_fit_classifiers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">tick</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># update estimator with examples in the current mini-batch</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">all_classes</span><span class="p">)</span>
+
+        <span class="c1"># accumulate test accuracy stats</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;total_fit_time&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tick</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;n_train&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;n_train_pos&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+        <span class="n">tick</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;accuracy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;prediction_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tick</span>
+        <span class="n">acc_history</span> <span class="o">=</span> <span class="p">(</span><span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;accuracy&#39;</span><span class="p">],</span>
+                       <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;n_train&#39;</span><span class="p">])</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;accuracy_history&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc_history</span><span class="p">)</span>
+        <span class="n">run_history</span> <span class="o">=</span> <span class="p">(</span><span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;accuracy&#39;</span><span class="p">],</span>
+                       <span class="n">total_vect_time</span> <span class="o">+</span> <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;total_fit_time&#39;</span><span class="p">])</span>
+        <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">][</span><span class="s1">&#39;runtime_history&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_history</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">progress</span><span class="p">(</span><span class="n">cls_name</span><span class="p">,</span> <span class="n">cls_stats</span><span class="p">[</span><span class="n">cls_name</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plot-results">
+<h2>Plot results<a class="headerlink" href="#plot-results" title="Permalink to this headline">¶</a></h2>
+<p>The plot represents the learning curve of the classifier: the evolution
+of classification accuracy over the course of the mini-batches. Accuracy is
+measured on the first 1000 samples, held out as a validation set.</p>
+<p>To limit the memory consumption, we queue examples up to a fixed amount
+before feeding them to the learner.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_accuracy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_legend</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot accuracy as a function of x.&quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Classification accuracy as a function of </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x_legend</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x_legend</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Accuracy&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+
+<span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;legend.fontsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">cls_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cls_stats</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+<span class="c1"># Plot accuracy evolution</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">stats</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cls_stats</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="c1"># Plot accuracy evolution with #examples</span>
+    <span class="n">accuracy</span><span class="p">,</span> <span class="n">n_examples</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;accuracy_history&#39;</span><span class="p">])</span>
+    <span class="n">plot_accuracy</span><span class="p">(</span><span class="n">n_examples</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="s2">&quot;training examples (#)&quot;</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">cls_names</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">stats</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cls_stats</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="c1"># Plot accuracy evolution with runtime</span>
+    <span class="n">accuracy</span><span class="p">,</span> <span class="n">runtime</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;runtime_history&#39;</span><span class="p">])</span>
+    <span class="n">plot_accuracy</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="s1">&#39;runtime (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">cls_names</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+
+<span class="c1"># Plot fitting times</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+<span class="n">cls_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;total_fit_time&#39;</span><span class="p">]</span>
+               <span class="k">for</span> <span class="n">cls_name</span><span class="p">,</span> <span class="n">stats</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cls_stats</span><span class="o">.</span><span class="n">items</span><span class="p">())]</span>
+
+<span class="n">cls_runtime</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_vect_time</span><span class="p">)</span>
+<span class="n">cls_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Vectorization&#39;</span><span class="p">)</span>
+<span class="n">bar_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">rectangles</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cls_names</span><span class="p">)),</span> <span class="n">cls_runtime</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                     <span class="n">color</span><span class="o">=</span><span class="n">bar_colors</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cls_names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cls_names</span><span class="p">)))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">cls_names</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ymax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cls_runtime</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.2</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;runtime (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Training Times&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">autolabel</span><span class="p">(</span><span class="n">rectangles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;attach some text vi autolabel on rectangles.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">rect</span> <span class="ow">in</span> <span class="n">rectangles</span><span class="p">:</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">rect</span><span class="o">.</span><span class="n">get_x</span><span class="p">()</span> <span class="o">+</span> <span class="n">rect</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+                <span class="mf">1.05</span> <span class="o">*</span> <span class="n">height</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">height</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+
+<span class="n">autolabel</span><span class="p">(</span><span class="n">rectangles</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Plot prediction times</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">cls_runtime</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">cls_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cls_stats</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="k">for</span> <span class="n">cls_name</span><span class="p">,</span> <span class="n">stats</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cls_stats</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">cls_runtime</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;prediction_time&#39;</span><span class="p">])</span>
+<span class="n">cls_runtime</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsing_time</span><span class="p">)</span>
+<span class="n">cls_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Read/Parse</span><span class="se">\n</span><span class="s1">+Feat.Extr.&#39;</span><span class="p">)</span>
+<span class="n">cls_runtime</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vectorizing_time</span><span class="p">)</span>
+<span class="n">cls_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Hashing</span><span class="se">\n</span><span class="s1">+Vect.&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">rectangles</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cls_names</span><span class="p">)),</span> <span class="n">cls_runtime</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                     <span class="n">color</span><span class="o">=</span><span class="n">bar_colors</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cls_names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cls_names</span><span class="p">)))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">cls_names</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">ymax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cls_runtime</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.2</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;runtime (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Prediction Times (</span><span class="si">%d</span><span class="s1"> instances)&#39;</span> <span class="o">%</span> <span class="n">n_test_documents</span><span class="p">)</span>
+<span class="n">autolabel</span><span class="p">(</span><span class="n">rectangles</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-applications-plot-out-of-core-classification-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/applications/plot_out_of_core_classification.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" width="150px" /></a>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/50d5483eef5cb5e563c5516b5912e0e8/plot_out_of_core_classification.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_out_of_core_classification.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/2a11fffca2451c647429e587d8945a1d/plot_out_of_core_classification.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_out_of_core_classification.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../../_sources/auto_examples/applications/plot_out_of_core_classification.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

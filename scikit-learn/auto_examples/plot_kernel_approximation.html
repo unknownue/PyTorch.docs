@@ -1,0 +1,554 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>Explicit feature map approximation for RBF kernels &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/plot_kernel_approximation.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../index.html">
+            <img
+              class="sk-brand-img"
+              src="../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="plot_kernel_ridge_regression.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Comparison of kernel ridge regression and SVR">Prev</a><a href="index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="bicluster/plot_spectral_coclustering.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="A demo of the Spectral Co-Clustering algorithm">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">Explicit feature map approximation for RBF kernels</a><ul>
+<li><a class="reference internal" href="#python-package-and-dataset-imports-load-dataset">Python package and dataset imports, load dataset</a></li>
+<li><a class="reference internal" href="#timing-and-accuracy-plots">Timing and accuracy plots</a></li>
+<li><a class="reference internal" href="#decision-surfaces-of-rbf-kernel-svm-and-linear-svm">Decision Surfaces of RBF Kernel SVM and Linear SVM</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-plot-kernel-approximation-py"><span class="std std-ref">here</span></a> to download the full example code or to run this example in your browser via Binder</p>
+</div>
+<div class="sphx-glr-example-title section" id="explicit-feature-map-approximation-for-rbf-kernels">
+<span id="sphx-glr-auto-examples-plot-kernel-approximation-py"></span><h1>Explicit feature map approximation for RBF kernels<a class="headerlink" href="#explicit-feature-map-approximation-for-rbf-kernels" title="Permalink to this headline">¶</a></h1>
+<p>An example illustrating the approximation of the feature map
+of an RBF kernel.</p>
+<p>It shows how to use <a class="reference internal" href="../modules/generated/sklearn.kernel_approximation.RBFSampler.html#sklearn.kernel_approximation.RBFSampler" title="sklearn.kernel_approximation.RBFSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBFSampler</span></code></a> and <a class="reference internal" href="../modules/generated/sklearn.kernel_approximation.Nystroem.html#sklearn.kernel_approximation.Nystroem" title="sklearn.kernel_approximation.Nystroem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nystroem</span></code></a> to
+approximate the feature map of an RBF kernel for classification with an SVM on
+the digits dataset. Results using a linear SVM in the original space, a linear
+SVM using the approximate mappings and using a kernelized SVM are compared.
+Timings and accuracy for varying amounts of Monte Carlo samplings (in the case
+of <a class="reference internal" href="../modules/generated/sklearn.kernel_approximation.RBFSampler.html#sklearn.kernel_approximation.RBFSampler" title="sklearn.kernel_approximation.RBFSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBFSampler</span></code></a>, which uses random Fourier features) and different sized
+subsets of the training set (for <a class="reference internal" href="../modules/generated/sklearn.kernel_approximation.Nystroem.html#sklearn.kernel_approximation.Nystroem" title="sklearn.kernel_approximation.Nystroem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nystroem</span></code></a>) for the approximate mapping
+are shown.</p>
+<p>Please note that the dataset here is not large enough to show the benefits
+of kernel approximation, as the exact SVM is still reasonably fast.</p>
+<p>Sampling more dimensions clearly leads to better classification results, but
+comes at a greater cost. This means there is a tradeoff between runtime and
+accuracy, given by the parameter n_components. Note that solving the Linear
+SVM and also the approximate kernel SVM could be greatly accelerated by using
+stochastic gradient descent via <a class="reference internal" href="../modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier" title="sklearn.linear_model.SGDClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier</span></code></a>.
+This is not easily possible for the case of the kernelized SVM.</p>
+<div class="section" id="python-package-and-dataset-imports-load-dataset">
+<h2>Python package and dataset imports, load dataset<a class="headerlink" href="#python-package-and-dataset-imports-load-dataset" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Author: Gael Varoquaux &lt;gael dot varoquaux at normalesup dot org&gt;</span>
+<span class="c1">#         Andreas Mueller &lt;amueller@ais.uni-bonn.de&gt;</span>
+<span class="c1"># License: BSD 3 clause</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
+
+<span class="c1"># Standard scientific Python imports</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="c1"># Import datasets, classifiers and performance metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">svm</span><span class="p">,</span> <span class="n">pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn.kernel_approximation</span> <span class="kn">import</span> <span class="p">(</span><span class="n">RBFSampler</span><span class="p">,</span>
+                                          <span class="n">Nystroem</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+
+<span class="c1"># The digits dataset</span>
+<span class="n">digits</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">n_class</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="timing-and-accuracy-plots">
+<h2>Timing and accuracy plots<a class="headerlink" href="#timing-and-accuracy-plots" title="Permalink to this headline">¶</a></h2>
+<p>To apply an classifier on this data, we need to flatten the image, to
+turn the data in a (samples, feature) matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">digits</span><span class="o">.</span><span class="n">data</span> <span class="o">/</span> <span class="mf">16.</span>
+<span class="n">data</span> <span class="o">-=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># We learn the digits on the first half of the digits</span>
+<span class="n">data_train</span><span class="p">,</span> <span class="n">targets_train</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="n">n_samples</span> <span class="o">//</span> <span class="mi">2</span><span class="p">],</span>
+                             <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">[:</span><span class="n">n_samples</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])</span>
+
+
+<span class="c1"># Now predict the value of the digit on the second half:</span>
+<span class="n">data_test</span><span class="p">,</span> <span class="n">targets_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">n_samples</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:],</span>
+                           <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">n_samples</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:])</span>
+<span class="c1"># data_test = scaler.transform(data_test)</span>
+
+<span class="c1"># Create a classifier: a support vector classifier</span>
+<span class="n">kernel_svm</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">gamma</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">linear_svm</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">LinearSVC</span><span class="p">()</span>
+
+<span class="c1"># create pipeline from kernel approximation</span>
+<span class="c1"># and linear svm</span>
+<span class="n">feature_map_fourier</span> <span class="o">=</span> <span class="n">RBFSampler</span><span class="p">(</span><span class="n">gamma</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">feature_map_nystroem</span> <span class="o">=</span> <span class="n">Nystroem</span><span class="p">(</span><span class="n">gamma</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fourier_approx_svm</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">([(</span><span class="s2">&quot;feature_map&quot;</span><span class="p">,</span> <span class="n">feature_map_fourier</span><span class="p">),</span>
+                                        <span class="p">(</span><span class="s2">&quot;svm&quot;</span><span class="p">,</span> <span class="n">svm</span><span class="o">.</span><span class="n">LinearSVC</span><span class="p">())])</span>
+
+<span class="n">nystroem_approx_svm</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">([(</span><span class="s2">&quot;feature_map&quot;</span><span class="p">,</span> <span class="n">feature_map_nystroem</span><span class="p">),</span>
+                                        <span class="p">(</span><span class="s2">&quot;svm&quot;</span><span class="p">,</span> <span class="n">svm</span><span class="o">.</span><span class="n">LinearSVC</span><span class="p">())])</span>
+
+<span class="c1"># fit and predict using linear and kernel svm:</span>
+
+<span class="n">kernel_svm_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+<span class="n">kernel_svm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_train</span><span class="p">,</span> <span class="n">targets_train</span><span class="p">)</span>
+<span class="n">kernel_svm_score</span> <span class="o">=</span> <span class="n">kernel_svm</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">targets_test</span><span class="p">)</span>
+<span class="n">kernel_svm_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">kernel_svm_time</span>
+
+<span class="n">linear_svm_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+<span class="n">linear_svm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_train</span><span class="p">,</span> <span class="n">targets_train</span><span class="p">)</span>
+<span class="n">linear_svm_score</span> <span class="o">=</span> <span class="n">linear_svm</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">targets_test</span><span class="p">)</span>
+<span class="n">linear_svm_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">linear_svm_time</span>
+
+<span class="n">sample_sizes</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">fourier_scores</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">nystroem_scores</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">fourier_times</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">nystroem_times</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">D</span> <span class="ow">in</span> <span class="n">sample_sizes</span><span class="p">:</span>
+    <span class="n">fourier_approx_svm</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">feature_map__n_components</span><span class="o">=</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">nystroem_approx_svm</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">feature_map__n_components</span><span class="o">=</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">nystroem_approx_svm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_train</span><span class="p">,</span> <span class="n">targets_train</span><span class="p">)</span>
+    <span class="n">nystroem_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">fourier_approx_svm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_train</span><span class="p">,</span> <span class="n">targets_train</span><span class="p">)</span>
+    <span class="n">fourier_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+
+    <span class="n">fourier_score</span> <span class="o">=</span> <span class="n">fourier_approx_svm</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">targets_test</span><span class="p">)</span>
+    <span class="n">nystroem_score</span> <span class="o">=</span> <span class="n">nystroem_approx_svm</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">targets_test</span><span class="p">)</span>
+    <span class="n">nystroem_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nystroem_score</span><span class="p">)</span>
+    <span class="n">fourier_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fourier_score</span><span class="p">)</span>
+
+<span class="c1"># plot the results:</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="c1"># second y axis for timings</span>
+<span class="n">timescale</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+
+<span class="n">accuracy</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample_sizes</span><span class="p">,</span> <span class="n">nystroem_scores</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Nystroem approx. kernel&quot;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample_sizes</span><span class="p">,</span> <span class="n">nystroem_times</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span>
+               <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Nystroem approx. kernel&#39;</span><span class="p">)</span>
+
+<span class="n">accuracy</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample_sizes</span><span class="p">,</span> <span class="n">fourier_scores</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Fourier approx. kernel&quot;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample_sizes</span><span class="p">,</span> <span class="n">fourier_times</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span>
+               <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fourier approx. kernel&#39;</span><span class="p">)</span>
+
+<span class="c1"># horizontal lines for exact rbf and linear kernels:</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">sample_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+              <span class="p">[</span><span class="n">linear_svm_score</span><span class="p">,</span> <span class="n">linear_svm_score</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;linear svm&quot;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">sample_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+               <span class="p">[</span><span class="n">linear_svm_time</span><span class="p">,</span> <span class="n">linear_svm_time</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;linear svm&#39;</span><span class="p">)</span>
+
+<span class="n">accuracy</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">sample_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+              <span class="p">[</span><span class="n">kernel_svm_score</span><span class="p">,</span> <span class="n">kernel_svm_score</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;rbf svm&quot;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">sample_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+               <span class="p">[</span><span class="n">kernel_svm_time</span><span class="p">,</span> <span class="n">kernel_svm_time</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;rbf svm&#39;</span><span class="p">)</span>
+
+<span class="c1"># vertical line for dataset dimensionality = 64</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;n_features&quot;</span><span class="p">)</span>
+
+<span class="c1"># legends and labels</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Classification accuracy&quot;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Training times&quot;</span><span class="p">)</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">sample_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(())</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fourier_scores</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Sampling steps = transformed feature dimension&quot;</span><span class="p">)</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Classification accuracy&quot;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Training time in seconds&quot;</span><span class="p">)</span>
+<span class="n">accuracy</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+<span class="n">timescale</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="decision-surfaces-of-rbf-kernel-svm-and-linear-svm">
+<h2>Decision Surfaces of RBF Kernel SVM and Linear SVM<a class="headerlink" href="#decision-surfaces-of-rbf-kernel-svm-and-linear-svm" title="Permalink to this headline">¶</a></h2>
+<p>The second plot visualized the decision surfaces of the RBF kernel SVM and
+the linear SVM with approximate kernel maps.
+The plot shows decision surfaces of the classifiers projected onto
+the first two principal components of the data. This visualization should
+be taken with a grain of salt since it is just an interesting slice through
+the decision surface in 64 dimensions. In particular note that
+a datapoint (represented as a dot) does not necessarily be classified
+into the region it is lying in, since it will not lie on the plane
+that the first two principal components span.
+The usage of <a class="reference internal" href="../modules/generated/sklearn.kernel_approximation.RBFSampler.html#sklearn.kernel_approximation.RBFSampler" title="sklearn.kernel_approximation.RBFSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBFSampler</span></code></a> and <a class="reference internal" href="../modules/generated/sklearn.kernel_approximation.Nystroem.html#sklearn.kernel_approximation.Nystroem" title="sklearn.kernel_approximation.Nystroem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nystroem</span></code></a> is described in detail
+in <a class="reference internal" href="../modules/kernel_approximation.html#kernel-approximation"><span class="std std-ref">Kernel Approximation</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># visualize the decision surface, projected down to the first</span>
+<span class="c1"># two principal components of the dataset</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data_train</span><span class="p">)</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data_train</span><span class="p">)</span>
+
+<span class="c1"># Generate grid along first two principal components</span>
+<span class="n">multiples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="c1"># steps along first component</span>
+<span class="n">first</span> <span class="o">=</span> <span class="n">multiples</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">pca</span><span class="o">.</span><span class="n">components_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+<span class="c1"># steps along second component</span>
+<span class="n">second</span> <span class="o">=</span> <span class="n">multiples</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">pca</span><span class="o">.</span><span class="n">components_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+<span class="c1"># combine</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">second</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">flat_grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># title for the plots</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SVC with rbf kernel&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;SVC (linear kernel)</span><span class="se">\n</span><span class="s1"> with Fourier rbf feature map</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;n_components=100&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;SVC (linear kernel)</span><span class="se">\n</span><span class="s1"> with Nystroem rbf feature map</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;n_components=100&#39;</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">})</span>
+<span class="c1"># predict and plot</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="n">kernel_svm</span><span class="p">,</span> <span class="n">nystroem_approx_svm</span><span class="p">,</span>
+                         <span class="n">fourier_approx_svm</span><span class="p">)):</span>
+    <span class="c1"># Plot the decision boundary. For that, we will assign a color to each</span>
+    <span class="c1"># point in the mesh [x_min, x_max]x[y_min, y_max].</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">flat_grid</span><span class="p">)</span>
+
+    <span class="c1"># Put the result into a color plot</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">multiples</span><span class="p">,</span> <span class="n">multiples</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Paired</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot also the training points</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">targets_train</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Paired</span><span class="p">,</span>
+                <span class="n">edgecolors</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">titles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-kernel-approximation-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/plot_kernel_approximation.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" width="150px" /></a>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c4541681aef7162a4553dee7532b9f6a/plot_kernel_approximation.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_kernel_approximation.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/861f5ea5f183d99f5ae787582e519676/plot_kernel_approximation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_kernel_approximation.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../_sources/auto_examples/plot_kernel_approximation.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

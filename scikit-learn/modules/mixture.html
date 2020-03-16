@@ -1,0 +1,623 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>2.1. Gaussian mixture models &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/modules/mixture.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../index.html">
+            <img
+              class="sk-brand-img"
+              src="../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="../unsupervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="2. Unsupervised learning">Prev</a><a href="../unsupervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="2. Unsupervised learning">Up</a>
+            <a href="manifold.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="2.2. Manifold learning">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">2.1. Gaussian mixture models</a><ul>
+<li><a class="reference internal" href="#gaussian-mixture">2.1.1. Gaussian Mixture</a><ul>
+<li><a class="reference internal" href="#pros-and-cons-of-class-gaussianmixture">2.1.1.1. Pros and cons of class <code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a><ul>
+<li><a class="reference internal" href="#pros">2.1.1.1.1. Pros</a></li>
+<li><a class="reference internal" href="#cons">2.1.1.1.2. Cons</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#selecting-the-number-of-components-in-a-classical-gaussian-mixture-model">2.1.1.2. Selecting the number of components in a classical Gaussian Mixture Model</a></li>
+<li><a class="reference internal" href="#estimation-algorithm-expectation-maximization">2.1.1.3. Estimation algorithm Expectation-maximization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#variational-bayesian-gaussian-mixture">2.1.2. Variational Bayesian Gaussian Mixture</a><ul>
+<li><a class="reference internal" href="#estimation-algorithm-variational-inference">2.1.2.1. Estimation algorithm: variational inference</a></li>
+<li><a class="reference internal" href="#pros-and-cons-of-variational-inference-with-bayesiangaussianmixture">2.1.2.2. Pros and cons of variational inference with <code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a><ul>
+<li><a class="reference internal" href="#id2">2.1.2.2.1. Pros</a></li>
+<li><a class="reference internal" href="#id3">2.1.2.2.2. Cons</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-dirichlet-process">2.1.2.3. The Dirichlet Process</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="section" id="gaussian-mixture-models">
+<span id="gmm"></span><span id="mixture"></span><h1>2.1. Gaussian mixture models<a class="headerlink" href="#gaussian-mixture-models" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">sklearn.mixture</span></code> is a package which enables one to learn
+Gaussian Mixture Models (diagonal, spherical, tied and full covariance
+matrices supported), sample them, and estimate them from
+data. Facilities to help determine the appropriate number of
+components are also provided.</p>
+<blockquote>
+<div><div class="figure align-center" id="id4">
+<a class="reference external image-reference" href="../auto_examples/mixture/plot_gmm_pdf.html"><img alt="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_pdf_001.png" src="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_pdf_001.png" /></a>
+<p class="caption"><span class="caption-text"><strong>Two-component Gaussian mixture model:</strong> <em>data points, and equi-probability
+surfaces of the model.</em></span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+</div></blockquote>
+<p>A Gaussian mixture model is a probabilistic model that assumes all the
+data points are generated from a mixture of a finite number of
+Gaussian distributions with unknown parameters. One can think of
+mixture models as generalizing k-means clustering to incorporate
+information about the covariance structure of the data as well as the
+centers of the latent Gaussians.</p>
+<p>Scikit-learn implements different classes to estimate Gaussian
+mixture models, that correspond to different estimation strategies,
+detailed below.</p>
+<div class="section" id="gaussian-mixture">
+<h2>2.1.1. Gaussian Mixture<a class="headerlink" href="#gaussian-mixture" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture" title="sklearn.mixture.GaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a> object implements the
+<a class="reference internal" href="#expectation-maximization"><span class="std std-ref">expectation-maximization</span></a> (EM)
+algorithm for fitting mixture-of-Gaussian models. It can also draw
+confidence ellipsoids for multivariate models, and compute the
+Bayesian Information Criterion to assess the number of clusters in the
+data. A <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture.fit" title="sklearn.mixture.GaussianMixture.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GaussianMixture.fit</span></code></a> method is provided that learns a Gaussian
+Mixture Model from train data. Given test data, it can assign to each
+sample the Gaussian it mostly probably belong to using
+the <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture.predict" title="sklearn.mixture.GaussianMixture.predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GaussianMixture.predict</span></code></a> method.</p>
+<p>The <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture" title="sklearn.mixture.GaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a> comes with different options to constrain the
+covariance of the difference classes estimated: spherical, diagonal, tied or
+full covariance.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/mixture/plot_gmm_covariances.html"><img alt="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_covariances_001.png" src="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_covariances_001.png" /></a>
+</div>
+<div class="topic">
+<p class="topic-title">Examples:</p>
+<ul class="simple">
+<li><p>See <a class="reference internal" href="../auto_examples/mixture/plot_gmm_covariances.html#sphx-glr-auto-examples-mixture-plot-gmm-covariances-py"><span class="std std-ref">GMM covariances</span></a> for an example of
+using the Gaussian mixture as clustering on the iris dataset.</p></li>
+<li><p>See <a class="reference internal" href="../auto_examples/mixture/plot_gmm_pdf.html#sphx-glr-auto-examples-mixture-plot-gmm-pdf-py"><span class="std std-ref">Density Estimation for a Gaussian mixture</span></a> for an example on plotting the
+density estimation.</p></li>
+</ul>
+</div>
+<div class="section" id="pros-and-cons-of-class-gaussianmixture">
+<h3>2.1.1.1. Pros and cons of class <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture" title="sklearn.mixture.GaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a><a class="headerlink" href="#pros-and-cons-of-class-gaussianmixture" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pros">
+<h4>2.1.1.1.1. Pros<a class="headerlink" href="#pros" title="Permalink to this headline">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">Speed</dt>
+<dd class="field-odd"><p>It is the fastest algorithm for learning mixture models</p>
+</dd>
+<dt class="field-even">Agnostic</dt>
+<dd class="field-even"><p>As this algorithm maximizes only the likelihood, it
+will not bias the means towards zero, or bias the cluster sizes to
+have specific structures that might or might not apply.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="cons">
+<h4>2.1.1.1.2. Cons<a class="headerlink" href="#cons" title="Permalink to this headline">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">Singularities</dt>
+<dd class="field-odd"><p>When one has insufficiently many points per
+mixture, estimating the covariance matrices becomes difficult,
+and the algorithm is known to diverge and find solutions with
+infinite likelihood unless one regularizes the covariances artificially.</p>
+</dd>
+<dt class="field-even">Number of components</dt>
+<dd class="field-even"><p>This algorithm will always use all the
+components it has access to, needing held-out data
+or information theoretical criteria to decide how many components to use
+in the absence of external cues.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="selecting-the-number-of-components-in-a-classical-gaussian-mixture-model">
+<h3>2.1.1.2. Selecting the number of components in a classical Gaussian Mixture Model<a class="headerlink" href="#selecting-the-number-of-components-in-a-classical-gaussian-mixture-model" title="Permalink to this headline">¶</a></h3>
+<p>The BIC criterion can be used to select the number of components in a Gaussian
+Mixture in an efficient way. In theory, it recovers the true number of
+components only in the asymptotic regime (i.e. if much data is available and
+assuming that the data was actually generated i.i.d. from a mixture of Gaussian
+distribution). Note that using a <a class="reference internal" href="#bgmm"><span class="std std-ref">Variational Bayesian Gaussian mixture</span></a>
+avoids the specification of the number of components for a Gaussian mixture
+model.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/mixture/plot_gmm_selection.html"><img alt="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_selection_001.png" src="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_selection_001.png" /></a>
+</div>
+<div class="topic">
+<p class="topic-title">Examples:</p>
+<ul class="simple">
+<li><p>See <a class="reference internal" href="../auto_examples/mixture/plot_gmm_selection.html#sphx-glr-auto-examples-mixture-plot-gmm-selection-py"><span class="std std-ref">Gaussian Mixture Model Selection</span></a> for an example
+of model selection performed with classical Gaussian mixture.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="estimation-algorithm-expectation-maximization">
+<span id="expectation-maximization"></span><h3>2.1.1.3. Estimation algorithm Expectation-maximization<a class="headerlink" href="#estimation-algorithm-expectation-maximization" title="Permalink to this headline">¶</a></h3>
+<p>The main difficulty in learning Gaussian mixture models from unlabeled
+data is that it is one usually doesn’t know which points came from
+which latent component (if one has access to this information it gets
+very easy to fit a separate Gaussian distribution to each set of
+points). <a class="reference external" href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm">Expectation-maximization</a>
+is a well-founded statistical
+algorithm to get around this problem by an iterative process. First
+one assumes random components (randomly centered on data points,
+learned from k-means, or even just normally distributed around the
+origin) and computes for each point a probability of being generated by
+each component of the model. Then, one tweaks the
+parameters to maximize the likelihood of the data given those
+assignments. Repeating this process is guaranteed to always converge
+to a local optimum.</p>
+</div>
+</div>
+<div class="section" id="variational-bayesian-gaussian-mixture">
+<span id="bgmm"></span><h2>2.1.2. Variational Bayesian Gaussian Mixture<a class="headerlink" href="#variational-bayesian-gaussian-mixture" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a> object implements a variant of the
+Gaussian mixture model with variational inference algorithms. The API is
+similar as the one defined by <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture" title="sklearn.mixture.GaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a>.</p>
+<div class="section" id="estimation-algorithm-variational-inference">
+<span id="variational-inference"></span><h3>2.1.2.1. Estimation algorithm: variational inference<a class="headerlink" href="#estimation-algorithm-variational-inference" title="Permalink to this headline">¶</a></h3>
+<p>Variational inference is an extension of expectation-maximization that
+maximizes a lower bound on model evidence (including
+priors) instead of data likelihood. The principle behind
+variational methods is the same as expectation-maximization (that is
+both are iterative algorithms that alternate between finding the
+probabilities for each point to be generated by each mixture and
+fitting the mixture to these assigned points), but variational
+methods add regularization by integrating information from prior
+distributions. This avoids the singularities often found in
+expectation-maximization solutions but introduces some subtle biases
+to the model. Inference is often notably slower, but not usually as
+much so as to render usage unpractical.</p>
+<p>Due to its Bayesian nature, the variational algorithm needs more hyper-
+parameters than expectation-maximization, the most important of these being the
+concentration parameter <code class="docutils literal notranslate"><span class="pre">weight_concentration_prior</span></code>. Specifying a low value
+for the concentration prior will make the model put most of the weight on few
+components set the remaining components weights very close to zero. High values
+of the concentration prior will allow a larger number of components to be active
+in the mixture.</p>
+<p>The parameters implementation of the <a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a> class
+proposes two types of prior for the weights distribution: a finite mixture model
+with Dirichlet distribution and an infinite mixture model with the Dirichlet
+Process. In practice Dirichlet Process inference algorithm is approximated and
+uses a truncated distribution with a fixed maximum number of components (called
+the Stick-breaking representation). The number of components actually used
+almost always depends on the data.</p>
+<p>The next figure compares the results obtained for the different type of the
+weight concentration prior (parameter <code class="docutils literal notranslate"><span class="pre">weight_concentration_prior_type</span></code>)
+for different values of <code class="docutils literal notranslate"><span class="pre">weight_concentration_prior</span></code>.
+Here, we can see the value of the <code class="docutils literal notranslate"><span class="pre">weight_concentration_prior</span></code> parameter
+has a strong impact on the effective number of active components obtained. We
+can also notice that large values for the concentration weight prior lead to
+more uniform weights when the type of prior is ‘dirichlet_distribution’ while
+this is not necessarily the case for the ‘dirichlet_process’ type (used by
+default).</p>
+<p class="centered">
+<strong><a class="reference external" href="../auto_examples/mixture/plot_concentration_prior.html"><img alt="plot_bgmm" src="modules/../auto_examples/mixture/images/sphx_glr_plot_concentration_prior_001.png" /></a> <a class="reference external" href="../auto_examples/mixture/plot_concentration_prior.html"><img alt="plot_dpgmm" src="modules/../auto_examples/mixture/images/sphx_glr_plot_concentration_prior_002.png" /></a></strong></p><p>The examples below compare Gaussian mixture models with a fixed number of
+components, to the variational Gaussian mixture models with a Dirichlet process
+prior. Here, a classical Gaussian mixture is fitted with 5 components on a
+dataset composed of 2 clusters. We can see that the variational Gaussian mixture
+with a Dirichlet process prior is able to limit itself to only 2 components
+whereas the Gaussian mixture fits the data with a fixed number of components
+that has to be set a priori by the user. In this case the user has selected
+<code class="docutils literal notranslate"><span class="pre">n_components=5</span></code> which does not match the true generative distribution of this
+toy dataset. Note that with very little observations, the variational Gaussian
+mixture models with a Dirichlet process prior can take a conservative stand, and
+fit only one component.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/mixture/plot_gmm.html"><img alt="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_001.png" src="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_001.png" /></a>
+</div>
+<p>On the following figure we are fitting a dataset not well-depicted by a
+Gaussian mixture. Adjusting the <code class="docutils literal notranslate"><span class="pre">weight_concentration_prior</span></code>, parameter of the
+<a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a> controls the number of components used to fit
+this data. We also present on the last two plots a random sampling generated
+from the two resulting mixtures.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/mixture/plot_gmm_sin.html"><img alt="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_sin_001.png" src="modules/../auto_examples/mixture/images/sphx_glr_plot_gmm_sin_001.png" /></a>
+</div>
+<div class="topic">
+<p class="topic-title">Examples:</p>
+<ul class="simple">
+<li><p>See <a class="reference internal" href="../auto_examples/mixture/plot_gmm.html#sphx-glr-auto-examples-mixture-plot-gmm-py"><span class="std std-ref">Gaussian Mixture Model Ellipsoids</span></a> for an example on
+plotting the confidence ellipsoids for both <a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture" title="sklearn.mixture.GaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a>
+and <a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="../auto_examples/mixture/plot_gmm_sin.html#sphx-glr-auto-examples-mixture-plot-gmm-sin-py"><span class="std std-ref">Gaussian Mixture Model Sine Curve</span></a> shows using
+<a class="reference internal" href="generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture" title="sklearn.mixture.GaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a> and <a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a> to fit a
+sine wave.</p></li>
+<li><p>See <a class="reference internal" href="../auto_examples/mixture/plot_concentration_prior.html#sphx-glr-auto-examples-mixture-plot-concentration-prior-py"><span class="std std-ref">Concentration Prior Type Analysis of Variation Bayesian Gaussian Mixture</span></a>
+for an example plotting the confidence ellipsoids for the
+<a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a> with different
+<code class="docutils literal notranslate"><span class="pre">weight_concentration_prior_type</span></code> for different values of the parameter
+<code class="docutils literal notranslate"><span class="pre">weight_concentration_prior</span></code>.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="pros-and-cons-of-variational-inference-with-bayesiangaussianmixture">
+<h3>2.1.2.2. Pros and cons of variational inference with <a class="reference internal" href="generated/sklearn.mixture.BayesianGaussianMixture.html#sklearn.mixture.BayesianGaussianMixture" title="sklearn.mixture.BayesianGaussianMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BayesianGaussianMixture</span></code></a><a class="headerlink" href="#pros-and-cons-of-variational-inference-with-bayesiangaussianmixture" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>2.1.2.2.1. Pros<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">Automatic selection</dt>
+<dd class="field-odd"><p>when <code class="docutils literal notranslate"><span class="pre">weight_concentration_prior</span></code> is small enough and
+<code class="docutils literal notranslate"><span class="pre">n_components</span></code> is larger than what is found necessary by the model, the
+Variational Bayesian mixture model has a natural tendency to set some mixture
+weights values close to zero. This makes it possible to let the model choose
+a suitable number of effective components automatically. Only an upper bound
+of this number needs to be provided. Note however that the “ideal” number of
+active components is very application specific and is typically ill-defined
+in a data exploration setting.</p>
+</dd>
+<dt class="field-even">Less sensitivity to the number of parameters</dt>
+<dd class="field-even"><p>unlike finite models, which will
+almost always use all components as much as they can, and hence will produce
+wildly different solutions for different numbers of components, the
+variational inference with a Dirichlet process prior
+(<code class="docutils literal notranslate"><span class="pre">weight_concentration_prior_type='dirichlet_process'</span></code>) won’t change much
+with changes to the parameters, leading to more stability and less tuning.</p>
+</dd>
+<dt class="field-odd">Regularization</dt>
+<dd class="field-odd"><p>due to the incorporation of prior information,
+variational solutions have less pathological special cases than
+expectation-maximization solutions.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="id3">
+<h4>2.1.2.2.2. Cons<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<dl class="field-list simple">
+<dt class="field-odd">Speed</dt>
+<dd class="field-odd"><p>the extra parametrization necessary for variational inference make
+inference slower, although not by much.</p>
+</dd>
+<dt class="field-even">Hyperparameters</dt>
+<dd class="field-even"><p>this algorithm needs an extra hyperparameter
+that might need experimental tuning via cross-validation.</p>
+</dd>
+<dt class="field-odd">Bias</dt>
+<dd class="field-odd"><p>there are many implicit biases in the inference algorithms (and also in
+the Dirichlet process if used), and whenever there is a mismatch between
+these biases and the data it might be possible to fit better models using a
+finite mixture.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="the-dirichlet-process">
+<span id="dirichlet-process"></span><h3>2.1.2.3. The Dirichlet Process<a class="headerlink" href="#the-dirichlet-process" title="Permalink to this headline">¶</a></h3>
+<p>Here we describe variational inference algorithms on Dirichlet process
+mixture. The Dirichlet process is a prior probability distribution on
+<em>clusterings with an infinite, unbounded, number of partitions</em>.
+Variational techniques let us incorporate this prior structure on
+Gaussian mixture models at almost no penalty in inference time, comparing
+with a finite Gaussian mixture model.</p>
+<p>An important question is how can the Dirichlet process use an infinite,
+unbounded number of clusters and still be consistent. While a full explanation
+doesn’t fit this manual, one can think of its <a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process">stick breaking process</a>
+analogy to help understanding it. The stick breaking process is a generative
+story for the Dirichlet process. We start with a unit-length stick and in each
+step we break off a portion of the remaining stick. Each time, we associate the
+length of the piece of the stick to the proportion of points that falls into a
+group of the mixture. At the end, to represent the infinite mixture, we
+associate the last remaining piece of the stick to the proportion of points
+that don’t fall into all the other groups. The length of each piece is a random
+variable with probability proportional to the concentration parameter. Smaller
+value of the concentration will divide the unit-length into larger pieces of
+the stick (defining more concentrated distribution). Larger concentration
+values will create smaller pieces of the stick (increasing the number of
+components with non zero weights).</p>
+<p>Variational inference techniques for the Dirichlet process still work
+with a finite approximation to this infinite mixture model, but
+instead of having to specify a priori how many components one wants to
+use, one just specifies the concentration parameter and an upper bound
+on the number of mixture components (this upper bound, assuming it is
+higher than the “true” number of components, affects only algorithmic
+complexity, not the actual number of components used).</p>
+</div>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../_sources/modules/mixture.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

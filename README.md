@@ -16,7 +16,7 @@ No need to clone the huge PyTorch repo. No need to install Sphinx. No need to wa
 
 ## How to use
 
-You can download from [release page](https://github.com/unknownue/PyTorch.docs/releases)(recommended), or clone this repo by
+You can download from [release page](https://github.com/unknownue/PyTorch.docs/releases)(recommended), or clone this repo(about 100+MB) by
 
 ```shell
 $ git clone https://github.com/unknownue/PyTorch.docs.git

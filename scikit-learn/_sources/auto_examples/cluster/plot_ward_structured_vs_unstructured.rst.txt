@@ -1,0 +1,143 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_auto_examples_cluster_plot_ward_structured_vs_unstructured.py>` to download the full example code or to run this example in your browser via Binder
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_auto_examples_cluster_plot_ward_structured_vs_unstructured.py:
+
+
+===========================================================
+Hierarchical clustering: structured vs unstructured ward
+===========================================================
+
+Example builds a swiss roll dataset and runs
+hierarchical clustering on their position.
+
+For more information, see :ref:`hierarchical_clustering`.
+
+In a first step, the hierarchical clustering is performed without connectivity
+constraints on the structure and is solely based on distance, whereas in
+a second step the clustering is restricted to the k-Nearest Neighbors
+graph: it's a hierarchical clustering with structure prior.
+
+Some of the clusters learned without connectivity constraints do not
+respect the structure of the swiss roll and extend across different folds of
+the manifolds. On the opposite, when opposing connectivity constraints,
+the clusters form a nice parcellation of the swiss roll.
+
+
+.. code-block:: default
+
+
+    # Authors : Vincent Michel, 2010
+    #           Alexandre Gramfort, 2010
+    #           Gael Varoquaux, 2010
+    # License: BSD 3 clause
+
+    print(__doc__)
+
+    import time as time
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import mpl_toolkits.mplot3d.axes3d as p3
+    from sklearn.cluster import AgglomerativeClustering
+    from sklearn.datasets import make_swiss_roll
+
+    # #############################################################################
+    # Generate data (swiss roll dataset)
+    n_samples = 1500
+    noise = 0.05
+    X, _ = make_swiss_roll(n_samples, noise)
+    # Make it thinner
+    X[:, 1] *= .5
+
+    # #############################################################################
+    # Compute clustering
+    print("Compute unstructured hierarchical clustering...")
+    st = time.time()
+    ward = AgglomerativeClustering(n_clusters=6, linkage='ward').fit(X)
+    elapsed_time = time.time() - st
+    label = ward.labels_
+    print("Elapsed time: %.2fs" % elapsed_time)
+    print("Number of points: %i" % label.size)
+
+    # #############################################################################
+    # Plot result
+    fig = plt.figure()
+    ax = p3.Axes3D(fig)
+    ax.view_init(7, -80)
+    for l in np.unique(label):
+        ax.scatter(X[label == l, 0], X[label == l, 1], X[label == l, 2],
+                   color=plt.cm.jet(np.float(l) / np.max(label + 1)),
+                   s=20, edgecolor='k')
+    plt.title('Without connectivity constraints (time %.2fs)' % elapsed_time)
+
+
+    # #############################################################################
+    # Define the structure A of the data. Here a 10 nearest neighbors
+    from sklearn.neighbors import kneighbors_graph
+    connectivity = kneighbors_graph(X, n_neighbors=10, include_self=False)
+
+    # #############################################################################
+    # Compute clustering
+    print("Compute structured hierarchical clustering...")
+    st = time.time()
+    ward = AgglomerativeClustering(n_clusters=6, connectivity=connectivity,
+                                   linkage='ward').fit(X)
+    elapsed_time = time.time() - st
+    label = ward.labels_
+    print("Elapsed time: %.2fs" % elapsed_time)
+    print("Number of points: %i" % label.size)
+
+    # #############################################################################
+    # Plot result
+    fig = plt.figure()
+    ax = p3.Axes3D(fig)
+    ax.view_init(7, -80)
+    for l in np.unique(label):
+        ax.scatter(X[label == l, 0], X[label == l, 1], X[label == l, 2],
+                   color=plt.cm.jet(float(l) / np.max(label + 1)),
+                   s=20, edgecolor='k')
+    plt.title('With connectivity constraints (time %.2fs)' % elapsed_time)
+
+    plt.show()
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  0.000 seconds)
+
+
+.. _sphx_glr_download_auto_examples_cluster_plot_ward_structured_vs_unstructured.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+  .. container:: binder-badge
+
+    .. image:: https://mybinder.org/badge_logo.svg
+      :target: https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/cluster/plot_ward_structured_vs_unstructured.ipynb
+      :width: 150 px
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: plot_ward_structured_vs_unstructured.py <plot_ward_structured_vs_unstructured.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: plot_ward_structured_vs_unstructured.ipynb <plot_ward_structured_vs_unstructured.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

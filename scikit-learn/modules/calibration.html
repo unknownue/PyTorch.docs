@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>1.16. Probability calibration &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/modules/calibration.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../index.html">
+            <img
+              class="sk-brand-img"
+              src="../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="isotonic.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="1.15. Isotonic regression">Prev</a><a href="../supervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="1. Supervised learning">Up</a>
+            <a href="neural_networks_supervised.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="1.17. Neural network models (supervised)">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">1.16. Probability calibration</a></li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="section" id="probability-calibration">
+<span id="calibration"></span><h1>1.16. Probability calibration<a class="headerlink" href="#probability-calibration" title="Permalink to this headline">¶</a></h1>
+<p>When performing classification you often want not only to predict the class
+label, but also obtain a probability of the respective label. This probability
+gives you some kind of confidence on the prediction. Some models can give you
+poor estimates of the class probabilities and some even do not support
+probability prediction. The calibration module allows you to better calibrate
+the probabilities of a given model, or to add support for probability
+prediction.</p>
+<p>Well calibrated classifiers are probabilistic classifiers for which the output
+of the predict_proba method can be directly interpreted as a confidence level.
+For instance, a well calibrated (binary) classifier should classify the samples
+such that among the samples to which it gave a predict_proba value close to 0.8,
+approximately 80% actually belong to the positive class. The following plot compares
+how well the probabilistic predictions of different classifiers are calibrated:</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_compare_calibration.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_compare_calibration_001.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_compare_calibration_001.png" /></a>
+</div>
+<p><a class="reference internal" href="generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression" title="sklearn.linear_model.LogisticRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegression</span></code></a> returns well calibrated predictions by default as it directly
+optimizes log-loss. In contrast, the other methods return biased probabilities;
+with different biases per method:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB" title="sklearn.naive_bayes.GaussianNB"><code class="xref py py-class docutils literal notranslate"><span class="pre">GaussianNB</span></code></a> tends to push probabilities to 0 or 1 (note the
+counts in the histograms). This is mainly because it makes the assumption
+that features are conditionally independent given the class, which is not
+the case in this dataset which contains 2 redundant features.</p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/sklearn.ensemble.RandomForestClassifier.html#sklearn.ensemble.RandomForestClassifier" title="sklearn.ensemble.RandomForestClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomForestClassifier</span></code></a> shows the opposite behavior: the histograms
+show peaks at approximately 0.2 and 0.9 probability, while probabilities close to
+0 or 1 are very rare. An explanation for this is given by Niculescu-Mizil
+and Caruana <a class="footnote-reference brackets" href="#id4" id="id1">4</a>: “Methods such as bagging and random forests that average
+predictions from a base set of models can have difficulty making predictions
+near 0 and 1 because variance in the underlying base models will bias
+predictions that should be near zero or one away from these values. Because
+predictions are restricted to the interval [0,1], errors caused by variance
+tend to be one-sided near zero and one. For example, if a model should
+predict p = 0 for a case, the only way bagging can achieve this is if all
+bagged trees predict zero. If we add noise to the trees that bagging is
+averaging over, this noise will cause some trees to predict values larger
+than 0 for this case, thus moving the average prediction of the bagged
+ensemble away from 0. We observe this effect most strongly with random
+forests because the base-level trees trained with random forests have
+relatively high variance due to feature subsetting.” As a result, the
+calibration curve also referred to as the reliability diagram (Wilks 1995 <a class="footnote-reference brackets" href="#id5" id="id2">5</a>) shows a
+characteristic sigmoid shape, indicating that the classifier could trust its
+“intuition” more and return probabilities closer to 0 or 1 typically.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Linear Support Vector Classification (<a class="reference internal" href="generated/sklearn.svm.LinearSVC.html#sklearn.svm.LinearSVC" title="sklearn.svm.LinearSVC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearSVC</span></code></a>) shows an even more sigmoid curve
+as the RandomForestClassifier, which is typical for maximum-margin methods
+(compare Niculescu-Mizil and Caruana <a class="footnote-reference brackets" href="#id4" id="id3">4</a>), which focus on hard samples
+that are close to the decision boundary (the support vectors).</p></li>
+</ul>
+<p>Two approaches for performing calibration of probabilistic predictions are
+provided: a parametric approach based on Platt’s sigmoid model and a
+non-parametric approach based on isotonic regression (<a class="reference internal" href="classes.html#module-sklearn.isotonic" title="sklearn.isotonic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.isotonic</span></code></a>).
+Probability calibration should be done on new data not used for model fitting.
+The class <a class="reference internal" href="generated/sklearn.calibration.CalibratedClassifierCV.html#sklearn.calibration.CalibratedClassifierCV" title="sklearn.calibration.CalibratedClassifierCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">CalibratedClassifierCV</span></code></a> uses a cross-validation generator and
+estimates for each split the model parameter on the train samples and the
+calibration of the test samples. The probabilities predicted for the
+folds are then averaged. Already fitted classifiers can be calibrated by
+<a class="reference internal" href="generated/sklearn.calibration.CalibratedClassifierCV.html#sklearn.calibration.CalibratedClassifierCV" title="sklearn.calibration.CalibratedClassifierCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">CalibratedClassifierCV</span></code></a> via the parameter cv=”prefit”. In this case,
+the user has to take care manually that data for model fitting and calibration
+are disjoint.</p>
+<p>The following images demonstrate the benefit of probability calibration.
+The first image present a dataset with 2 classes and 3 blobs of
+data. The blob in the middle contains random samples of each class.
+The probability for the samples in this blob should be 0.5.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_calibration.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_001.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_001.png" /></a>
+</div>
+<p>The following image shows on the data above the estimated probability
+using a Gaussian naive Bayes classifier without calibration,
+with a sigmoid calibration and with a non-parametric isotonic
+calibration. One can observe that the non-parametric model
+provides the most accurate probability estimates for samples
+in the middle, i.e., 0.5.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_calibration.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_002.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_002.png" /></a>
+</div>
+<p>The following experiment is performed on an artificial dataset for binary
+classification with 100,000 samples (1,000 of them are used for model fitting)
+with 20 features. Of the 20 features, only 2 are informative and 10 are
+redundant. The figure shows the estimated probabilities obtained with
+logistic regression, a linear support-vector classifier (SVC), and linear SVC with
+both isotonic calibration and sigmoid calibration.
+The Brier score is a metric which is a combination of calibration loss and refinement loss,
+<a class="reference internal" href="generated/sklearn.metrics.brier_score_loss.html#sklearn.metrics.brier_score_loss" title="sklearn.metrics.brier_score_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_score_loss</span></code></a>, reported in the legend (the smaller the better).
+Calibration loss is defined as the mean squared deviation from empirical probabilities
+derived from the slope of ROC segments. Refinement loss can be defined as the expected
+optimal loss as measured by the area under the optimal cost curve.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_calibration_curve.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_curve_002.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_curve_002.png" /></a>
+</div>
+<p>One can observe here that logistic regression is well calibrated as its curve is
+nearly diagonal. Linear SVC’s calibration curve or reliability diagram has a
+sigmoid curve, which is typical for an under-confident classifier. In the case of
+LinearSVC, this is caused by the margin property of the hinge loss, which lets
+the model focus on hard samples that are close to the decision boundary
+(the support vectors). Both kinds of calibration can fix this issue and yield
+nearly identical results. The next figure shows the calibration curve of
+Gaussian naive Bayes on the same data, with both kinds of calibration and also
+without calibration.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_calibration_curve.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_curve_001.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_curve_001.png" /></a>
+</div>
+<p>One can see that Gaussian naive Bayes performs very badly but does so in an
+other way than linear SVC: While linear SVC exhibited a sigmoid calibration
+curve, Gaussian naive Bayes’ calibration curve has a transposed-sigmoid shape.
+This is typical for an over-confident classifier. In this case, the classifier’s
+overconfidence is caused by the redundant features which violate the naive Bayes
+assumption of feature-independence.</p>
+<p>Calibration of the probabilities of Gaussian naive Bayes with isotonic
+regression can fix this issue as can be seen from the nearly diagonal
+calibration curve. Sigmoid calibration also improves the brier score slightly,
+albeit not as strongly as the non-parametric isotonic calibration. This is an
+intrinsic limitation of sigmoid calibration, whose parametric form assumes a
+sigmoid rather than a transposed-sigmoid curve. The non-parametric isotonic
+calibration model, however, makes no such strong assumptions and can deal with
+either shape, provided that there is sufficient calibration data. In general,
+sigmoid calibration is preferable in cases where the calibration curve is sigmoid
+and where there is limited calibration data, while isotonic calibration is
+preferable for non-sigmoid calibration curves and in situations where large
+amounts of data are available for calibration.</p>
+<p><a class="reference internal" href="generated/sklearn.calibration.CalibratedClassifierCV.html#sklearn.calibration.CalibratedClassifierCV" title="sklearn.calibration.CalibratedClassifierCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">CalibratedClassifierCV</span></code></a> can also deal with classification tasks that
+involve more than two classes if the base estimator can do so. In this case,
+the classifier is calibrated first for each class separately in an one-vs-rest
+fashion. When predicting probabilities for unseen data, the calibrated
+probabilities for each class are predicted separately. As those probabilities
+do not necessarily sum to one, a postprocessing is performed to normalize them.</p>
+<p>The next image illustrates how sigmoid calibration changes predicted
+probabilities for a 3-class classification problem. Illustrated is the standard
+2-simplex, where the three corners correspond to the three classes. Arrows point
+from the probability vectors predicted by an uncalibrated classifier to the
+probability vectors predicted by the same classifier after sigmoid calibration
+on a hold-out validation set. Colors indicate the true class of an instance
+(red: class 1, green: class 2, blue: class 3).</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_calibration_multiclass.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_multiclass_001.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_multiclass_001.png" /></a>
+</div>
+<p>The base classifier is a random forest classifier with 25 base estimators
+(trees). If this classifier is trained on all 800 training datapoints, it is
+overly confident in its predictions and thus incurs a large log-loss.
+Calibrating an identical classifier, which was trained on 600 datapoints, with
+method=’sigmoid’ on the remaining 200 datapoints reduces the confidence of the
+predictions, i.e., moves the probability vectors from the edges of the simplex
+towards the center:</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/calibration/plot_calibration_multiclass.html"><img alt="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_multiclass_002.png" src="modules/../auto_examples/calibration/images/sphx_glr_plot_calibration_multiclass_002.png" /></a>
+</div>
+<p>This calibration results in a lower log-loss. Note that an alternative would
+have been to increase the number of base estimators which would have resulted in
+a similar decrease in log-loss.</p>
+<div class="topic">
+<p class="topic-title">References:</p>
+<ul class="simple">
+<li><p>Obtaining calibrated probability estimates from decision trees
+and naive Bayesian classifiers, B. Zadrozny &amp; C. Elkan, ICML 2001</p></li>
+<li><p>Transforming Classifier Scores into Accurate Multiclass
+Probability Estimates, B. Zadrozny &amp; C. Elkan, (KDD 2002)</p></li>
+<li><p>Probabilistic Outputs for Support Vector Machines and Comparisons to
+Regularized Likelihood Methods, J. Platt, (1999)</p></li>
+</ul>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets">4</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id3">2</a>)</span></dt>
+<dd><p>Predicting Good Probabilities with Supervised Learning,
+A. Niculescu-Mizil &amp; R. Caruana, ICML 2005</p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id2">5</a></span></dt>
+<dd><p>On the combination of forecast probabilities for
+consecutive precipitation periods. Wea. Forecasting, 5, 640–650.,
+Wilks, D. S., 1990a</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../_sources/modules/calibration.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

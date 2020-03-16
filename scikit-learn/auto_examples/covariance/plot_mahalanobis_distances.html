@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>Robust covariance estimation and Mahalanobis distances relevance &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/covariance/plot_mahalanobis_distances.html" />
+
+  
+  <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../../index.html">
+        <img
+          class="sk-brand-img"
+          src="../../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../../index.html">
+            <img
+              class="sk-brand-img"
+              src="../../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="plot_covariance_estimation.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Shrinkage covariance estimation: LedoitWolf vs OAS and max-likelihood">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="plot_robust_vs_empirical_covariance.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Robust vs Empirical covariance estimate">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">Robust covariance estimation and Mahalanobis distances relevance</a></li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-covariance-plot-mahalanobis-distances-py"><span class="std std-ref">here</span></a> to download the full example code or to run this example in your browser via Binder</p>
+</div>
+<div class="sphx-glr-example-title section" id="robust-covariance-estimation-and-mahalanobis-distances-relevance">
+<span id="sphx-glr-auto-examples-covariance-plot-mahalanobis-distances-py"></span><h1>Robust covariance estimation and Mahalanobis distances relevance<a class="headerlink" href="#robust-covariance-estimation-and-mahalanobis-distances-relevance" title="Permalink to this headline">¶</a></h1>
+<p>An example to show covariance estimation with the Mahalanobis
+distances on Gaussian distributed data.</p>
+<p>For Gaussian distributed data, the distance of an observation
+<span class="math notranslate nohighlight">\(x_i\)</span> to the mode of the distribution can be computed using its
+Mahalanobis distance: <span class="math notranslate nohighlight">\(d_{(\mu,\Sigma)}(x_i)^2 = (x_i -
+\mu)'\Sigma^{-1}(x_i - \mu)\)</span> where <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\Sigma\)</span> are
+the location and the covariance of the underlying Gaussian
+distribution.</p>
+<p>In practice, <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\Sigma\)</span> are replaced by some
+estimates.  The usual covariance maximum likelihood estimate is very
+sensitive to the presence of outliers in the data set and therefor,
+the corresponding Mahalanobis distances are. One would better have to
+use a robust estimator of covariance to guarantee that the estimation is
+resistant to “erroneous” observations in the data set and that the
+associated Mahalanobis distances accurately reflect the true
+organisation of the observations.</p>
+<p>The Minimum Covariance Determinant estimator is a robust,
+high-breakdown point (i.e. it can be used to estimate the covariance
+matrix of highly contaminated datasets, up to
+<span class="math notranslate nohighlight">\(\frac{n_\text{samples}-n_\text{features}-1}{2}\)</span> outliers)
+estimator of covariance. The idea is to find
+<span class="math notranslate nohighlight">\(\frac{n_\text{samples}+n_\text{features}+1}{2}\)</span>
+observations whose empirical covariance has the smallest determinant,
+yielding a “pure” subset of observations from which to compute
+standards estimates of location and covariance.</p>
+<p>The Minimum Covariance Determinant estimator (MCD) has been introduced
+by P.J.Rousseuw in [1].</p>
+<p>This example illustrates how the Mahalanobis distances are affected by
+outlying data: observations drawn from a contaminating distribution
+are not distinguishable from the observations coming from the real,
+Gaussian distribution that one may want to work with. Using MCD-based
+Mahalanobis distances, the two populations become
+distinguishable. Associated applications are outliers detection,
+observations ranking, clustering, …
+For visualization purpose, the cubic root of the Mahalanobis distances
+are represented in the boxplot, as Wilson and Hilferty suggest [2]</p>
+<dl class="simple">
+<dt>[1] P. J. Rousseeuw. Least median of squares regression. J. Am</dt><dd><p>Stat Ass, 79:871, 1984.</p>
+</dd>
+<dt>[2] Wilson, E. B., &amp; Hilferty, M. M. (1931). The distribution of chi-square.</dt><dd><p>Proceedings of the National Academy of Sciences of the United States
+of America, 17, 684-688.</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.covariance</span> <span class="kn">import</span> <span class="n">EmpiricalCovariance</span><span class="p">,</span> <span class="n">MinCovDet</span>
+
+<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">n_outliers</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">n_features</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># generate data</span>
+<span class="n">gen_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span>
+<span class="n">gen_cov</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">gen_cov</span><span class="p">)</span>
+<span class="c1"># add some outliers</span>
+<span class="n">outliers_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span>
+<span class="n">outliers_cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">7.</span>
+<span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_outliers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">outliers_cov</span><span class="p">)</span>
+
+<span class="c1"># fit a Minimum Covariance Determinant (MCD) robust estimator to data</span>
+<span class="n">robust_cov</span> <span class="o">=</span> <span class="n">MinCovDet</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># compare estimators learnt from the full data set with true parameters</span>
+<span class="n">emp_cov</span> <span class="o">=</span> <span class="n">EmpiricalCovariance</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># #############################################################################</span>
+<span class="c1"># Display results</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=-.</span><span class="mi">1</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span> <span class="n">top</span><span class="o">=.</span><span class="mi">95</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=.</span><span class="mi">05</span><span class="p">)</span>
+
+<span class="c1"># Show data set</span>
+<span class="n">subfig1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">inlier_plot</span> <span class="o">=</span> <span class="n">subfig1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                              <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;inliers&#39;</span><span class="p">)</span>
+<span class="n">outlier_plot</span> <span class="o">=</span> <span class="n">subfig1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:],</span>
+                               <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;outliers&#39;</span><span class="p">)</span>
+<span class="n">subfig1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">subfig1</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">11.</span><span class="p">)</span>
+<span class="n">subfig1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Mahalanobis distances of a contaminated data set:&quot;</span><span class="p">)</span>
+
+<span class="c1"># Show contours of the distance functions</span>
+<span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">100</span><span class="p">),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">100</span><span class="p">))</span>
+<span class="n">zz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">xx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">ravel</span><span class="p">()]</span>
+
+<span class="n">mahal_emp_cov</span> <span class="o">=</span> <span class="n">emp_cov</span><span class="o">.</span><span class="n">mahalanobis</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span>
+<span class="n">mahal_emp_cov</span> <span class="o">=</span> <span class="n">mahal_emp_cov</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">emp_cov_contour</span> <span class="o">=</span> <span class="n">subfig1</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mahal_emp_cov</span><span class="p">),</span>
+                                  <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">PuBu_r</span><span class="p">,</span>
+                                  <span class="n">linestyles</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">)</span>
+
+<span class="n">mahal_robust_cov</span> <span class="o">=</span> <span class="n">robust_cov</span><span class="o">.</span><span class="n">mahalanobis</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span>
+<span class="n">mahal_robust_cov</span> <span class="o">=</span> <span class="n">mahal_robust_cov</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">robust_contour</span> <span class="o">=</span> <span class="n">subfig1</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mahal_robust_cov</span><span class="p">),</span>
+                                 <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">YlOrBr_r</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">)</span>
+
+<span class="n">subfig1</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">emp_cov_contour</span><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">robust_contour</span><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">inlier_plot</span><span class="p">,</span> <span class="n">outlier_plot</span><span class="p">],</span>
+               <span class="p">[</span><span class="s1">&#39;MLE dist&#39;</span><span class="p">,</span> <span class="s1">&#39;robust dist&#39;</span><span class="p">,</span> <span class="s1">&#39;inliers&#39;</span><span class="p">,</span> <span class="s1">&#39;outliers&#39;</span><span class="p">],</span>
+               <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(())</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(())</span>
+
+<span class="c1"># Plot the scores for each point</span>
+<span class="n">emp_mahal</span> <span class="o">=</span> <span class="n">emp_cov</span><span class="o">.</span><span class="n">mahalanobis</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.33</span><span class="p">)</span>
+<span class="n">subfig2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">subfig2</span><span class="o">.</span><span class="n">boxplot</span><span class="p">([</span><span class="n">emp_mahal</span><span class="p">[:</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">],</span> <span class="n">emp_mahal</span><span class="p">[</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:]],</span> <span class="n">widths</span><span class="o">=.</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">subfig2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_samples</span> <span class="o">-</span> <span class="n">n_outliers</span><span class="p">,</span> <span class="mf">1.26</span><span class="p">),</span>
+             <span class="n">emp_mahal</span><span class="p">[:</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">],</span> <span class="s1">&#39;+k&#39;</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">subfig2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_outliers</span><span class="p">,</span> <span class="mf">2.26</span><span class="p">),</span>
+             <span class="n">emp_mahal</span><span class="p">[</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:],</span> <span class="s1">&#39;+k&#39;</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">subfig2</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">((</span><span class="s1">&#39;inliers&#39;</span><span class="p">,</span> <span class="s1">&#39;outliers&#39;</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">subfig2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\sqrt[3]{\rm{(Mahal. dist.)}}$&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">subfig2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;1. from non-robust estimates</span><span class="se">\n</span><span class="s2">(Maximum Likelihood)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(())</span>
+
+<span class="n">robust_mahal</span> <span class="o">=</span> <span class="n">robust_cov</span><span class="o">.</span><span class="n">mahalanobis</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">robust_cov</span><span class="o">.</span><span class="n">location_</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.33</span><span class="p">)</span>
+<span class="n">subfig3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">subfig3</span><span class="o">.</span><span class="n">boxplot</span><span class="p">([</span><span class="n">robust_mahal</span><span class="p">[:</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">],</span> <span class="n">robust_mahal</span><span class="p">[</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:]],</span>
+                <span class="n">widths</span><span class="o">=.</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">subfig3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_samples</span> <span class="o">-</span> <span class="n">n_outliers</span><span class="p">,</span> <span class="mf">1.26</span><span class="p">),</span>
+             <span class="n">robust_mahal</span><span class="p">[:</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">],</span> <span class="s1">&#39;+k&#39;</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">subfig3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_outliers</span><span class="p">,</span> <span class="mf">2.26</span><span class="p">),</span>
+             <span class="n">robust_mahal</span><span class="p">[</span><span class="o">-</span><span class="n">n_outliers</span><span class="p">:],</span> <span class="s1">&#39;+k&#39;</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">subfig3</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">((</span><span class="s1">&#39;inliers&#39;</span><span class="p">,</span> <span class="s1">&#39;outliers&#39;</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">subfig3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\sqrt[3]{\rm{(Mahal. dist.)}}$&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">subfig3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;2. from robust estimates</span><span class="se">\n</span><span class="s2">(Minimum Covariance Determinant)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(())</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-covariance-plot-mahalanobis-distances-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/covariance/plot_mahalanobis_distances.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" width="150px" /></a>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/6af3317867d60493a0489650957d2169/plot_mahalanobis_distances.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mahalanobis_distances.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/939528d77840a303af227c90eb633a40/plot_mahalanobis_distances.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mahalanobis_distances.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../../_sources/auto_examples/covariance/plot_mahalanobis_distances.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

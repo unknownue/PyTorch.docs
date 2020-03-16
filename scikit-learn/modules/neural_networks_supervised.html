@@ -1,0 +1,640 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>1.17. Neural network models (supervised) &mdash; scikit-learn 0.22 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/modules/neural_networks_supervised.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../index.html">
+            <img
+              class="sk-brand-img"
+              src="../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="calibration.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="1.16. Probability calibration">Prev</a><a href="../supervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="1. Supervised learning">Up</a>
+            <a href="../unsupervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="2. Unsupervised learning">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.22</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">1.17. Neural network models (supervised)</a><ul>
+<li><a class="reference internal" href="#multi-layer-perceptron">1.17.1. Multi-layer Perceptron</a></li>
+<li><a class="reference internal" href="#classification">1.17.2. Classification</a></li>
+<li><a class="reference internal" href="#regression">1.17.3. Regression</a></li>
+<li><a class="reference internal" href="#regularization">1.17.4. Regularization</a></li>
+<li><a class="reference internal" href="#algorithms">1.17.5. Algorithms</a></li>
+<li><a class="reference internal" href="#complexity">1.17.6. Complexity</a></li>
+<li><a class="reference internal" href="#mathematical-formulation">1.17.7. Mathematical formulation</a></li>
+<li><a class="reference internal" href="#tips-on-practical-use">1.17.8. Tips on Practical Use</a></li>
+<li><a class="reference internal" href="#more-control-with-warm-start">1.17.9. More control with warm_start</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="section" id="neural-network-models-supervised">
+<span id="neural-networks-supervised"></span><h1>1.17. Neural network models (supervised)<a class="headerlink" href="#neural-network-models-supervised" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This implementation is not intended for large-scale applications. In particular,
+scikit-learn offers no GPU support. For much faster, GPU-based implementations,
+as well as frameworks offering much more flexibility to build deep learning
+architectures, see  <a class="reference internal" href="../related_projects.html#related-projects"><span class="std std-ref">Related Projects</span></a>.</p>
+</div>
+<div class="section" id="multi-layer-perceptron">
+<span id="multilayer-perceptron"></span><h2>1.17.1. Multi-layer Perceptron<a class="headerlink" href="#multi-layer-perceptron" title="Permalink to this headline">¶</a></h2>
+<p><strong>Multi-layer Perceptron (MLP)</strong> is a supervised learning algorithm that learns
+a function <span class="math notranslate nohighlight">\(f(\cdot): R^m \rightarrow R^o\)</span> by training on a dataset,
+where <span class="math notranslate nohighlight">\(m\)</span> is the number of dimensions for input and <span class="math notranslate nohighlight">\(o\)</span> is the
+number of dimensions for output. Given a set of features <span class="math notranslate nohighlight">\(X = {x_1, x_2, ..., x_m}\)</span>
+and a target <span class="math notranslate nohighlight">\(y\)</span>, it can learn a non-linear function approximator for either
+classification or regression. It is different from logistic regression, in that
+between the input and the output layer, there can be one or more non-linear
+layers, called hidden layers. Figure 1 shows a one hidden layer MLP with scalar
+output.</p>
+<div class="figure align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/multilayerperceptron_network.png"><img alt="../_images/multilayerperceptron_network.png" src="../_images/multilayerperceptron_network.png" style="width: 469.79999999999995px; height: 510.59999999999997px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 1 : One hidden layer MLP.</strong></span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>The leftmost layer, known as the input layer, consists of a set of neurons
+<span class="math notranslate nohighlight">\(\{x_i | x_1, x_2, ..., x_m\}\)</span> representing the input features. Each
+neuron in the hidden layer transforms the values from the previous layer with
+a weighted linear summation <span class="math notranslate nohighlight">\(w_1x_1 + w_2x_2 + ... + w_mx_m\)</span>, followed
+by a non-linear activation function <span class="math notranslate nohighlight">\(g(\cdot):R \rightarrow R\)</span> - like
+the hyperbolic tan function. The output layer receives the values from the
+last hidden layer and transforms them into output values.</p>
+<p>The module contains the public attributes <code class="docutils literal notranslate"><span class="pre">coefs_</span></code> and <code class="docutils literal notranslate"><span class="pre">intercepts_</span></code>.
+<code class="docutils literal notranslate"><span class="pre">coefs_</span></code> is a list of weight matrices, where weight matrix at index
+<span class="math notranslate nohighlight">\(i\)</span> represents the weights between layer <span class="math notranslate nohighlight">\(i\)</span> and layer
+<span class="math notranslate nohighlight">\(i+1\)</span>. <code class="docutils literal notranslate"><span class="pre">intercepts_</span></code> is a list of bias vectors, where the vector
+at index <span class="math notranslate nohighlight">\(i\)</span> represents the bias values added to layer <span class="math notranslate nohighlight">\(i+1\)</span>.</p>
+<p>The advantages of Multi-layer Perceptron are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Capability to learn non-linear models.</p></li>
+<li><p>Capability to learn models in real-time (on-line learning)
+using <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>The disadvantages of Multi-layer Perceptron (MLP) include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>MLP with hidden layers have a non-convex loss function where there exists
+more than one local minimum. Therefore different random weight
+initializations can lead to different validation accuracy.</p></li>
+<li><p>MLP requires tuning a number of hyperparameters such as the number of
+hidden neurons, layers, and iterations.</p></li>
+<li><p>MLP is sensitive to feature scaling.</p></li>
+</ul>
+</div></blockquote>
+<p>Please see <a class="reference internal" href="#mlp-tips"><span class="std std-ref">Tips on Practical Use</span></a> section that addresses
+some of these disadvantages.</p>
+</div>
+<div class="section" id="classification">
+<h2>1.17.2. Classification<a class="headerlink" href="#classification" title="Permalink to this headline">¶</a></h2>
+<p>Class <a class="reference internal" href="generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="sklearn.neural_network.MLPClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> implements a multi-layer perceptron (MLP) algorithm
+that trains using <a class="reference external" href="http://ufldl.stanford.edu/wiki/index.php/Backpropagation_Algorithm">Backpropagation</a>.</p>
+<p>MLP trains on two arrays: array X of size (n_samples, n_features), which holds
+the training samples represented as floating point feature vectors; and array
+y of size (n_samples,), which holds the target values (class labels) for the
+training samples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.neural_network</span> <span class="kn">import</span> <span class="n">MLPClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">MLPClassifier</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">hidden_layer_sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="go">MLPClassifier(alpha=1e-05, hidden_layer_sizes=(5, 2), random_state=1,</span>
+<span class="go">              solver=&#39;lbfgs&#39;)</span>
+</pre></div>
+</div>
+<p>After fitting (training), the model can predict labels for new samples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">([[</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.</span><span class="p">]])</span>
+<span class="go">array([1, 0])</span>
+</pre></div>
+</div>
+<p>MLP can fit a non-linear model to the training data. <code class="docutils literal notranslate"><span class="pre">clf.coefs_</span></code>
+contains the weight matrices that constitute the model parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">coef</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">coef</span> <span class="ow">in</span> <span class="n">clf</span><span class="o">.</span><span class="n">coefs_</span><span class="p">]</span>
+<span class="go">[(2, 5), (5, 2), (2, 1)]</span>
+</pre></div>
+</div>
+<p>Currently, <a class="reference internal" href="generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="sklearn.neural_network.MLPClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> supports only the
+Cross-Entropy loss function, which allows probability estimates by running the
+<code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> method.</p>
+<p>MLP trains using Backpropagation. More precisely, it trains using some form of
+gradient descent and the gradients are calculated using Backpropagation. For
+classification, it minimizes the Cross-Entropy loss function, giving a vector
+of probability estimates <span class="math notranslate nohighlight">\(P(y|x)\)</span> per sample <span class="math notranslate nohighlight">\(x\)</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">([[</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]])</span>
+<span class="go">array([[1.967...e-04, 9.998...-01],</span>
+<span class="go">       [1.967...e-04, 9.998...-01]])</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="sklearn.neural_network.MLPClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> supports multi-class classification by
+applying <a class="reference external" href="https://en.wikipedia.org/wiki/Softmax_activation_function">Softmax</a>
+as the output function.</p>
+<p>Further, the model supports <a class="reference internal" href="multiclass.html#multiclass"><span class="std std-ref">multi-label classification</span></a>
+in which a sample can belong to more than one class. For each class, the raw
+output passes through the logistic function. Values larger or equal to <code class="docutils literal notranslate"><span class="pre">0.5</span></code>
+are rounded to <code class="docutils literal notranslate"><span class="pre">1</span></code>, otherwise to <code class="docutils literal notranslate"><span class="pre">0</span></code>. For a predicted output of a sample, the
+indices where the value is <code class="docutils literal notranslate"><span class="pre">1</span></code> represents the assigned classes of that sample:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">MLPClassifier</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">hidden_layer_sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,),</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="go">MLPClassifier(alpha=1e-05, hidden_layer_sizes=(15,), random_state=1,</span>
+<span class="go">              solver=&#39;lbfgs&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]])</span>
+<span class="go">array([[1, 1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]])</span>
+<span class="go">array([[0, 1]])</span>
+</pre></div>
+</div>
+<p>See the examples below and the docstring of
+<a class="reference internal" href="generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier.fit" title="sklearn.neural_network.MLPClassifier.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MLPClassifier.fit</span></code></a> for further information.</p>
+<div class="topic">
+<p class="topic-title">Examples:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../auto_examples/neural_networks/plot_mlp_training_curves.html#sphx-glr-auto-examples-neural-networks-plot-mlp-training-curves-py"><span class="std std-ref">Compare Stochastic learning strategies for MLPClassifier</span></a></p></li>
+<li><p><a class="reference internal" href="../auto_examples/neural_networks/plot_mnist_filters.html#sphx-glr-auto-examples-neural-networks-plot-mnist-filters-py"><span class="std std-ref">Visualization of MLP weights on MNIST</span></a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="regression">
+<h2>1.17.3. Regression<a class="headerlink" href="#regression" title="Permalink to this headline">¶</a></h2>
+<p>Class <a class="reference internal" href="generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor" title="sklearn.neural_network.MLPRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPRegressor</span></code></a> implements a multi-layer perceptron (MLP) that
+trains using backpropagation with no activation function in the output layer,
+which can also be seen as using the identity function as activation function.
+Therefore, it uses the square error as the loss function, and the output is a
+set of continuous values.</p>
+<p><a class="reference internal" href="generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor" title="sklearn.neural_network.MLPRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPRegressor</span></code></a> also supports multi-output regression, in
+which a sample can have more than one target.</p>
+</div>
+<div class="section" id="regularization">
+<h2>1.17.4. Regularization<a class="headerlink" href="#regularization" title="Permalink to this headline">¶</a></h2>
+<p>Both <a class="reference internal" href="generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor" title="sklearn.neural_network.MLPRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPRegressor</span></code></a> and <a class="reference internal" href="generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="sklearn.neural_network.MLPClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> use parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code>
+for regularization (L2 regularization) term which helps in avoiding overfitting
+by penalizing weights with large magnitudes. Following plot displays varying
+decision function with value of alpha.</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../auto_examples/neural_networks/plot_mlp_alpha.html"><img alt="modules/../auto_examples/neural_networks/images/sphx_glr_plot_mlp_alpha_001.png" src="modules/../auto_examples/neural_networks/images/sphx_glr_plot_mlp_alpha_001.png" /></a>
+</div>
+<p>See the examples below for further information.</p>
+<div class="topic">
+<p class="topic-title">Examples:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../auto_examples/neural_networks/plot_mlp_alpha.html#sphx-glr-auto-examples-neural-networks-plot-mlp-alpha-py"><span class="std std-ref">Varying regularization in Multi-layer Perceptron</span></a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="algorithms">
+<h2>1.17.5. Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
+<p>MLP trains using <a class="reference external" href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">Stochastic Gradient Descent</a>,
+<a class="reference external" href="https://arxiv.org/abs/1412.6980">Adam</a>, or
+<a class="reference external" href="https://en.wikipedia.org/wiki/Limited-memory_BFGS">L-BFGS</a>.
+Stochastic Gradient Descent (SGD) updates parameters using the gradient of the
+loss function with respect to a parameter that needs adaptation, i.e.</p>
+<div class="math notranslate nohighlight">
+\[w \leftarrow w - \eta (\alpha \frac{\partial R(w)}{\partial w}
++ \frac{\partial Loss}{\partial w})\]</div>
+<p>where <span class="math notranslate nohighlight">\(\eta\)</span> is the learning rate which controls the step-size in
+the parameter space search.  <span class="math notranslate nohighlight">\(Loss\)</span> is the loss function used
+for the network.</p>
+<p>More details can be found in the documentation of
+<a class="reference external" href="http://scikit-learn.org/stable/modules/sgd.html">SGD</a></p>
+<p>Adam is similar to SGD in a sense that it is a stochastic optimizer, but it can
+automatically adjust the amount to update parameters based on adaptive estimates
+of lower-order moments.</p>
+<p>With SGD or Adam, training supports online and mini-batch learning.</p>
+<p>L-BFGS is a solver that approximates the Hessian matrix which represents the
+second-order partial derivative of a function. Further it approximates the
+inverse of the Hessian matrix to perform parameter updates. The implementation
+uses the Scipy version of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html">L-BFGS</a>.</p>
+<p>If the selected solver is ‘L-BFGS’, training does not support online nor
+mini-batch learning.</p>
+</div>
+<div class="section" id="complexity">
+<h2>1.17.6. Complexity<a class="headerlink" href="#complexity" title="Permalink to this headline">¶</a></h2>
+<p>Suppose there are <span class="math notranslate nohighlight">\(n\)</span> training samples, <span class="math notranslate nohighlight">\(m\)</span> features, <span class="math notranslate nohighlight">\(k\)</span>
+hidden layers, each containing <span class="math notranslate nohighlight">\(h\)</span> neurons - for simplicity, and <span class="math notranslate nohighlight">\(o\)</span>
+output neurons.  The time complexity of backpropagation is
+<span class="math notranslate nohighlight">\(O(n\cdot m \cdot h^k \cdot o \cdot i)\)</span>, where <span class="math notranslate nohighlight">\(i\)</span> is the number
+of iterations. Since backpropagation has a high time complexity, it is advisable
+to start with smaller number of hidden neurons and few hidden layers for
+training.</p>
+</div>
+<div class="section" id="mathematical-formulation">
+<h2>1.17.7. Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
+<p>Given a set of training examples <span class="math notranslate nohighlight">\((x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\)</span>
+where <span class="math notranslate nohighlight">\(x_i \in \mathbf{R}^n\)</span> and <span class="math notranslate nohighlight">\(y_i \in \{0, 1\}\)</span>, a one hidden
+layer one hidden neuron MLP learns the function <span class="math notranslate nohighlight">\(f(x) = W_2 g(W_1^T x + b_1) + b_2\)</span>
+where <span class="math notranslate nohighlight">\(W_1 \in \mathbf{R}^m\)</span> and <span class="math notranslate nohighlight">\(W_2, b_1, b_2 \in \mathbf{R}\)</span> are
+model parameters. <span class="math notranslate nohighlight">\(W_1, W_2\)</span> represent the weights of the input layer and
+hidden layer, respectively; and <span class="math notranslate nohighlight">\(b_1, b_2\)</span> represent the bias added to
+the hidden layer and the output layer, respectively.
+<span class="math notranslate nohighlight">\(g(\cdot) : R \rightarrow R\)</span> is the activation function, set by default as
+the hyperbolic tan. It is given as,</p>
+<div class="math notranslate nohighlight">
+\[g(z)= \frac{e^z-e^{-z}}{e^z+e^{-z}}\]</div>
+<p>For binary classification, <span class="math notranslate nohighlight">\(f(x)\)</span> passes through the logistic function
+<span class="math notranslate nohighlight">\(g(z)=1/(1+e^{-z})\)</span> to obtain output values between zero and one. A
+threshold, set to 0.5, would assign samples of outputs larger or equal 0.5
+to the positive class, and the rest to the negative class.</p>
+<p>If there are more than two classes, <span class="math notranslate nohighlight">\(f(x)\)</span> itself would be a vector of
+size (n_classes,). Instead of passing through logistic function, it passes
+through the softmax function, which is written as,</p>
+<div class="math notranslate nohighlight">
+\[\text{softmax}(z)_i = \frac{\exp(z_i)}{\sum_{l=1}^k\exp(z_l)}\]</div>
+<p>where <span class="math notranslate nohighlight">\(z_i\)</span> represents the <span class="math notranslate nohighlight">\(i\)</span> th element of the input to softmax,
+which corresponds to class <span class="math notranslate nohighlight">\(i\)</span>, and <span class="math notranslate nohighlight">\(K\)</span> is the number of classes.
+The result is a vector containing the probabilities that sample <span class="math notranslate nohighlight">\(x\)</span>
+belong to each class. The output is the class with the highest probability.</p>
+<p>In regression, the output remains as <span class="math notranslate nohighlight">\(f(x)\)</span>; therefore, output activation
+function is just the identity function.</p>
+<p>MLP uses different loss functions depending on the problem type. The loss
+function for classification is Cross-Entropy, which in binary case is given as,</p>
+<div class="math notranslate nohighlight">
+\[Loss(\hat{y},y,W) = -y \ln {\hat{y}} - (1-y) \ln{(1-\hat{y})} + \alpha ||W||_2^2\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha ||W||_2^2\)</span> is an L2-regularization term (aka penalty)
+that penalizes complex models; and <span class="math notranslate nohighlight">\(\alpha &gt; 0\)</span> is a non-negative
+hyperparameter that controls the magnitude of the penalty.</p>
+<p>For regression, MLP uses the Square Error loss function; written as,</p>
+<div class="math notranslate nohighlight">
+\[Loss(\hat{y},y,W) = \frac{1}{2}||\hat{y} - y ||_2^2 + \frac{\alpha}{2} ||W||_2^2\]</div>
+<p>Starting from initial random weights, multi-layer perceptron (MLP) minimizes
+the loss function by repeatedly updating these weights. After computing the
+loss, a backward pass propagates it from the output layer to the previous
+layers, providing each weight parameter with an update value meant to decrease
+the loss.</p>
+<p>In gradient descent, the gradient <span class="math notranslate nohighlight">\(\nabla Loss_{W}\)</span> of the loss with respect
+to the weights is computed and deducted from <span class="math notranslate nohighlight">\(W\)</span>.
+More formally, this is expressed as,</p>
+<div class="math notranslate nohighlight">
+\[W^{i+1} = W^i - \epsilon \nabla {Loss}_{W}^{i}\]</div>
+<p>where <span class="math notranslate nohighlight">\(i\)</span> is the iteration step, and <span class="math notranslate nohighlight">\(\epsilon\)</span> is the learning rate
+with a value larger than 0.</p>
+<p>The algorithm stops when it reaches a preset maximum number of iterations; or
+when the improvement in loss is below a certain, small number.</p>
+</div>
+<div class="section" id="tips-on-practical-use">
+<span id="mlp-tips"></span><h2>1.17.8. Tips on Practical Use<a class="headerlink" href="#tips-on-practical-use" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><p>Multi-layer Perceptron is sensitive to feature scaling, so it
+is highly recommended to scale your data. For example, scale each
+attribute on the input vector X to [0, 1] or [-1, +1], or standardize
+it to have mean 0 and variance 1. Note that you must apply the <em>same</em>
+scaling to the test set for meaningful results.
+You can use <code class="xref py py-class docutils literal notranslate"><span class="pre">StandardScaler</span></code> for standardization.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>  <span class="c1"># doctest: +SKIP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>  <span class="c1"># doctest: +SKIP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Don&#39;t cheat - fit only on training data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># apply same transformation to test data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
+</pre></div>
+</div>
+<p>An alternative and recommended approach is to use <code class="xref py py-class docutils literal notranslate"><span class="pre">StandardScaler</span></code>
+in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></p>
+</li>
+<li><p>Finding a reasonable regularization parameter <span class="math notranslate nohighlight">\(\alpha\)</span> is
+best done using <code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code>, usually in the
+range <code class="docutils literal notranslate"><span class="pre">10.0</span> <span class="pre">**</span> <span class="pre">-np.arange(1,</span> <span class="pre">7)</span></code>.</p></li>
+<li><p>Empirically, we observed that <code class="docutils literal notranslate"><span class="pre">L-BFGS</span></code> converges faster and
+with better solutions on small datasets. For relatively large
+datasets, however, <code class="docutils literal notranslate"><span class="pre">Adam</span></code> is very robust. It usually converges
+quickly and gives pretty good performance. <code class="docutils literal notranslate"><span class="pre">SGD</span></code> with momentum or
+nesterov’s momentum, on the other hand, can perform better than
+those two algorithms if learning rate is correctly tuned.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="more-control-with-warm-start">
+<h2>1.17.9. More control with warm_start<a class="headerlink" href="#more-control-with-warm-start" title="Permalink to this headline">¶</a></h2>
+<p>If you want more control over stopping criteria or learning rate in SGD,
+or want to do additional monitoring, using <code class="docutils literal notranslate"><span class="pre">warm_start=True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_iter=1</span></code> and iterating yourself can be helpful:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">MLPClassifier</span><span class="p">(</span><span class="n">hidden_layer_sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,),</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">warm_start</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="c1"># additional monitoring / inspection</span>
+<span class="go">MLPClassifier(...</span>
+</pre></div>
+</div>
+<div class="topic">
+<p class="topic-title">References:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.iro.umontreal.ca/~pift6266/A06/refs/backprop_old.pdf">“Learning representations by back-propagating errors.”</a>
+Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams.</p></li>
+<li><p><a class="reference external" href="https://leon.bottou.org/projects/sgd">“Stochastic Gradient Descent”</a> L. Bottou - Website, 2010.</p></li>
+<li><p><a class="reference external" href="http://ufldl.stanford.edu/wiki/index.php/Backpropagation_Algorithm">“Backpropagation”</a>
+Andrew Ng, Jiquan Ngiam, Chuan Yu Foo, Yifan Mai, Caroline Suen - Website, 2011.</p></li>
+<li><p><a class="reference external" href="http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf">“Efficient BackProp”</a>
+Y. LeCun, L. Bottou, G. Orr, K. Müller - In Neural Networks: Tricks
+of the Trade 1998.</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/pdf/1412.6980v8.pdf">“Adam: A method for stochastic optimization.”</a>
+Kingma, Diederik, and Jimmy Ba. arXiv preprint arXiv:1412.6980 (2014).</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+          <a href="../_sources/modules/neural_networks_supervised.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high preformance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>
