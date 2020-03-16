@@ -64,3 +64,23 @@ $ docker run --rm \
 
 After the building finish, the documentation can be found in `build` directory.
 
+
+## Scikit-learn
+
+Build the docker image:
+
+```shell
+$ docker build -t unknownue/sklearn.docs -f sklearn.Dockerfile .
+```
+
+```shell
+$ mkdir build/
+$ docker run --rm \
+    -v $(pwd)/build:/root/scikit-learn/doc/_build \
+    -w /root/scikit-learn/doc/ \
+    unknownue/sklearn.docs \
+    make
+```
+
+After the building finish, the documentation can be found in `_build/html/stable` directory.
+
