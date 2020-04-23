@@ -2,9 +2,8 @@
 
 [![numpy version](https://badgen.net/badge/NumPy%20version/v1.18.1/black?icon=dockbit)](https://github.com/numpy/numpy)
 [![scikit-learn version](https://badgen.net/badge/Scikit-learn%20version/v0.22/black?icon=libraries)](https://github.com/scikit-learn/scikit-learn/releases/tag/0.22)
-[![torch version](https://img.shields.io/badge/torch_version-v1.4.0-g.svg?logo=PyTorch)](https://github.com/pytorch/pytorch)
-[![torchvision version](https://img.shields.io/badge/torchvision_version-v0.5.0-g.svg?logo=PyTorch)](https://github.com/pytorch/vision)
-[![PyTorch 1.4](https://img.shields.io/badge/PyTorch_1.4-Release_Note-blue.svg?logo=PyTorch)](https://pytorch.org/blog/pytorch-1-dot-4-released-and-domain-libraries-updated/)
+[![torch version](https://img.shields.io/badge/torch_version-v1.5.0-282828.svg?labelColor=4F4F4F&logo=PyTorch)](https://github.com/pytorch/pytorch)
+[![torchvision version](https://img.shields.io/badge/torchvision_version-v0.6.0-282828.svg?labelColor=4F4F4FF&logo=PyTorch)](https://github.com/pytorch/vision)
 
 Offline documentation built from official [NumPy](https://github.com/numpy/numpy.git), [Scikit-learn](https://github.com/scikit-learn/scikit-learn), [PyTorch](https://github.com/pytorch/pytorch.git) and [torchvision](https://github.com/pytorch/vision.git) release. The documentations of pytorch and torchvision are separate.
 
