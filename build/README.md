@@ -4,44 +4,36 @@
 
 The build setup require [Docker](https://docker.com/), and the built image has a size of about 2GB.
 
-Build docker image:
-
 ```shell
-$ docker build -t pytorch-docs-build -f torch.Dockerfile .
-```
+# Build docker image
+$ docker build -t unknownue/pytorch.docs -f torch.Dockerfile .
 
-Run the container:
+# Build docs for pytorch
+$ mkdir -p build/torch
+$ docker run --rm \
+    -v $(pwd)/build/torch:/root/dev/pytorch/docs/build \
+    -w /root/dev/pytorch/docs/ \
+    unknownue/pytorch.docs \
+    pip3 install -r requirements.txt --no-cache-dir && \
+    make html
 
-```shell
-$ mkdir build
-$ docker run --rm -it -v $(pwd)/build:/root/dev/build -w /root/dev/ pytorch-docs-build
-```
-
-In the `pytorch-docs-build` container:
-
-```shell
-$ cd /root/dev/pytorch/docs
-$ pip3 install -r requirements.txt --no-cache-dir
-# list all available build options
-$ make
-# make pytorch documentation into html files
-$ make html
-# After build finish, the documentation pages are available in build/html directory.
-$ mv build/html /root/dev/build/torch
-
-
-# Then go to build torchvision documentation
-$ cd /root/dev/vision/docs
-$ pip3 install -r requirements.txt --no-cache-dir
-$ make html
-# After build finish, the documentation pages are available in build/html directory.
-$ mv build/html /root/dev/build/vision
-# exit container
-$ exit
+# Build docs for torchvision
+$ mkdir -p build/vision
+$ docker run --rm \
+    -v $(pwd)/build/vision:/root/dev/vision/docs/build \
+    -w /root/dev/vision/docs/ \
+    unknownue/pytorch.docs \
+    pip3 install -r requirements.txt --no-cache-dir && \
+    make html
 ```
 
 Now the documentation can be found in current `build` directory.
 
+Remove docker images if need:
+
+```shell
+$ docker rmi unknownue/pytorch.docs
+```
 
 ## Numpy
 

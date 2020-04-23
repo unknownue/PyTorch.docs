@@ -1,46 +1,54 @@
 
-FROM ubuntu:18.04 AS pytorch-docs-build
+FROM ubuntu:20.04 AS pytorch-docs-build
 
 LABEL maintainer="unknownue <usami-ssc@protonmail.com>"
 LABEL description="An docker environment to build offline PyTorch Docs"
-LABEL pytorch-version="1.4.0"
-LABEL vision-version="0.5.0"
-LABEL python-version="3.7.x"
+LABEL python-version="3.8.x"
 LABEL license="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-WORKDIR /root/
+ARG VERSION_PYTORCH=1.5.0
+ARG VERSION_VISION=0.6.0
 
-RUN apt update && apt upgrade -y && \
-    apt install -y --no-install-recommends git wget p7zip-full build-essential ca-certificates && \
+WORKDIR /root/
+# ADD sources.list /etc/apt/sources.list
+
+RUN apt update
+RUN apt install -y ca-certificates && \
+    apt install -y --no-install-recommends git wget p7zip-full build-essential && \
     apt clean
 
-ENV PATH "/root/usr/bin:${PATH}"
+# ENV PATH "/root/usr/bin:${PATH}"
 
-# Install Python 3.7 and corresponding pip
-RUN apt install -y --no-install-recommends python3.7 python3-distutils && \
-    wget https://bootstrap.pypa.io/get-pip.py && python3.7 get-pip.py && \
+# Install Python 3.8 and corresponding pip
+RUN apt install -y --no-install-recommends python3.8 python3-distutils && \
+    # wget https://bootstrap.pypa.io/get-pip.py && python3.8 get-pip.py && \
+    python3.8 get-pip.py && \
     apt clean && \
-    ln -sf python3.7 /usr/bin/python && ln -sf pip3 /usr/bin/pip && \
-    pip3 install --upgrade pip
+    ln -sf python3.8 /usr/bin/python && ln -sf pip3 /usr/bin/pip
+RUN pip3 install pqi && pqi use aliyun
+
 
 WORKDIR /root/dev/
 
 # clone PyTorch and vision Repository
 RUN pip3 install setuptools --no-cache-dir && \
-    wget https://github.com/pytorch/vision/archive/v0.5.0.zip -O vision.zip && \
-    wget https://github.com/pytorch/pytorch/archive/v1.4.0.zip -O torch.zip && \
+    wget https://github.com/pytorch/vision/archive/v$VERSION_VISION.zip -O vision.zip && \
+    wget https://github.com/pytorch/pytorch/archive/v$VERSION_PYTORCH.zip -O torch.zip && \
     7z x vision.zip && 7z x torch.zip && \
-    rm vision.zip && rm torch.zip && mv vision-0.5.0/ vision/ && mv pytorch-1.4.0/ pytorch/ && \
-    pip3 install torch==1.4.0 torchvision==0.5.0 --no-cache-dir
+    rm vision.zip && rm torch.zip && mv vision-$VERSION_VISION/ vision/ && mv pytorch-$VERSION_PYTORCH/ pytorch/ && \
+    pip3 install torch==$VERSION_PYTORCH torchvision==$VERSION_VISION --no-cache-dir
+
 
 # install katex globally. See https://github.com/pytorch/pytorch/issues/27705
-RUN apt install -y --no-install-recommends nodejs npm && \
+RUN apt install -y --no-install-recommends nodejs npm
+RUN npm set registry https://registry.npm.taobao.org/ && \
     npm install -g katex
 
 # clean up
 RUN apt autoremove -y && apt clean && \
-    rm /usr/bin/python && ln -s /usr/bin/python3.7 /usr/bin/python
+    rm /usr/bin/python && ln -s /usr/bin/python3.8 /usr/bin/python
 
 CMD ["bash"]
+
