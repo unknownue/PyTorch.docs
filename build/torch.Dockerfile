@@ -8,8 +8,8 @@ LABEL license="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG VERSION_PYTORCH=1.5.0
-ARG VERSION_VISION=0.6.0
+ARG VERSION_PYTORCH=1.6.0
+ARG VERSION_VISION=0.7.0
 
 WORKDIR /root/
 # ADD sources.list /etc/apt/sources.list
@@ -23,12 +23,11 @@ RUN apt install -y ca-certificates && \
 
 # Install Python 3.8 and corresponding pip
 RUN apt install -y --no-install-recommends python3.8 python3-distutils && \
-    # wget https://bootstrap.pypa.io/get-pip.py && python3.8 get-pip.py && \
-    python3.8 get-pip.py && \
+    wget https://bootstrap.pypa.io/get-pip.py && python3.8 get-pip.py && \
+    # python3.8 get-pip.py && \
     apt clean && \
     ln -sf python3.8 /usr/bin/python && ln -sf pip3 /usr/bin/pip
 RUN pip3 install pqi && pqi use aliyun
-
 
 WORKDIR /root/dev/
 
@@ -40,7 +39,6 @@ RUN pip3 install setuptools --no-cache-dir && \
     rm vision.zip && rm torch.zip && mv vision-$VERSION_VISION/ vision/ && mv pytorch-$VERSION_PYTORCH/ pytorch/ && \
     pip3 install torch==$VERSION_PYTORCH torchvision==$VERSION_VISION --no-cache-dir
 
-
 # install katex globally. See https://github.com/pytorch/pytorch/issues/27705
 RUN apt install -y --no-install-recommends nodejs npm
 RUN npm set registry https://registry.npm.taobao.org/ && \
@@ -51,4 +49,3 @@ RUN apt autoremove -y && apt clean && \
     rm /usr/bin/python && ln -s /usr/bin/python3.8 /usr/bin/python
 
 CMD ["bash"]
-
