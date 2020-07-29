@@ -162,7 +162,7 @@
               
               
                 <div class="version">
-                  master (0.6.0 )
+                  master (0.7.0 )
                 </div>
               
             
@@ -278,7 +278,7 @@
 
 
 <div class="viewcode-block" id="nms"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.nms">[docs]</a><span class="k">def</span> <span class="nf">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">):</span>
-    <span class="c1"># type: (Tensor, Tensor, float)</span>
+    <span class="c1"># type: (Tensor, Tensor, float) -&gt; Tensor</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs non-maximum suppression (NMS) on the boxes according</span>
 <span class="sd">    to their intersection-over-union (IoU).</span>
@@ -286,6 +286,11 @@
 <span class="sd">    NMS iteratively removes lower scoring boxes which have an</span>
 <span class="sd">    IoU greater than iou_threshold with another (higher scoring)</span>
 <span class="sd">    box.</span>
+
+<span class="sd">    If multiple boxes have the exact same score and satisfy the IoU</span>
+<span class="sd">    criterion with respect to a reference box, the selected box is</span>
+<span class="sd">    not guaranteed to be the same between CPU and GPU. This is similar</span>
+<span class="sd">    to the behavior of argsort in PyTorch when repeated values are present.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -308,8 +313,9 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">torchvision</span><span class="o">.</span><span class="n">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span></div>
 
 
+<span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">_script_if_tracing</span>
 <span class="k">def</span> <span class="nf">batched_nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">):</span>
-    <span class="c1"># type: (Tensor, Tensor, Tensor, float)</span>
+    <span class="c1"># type: (Tensor, Tensor, Tensor, float) -&gt; Tensor</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs non-maximum suppression in a batched fashion.</span>
 
@@ -342,15 +348,16 @@
     <span class="c1"># we add an offset to all the boxes. The offset is dependent</span>
     <span class="c1"># only on the class idx, and is large enough so that boxes</span>
     <span class="c1"># from different classes do not overlap</span>
-    <span class="n">max_coordinate</span> <span class="o">=</span> <span class="n">boxes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-    <span class="n">offsets</span> <span class="o">=</span> <span class="n">idxs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_coordinate</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">boxes_for_nms</span> <span class="o">=</span> <span class="n">boxes</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">keep</span> <span class="o">=</span> <span class="n">nms</span><span class="p">(</span><span class="n">boxes_for_nms</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">keep</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_coordinate</span> <span class="o">=</span> <span class="n">boxes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="n">idxs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_coordinate</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">boxes</span><span class="p">))</span>
+        <span class="n">boxes_for_nms</span> <span class="o">=</span> <span class="n">boxes</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">nms</span><span class="p">(</span><span class="n">boxes_for_nms</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">keep</span>
 
 
 <span class="k">def</span> <span class="nf">remove_small_boxes</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">min_size</span><span class="p">):</span>
-    <span class="c1"># type: (Tensor, float)</span>
+    <span class="c1"># type: (Tensor, float) -&gt; Tensor</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove boxes which contains at least one side smaller than min_size.</span>
 
@@ -369,7 +376,7 @@
 
 
 <span class="k">def</span> <span class="nf">clip_boxes_to_image</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-    <span class="c1"># type: (Tensor, Tuple[int, int])</span>
+    <span class="c1"># type: (Tensor, Tuple[int, int]) -&gt; Tensor</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clip boxes so that they lie inside an image of size `size`.</span>
 
@@ -700,9 +707,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

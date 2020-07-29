@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -210,8 +210,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -226,13 +226,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../storage.html">torch.Storage</a></li>
@@ -241,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../type_info.html">Type Info</a></li>
@@ -341,6 +344,8 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
 
 <span class="c1"># These no_grad_* functions are necessary as wrappers around the parts of these</span>
 <span class="c1"># functions that use `with torch.no_grad()`. The JIT doesn&#39;t support context</span>
@@ -354,6 +359,41 @@
 <span class="k">def</span> <span class="nf">_no_grad_normal_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">tensor</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_no_grad_trunc_normal_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="c1"># Method based on https://people.sc.fsu.edu/~jburkardt/presentations/truncated_normal.pdf</span>
+    <span class="k">def</span> <span class="nf">norm_cdf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="c1"># Computes standard normal cumulative distribution function</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)))</span> <span class="o">/</span> <span class="mf">2.</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">mean</span> <span class="o">&lt;</span> <span class="n">a</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">std</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">mean</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">std</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;mean is more than 2 std from [a, b] in nn.init.trunc_normal_. &quot;</span>
+                      <span class="s2">&quot;The distribution of values may be incorrect.&quot;</span><span class="p">,</span>
+                      <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="c1"># Values are generated by using a truncated uniform distribution and</span>
+        <span class="c1"># then using the inverse CDF for the normal distribution.</span>
+        <span class="c1"># Get upper and lower cdf values</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">norm_cdf</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">norm_cdf</span><span class="p">((</span><span class="n">b</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">)</span>
+
+        <span class="c1"># Uniformly fill tensor with values from [l, u], then translate to</span>
+        <span class="c1"># [2l-1, 2u-1].</span>
+        <span class="n">tensor</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Use inverse cdf transform for normal distribution to get truncated</span>
+        <span class="c1"># standard normal</span>
+        <span class="n">tensor</span><span class="o">.</span><span class="n">erfinv_</span><span class="p">()</span>
+
+        <span class="c1"># Transform to proper mean, std</span>
+        <span class="n">tensor</span><span class="o">.</span><span class="n">mul_</span><span class="p">(</span><span class="n">std</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">))</span>
+        <span class="n">tensor</span><span class="o">.</span><span class="n">add_</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span>
+
+        <span class="c1"># Clamp to ensure it&#39;s in the proper range</span>
+        <span class="n">tensor</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tensor</span>
 
 
 <span class="k">def</span> <span class="nf">_no_grad_fill_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
@@ -440,6 +480,28 @@
 <span class="sd">        &gt;&gt;&gt; nn.init.normal_(w)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_no_grad_normal_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">trunc_normal_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">a</span><span class="o">=-</span><span class="mf">2.</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">2.</span><span class="p">):</span>
+    <span class="c1"># type: (Tensor, float, float, float, float) -&gt; Tensor</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Fills the input Tensor with values drawn from a truncated</span>
+<span class="sd">    normal distribution. The values are effectively drawn from the</span>
+<span class="sd">    normal distribution :math:`\mathcal{N}(\text{mean}, \text{std}^2)`</span>
+<span class="sd">    with values outside :math:`[a, b]` redrawn until they are within</span>
+<span class="sd">    the bounds. The method used for generating the random values works</span>
+<span class="sd">    best when :math:`a \leq \text{mean} \leq b`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tensor: an n-dimensional `torch.Tensor`</span>
+<span class="sd">        mean: the mean of the normal distribution</span>
+<span class="sd">        std: the standard deviation of the normal distribution</span>
+<span class="sd">        a: the minimum cutoff value</span>
+<span class="sd">        b: the maximum cutoff value</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; w = torch.empty(3, 5)</span>
+<span class="sd">        &gt;&gt;&gt; nn.init.trunc_normal_(w)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_no_grad_trunc_normal_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="constant_"><a class="viewcode-back" href="../../../nn.init.html#torch.nn.init.constant_">[docs]</a><span class="k">def</span> <span class="nf">constant_</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
@@ -643,8 +705,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        tensor: an n-dimensional `torch.Tensor`</span>
-<span class="sd">        a: the negative slope of the rectifier used after this layer (only </span>
-<span class="sd">        used with ``&#39;leaky_relu&#39;``)</span>
+<span class="sd">        a: the negative slope of the rectifier used after this layer (only</span>
+<span class="sd">            used with ``&#39;leaky_relu&#39;``)</span>
 <span class="sd">        mode: either ``&#39;fan_in&#39;`` (default) or ``&#39;fan_out&#39;``. Choosing ``&#39;fan_in&#39;``</span>
 <span class="sd">            preserves the magnitude of the variance of the weights in the</span>
 <span class="sd">            forward pass. Choosing ``&#39;fan_out&#39;`` preserves the magnitudes in the</span>
@@ -678,8 +740,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        tensor: an n-dimensional `torch.Tensor`</span>
-<span class="sd">        a: the negative slope of the rectifier used after this layer (only </span>
-<span class="sd">        used with ``&#39;leaky_relu&#39;``)</span>
+<span class="sd">        a: the negative slope of the rectifier used after this layer (only</span>
+<span class="sd">            used with ``&#39;leaky_relu&#39;``)</span>
 <span class="sd">        mode: either ``&#39;fan_in&#39;`` (default) or ``&#39;fan_out&#39;``. Choosing ``&#39;fan_in&#39;``</span>
 <span class="sd">            preserves the magnitude of the variance of the weights in the</span>
 <span class="sd">            forward pass. Choosing ``&#39;fan_out&#39;`` preserves the magnitudes in the</span>
@@ -1078,9 +1140,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

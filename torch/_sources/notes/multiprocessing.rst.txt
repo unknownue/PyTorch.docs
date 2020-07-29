@@ -27,7 +27,8 @@ others that require asynchronous operation.
 CUDA in multiprocessing
 -----------------------
 
-The CUDA runtime does not support the ``fork`` start method. In Python 3, either the ``spawn`` or ``forkserver`` start method are
+The CUDA runtime does not support the ``fork`` start method; either the ``spawn`` or ``forkserver`` start method are
+required to use CUDA in subprocesses.
 
 .. note::
   The start method can be set via either creating a context with

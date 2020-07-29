@@ -159,7 +159,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -212,8 +212,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -228,13 +228,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../storage.html">torch.Storage</a></li>
@@ -243,6 +245,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../type_info.html">Type Info</a></li>
@@ -365,37 +368,37 @@ taken by individual operators on demand. One can use the same mechanism to do
 gathering information about PyTorch workloads running in a given process or
 across the entire set of machines.</p>
 <p>New callbacks for any operator invocation can be added with
-<code class="docutils literal notranslate"><span class="pre">torch::autograd::profiler::pushCallback</span></code>. Hooks will be called with
-<code class="docutils literal notranslate"><span class="pre">torch::autograd::profiler::RecordFunction</span></code> struct that describes invocation
+<code class="docutils literal notranslate"><span class="pre">torch::addGlobalCallback</span></code>. Hooks will be called with
+<code class="docutils literal notranslate"><span class="pre">torch::RecordFunction</span></code> struct that describes invocation
 context (e.g. <cite>name</cite>). If enabled, <code class="docutils literal notranslate"><span class="pre">RecordFunction::inputs()</span></code> contains arguments
 of the function represented as <code class="docutils literal notranslate"><span class="pre">torch::IValue</span></code> variant type. Note, that inputs
 logging is relatively expensive and thus has to be enabled explicitly.</p>
-<p>The operator callbacks also have access to <code class="docutils literal notranslate"><span class="pre">at::getThreadLocalDebugInfo()</span></code>
-interface that returns a pointer to the struct holding the debug information. This
-debug information is supposed to be set earlier with the corresponding
-<code class="docutils literal notranslate"><span class="pre">at::setThreadLocalDebugInfo(debug_info)</span></code> call. Debug information is propagated
-through the forward (including async <code class="docutils literal notranslate"><span class="pre">fork</span></code> tasks) and backward passes and can
-be useful for passing some extra information about execution environment
-(e.g. model id) from the higher layers of the application down to the operator
-callbacks.</p>
+<p>The operator callbacks also have access to <code class="docutils literal notranslate"><span class="pre">c10::ThreadLocalDebugInfo::get()</span></code>
+interface that returns a pointer to the struct holding the debug information.
+This debug information can be set earlier by using <code class="docutils literal notranslate"><span class="pre">at::DebugInfoGuard</span></code> object.
+Debug information is propagated through the forward (including async <code class="docutils literal notranslate"><span class="pre">fork</span></code>
+tasks) and backward passes and can be useful for passing some extra information
+about execution environment (e.g. model id) from the higher layers of the
+application down to the operator callbacks.</p>
 <p>Invoking callbacks adds some overhead, so usually it’s useful to just randomly
-sample operator invocations. This can be enabled on per-callback basis with a
-global sampling rate specified by
-<cite>torch::autograd::profiler::setSamplingProbability</cite>.</p>
-<p>Note, that <code class="docutils literal notranslate"><span class="pre">pushCallback</span></code> and <code class="docutils literal notranslate"><span class="pre">setSamplingProbability</span></code> are not thread-safe
-and can be called only when no PyTorch operator is running. Usually, it’s a good
-idea to call them once during initialization.</p>
+sample operator invocations. This can be enabled on per-callback basis with an
+optional sampling rate passed into <code class="docutils literal notranslate"><span class="pre">torch::addGlobalCallback</span></code>.</p>
+<p>Note, that <code class="docutils literal notranslate"><span class="pre">addGlobalCallback</span></code> is not thread-safe and can be called only when no
+PyTorch operator is running. Usually, it’s a good idea to call them once during
+initialization.</p>
 <p>Here’s an example:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Called somewhere in the program beginning</span>
 <span class="kt">void</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">// Sample one in a hundred operator runs randomly</span>
-    <span class="n">torch</span><span class="o">::</span><span class="n">autograd</span><span class="o">::</span><span class="n">setSamplingProbability</span><span class="p">(</span><span class="mf">0.01</span><span class="p">);</span>
-    <span class="n">pushCallback</span><span class="p">(</span>
+    <span class="n">addGlobalCallback</span><span class="p">(</span>
+      <span class="n">RecordFunctionCallback</span><span class="p">(</span>
         <span class="o">&amp;</span><span class="n">onFunctionEnter</span><span class="p">,</span>
-        <span class="o">&amp;</span><span class="n">onFunctionExit</span><span class="p">,</span>
-        <span class="cm">/* needs_inputs */</span> <span class="nb">true</span><span class="p">,</span>
-        <span class="cm">/* sampled */</span> <span class="nb">true</span>
+        <span class="o">&amp;</span><span class="n">onFunctionExit</span><span class="p">)</span>
+      <span class="p">.</span><span class="n">needsInputs</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+      <span class="p">.</span><span class="n">samplingProb</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
     <span class="p">);</span>
+    <span class="c1">// Note, to enable observers in the model calling thread,</span>
+    <span class="c1">// call enableRecordFunction() in the thread before running a model</span>
 <span class="p">}</span>
 
 <span class="kt">void</span> <span class="nf">onFunctionEnter</span><span class="p">(</span><span class="k">const</span> <span class="n">RecordFunction</span><span class="o">&amp;</span> <span class="n">fn</span><span class="p">)</span> <span class="p">{</span>
@@ -432,11 +435,11 @@ example <code class="docutils literal notranslate"><span class="pre">python.impo
 <div class="section" id="attaching-metadata-to-saved-torchscript-models">
 <h2><a class="toc-backref" href="#id3">Attaching metadata to saved TorchScript models</a><a class="headerlink" href="#attaching-metadata-to-saved-torchscript-models" title="Permalink to this headline">¶</a></h2>
 <p>TorchScript modules can be saved as an archive file that bundles serialized
-parameters and module code as TorchScript (see <a class="reference internal" href="../jit.html#torch.jit.save" title="torch.jit.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.jit.save()</span></code></a>). It’s
+parameters and module code as TorchScript (see <a class="reference internal" href="../generated/torch.jit.save.html#torch.jit.save" title="torch.jit.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.jit.save()</span></code></a>). It’s
 often convenient to bundle additional information together with the model, for
 example, description of model producer or auxiliary artifacts.</p>
 <p>It can be achieved by passing the <code class="docutils literal notranslate"><span class="pre">_extra_files</span></code> argument to
-<a class="reference internal" href="../jit.html#torch.jit.save" title="torch.jit.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.jit.save()</span></code></a> and <code class="docutils literal notranslate"><span class="pre">torch::jit::load</span></code> to store and retrieve
+<a class="reference internal" href="../generated/torch.jit.save.html#torch.jit.save" title="torch.jit.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.jit.save()</span></code></a> and <code class="docutils literal notranslate"><span class="pre">torch::jit::load</span></code> to store and retrieve
 arbitrary binary blobs during saving process. Since TorchScript files are
 regular ZIP archives, extra information gets stored as regular files inside
 archive’s <code class="docutils literal notranslate"><span class="pre">extra/</span></code> directory.</p>
@@ -763,9 +766,6 @@ with specialized version. Common extension points include:</p>
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

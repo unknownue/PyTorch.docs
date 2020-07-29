@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -210,8 +210,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -226,13 +226,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../storage.html">torch.Storage</a></li>
@@ -241,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../type_info.html">Type Info</a></li>
@@ -341,17 +344,20 @@
 <span class="kn">import</span> <span class="nn">imp</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">setuptools</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">sysconfig</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch._appdirs</span>
 <span class="kn">from</span> <span class="nn">.file_baton</span> <span class="kn">import</span> <span class="n">FileBaton</span>
 <span class="kn">from</span> <span class="nn">._cpp_extension_versioner</span> <span class="kn">import</span> <span class="n">ExtensionVersioner</span>
+<span class="kn">from</span> <span class="nn">.hipify</span> <span class="kn">import</span> <span class="n">hipify_python</span>
+<span class="kn">from</span> <span class="nn">.hipify.hipify_python</span> <span class="kn">import</span> <span class="n">get_hip_file_path</span><span class="p">,</span> <span class="n">GeneratedFileCleaner</span>
 
 <span class="kn">from</span> <span class="nn">setuptools.command.build_ext</span> <span class="kn">import</span> <span class="n">build_ext</span>
 
@@ -359,7 +365,7 @@
 <span class="n">IS_WINDOWS</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;win32&#39;</span>
 
 <span class="k">def</span> <span class="nf">_find_cuda_home</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;Finds the CUDA install path.&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Finds the CUDA install path.&#39;&#39;&#39;</span>
     <span class="c1"># Guess #1</span>
     <span class="n">cuda_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CUDA_HOME&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CUDA_PATH&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cuda_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -388,14 +394,14 @@
     <span class="k">return</span> <span class="n">cuda_home</span>
 
 <span class="k">def</span> <span class="nf">_find_rocm_home</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;Finds the ROCm install path.&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Finds the ROCm install path.&#39;&#39;&#39;</span>
     <span class="c1"># Guess #1</span>
     <span class="n">rocm_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ROCM_HOME&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ROCM_PATH&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rocm_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Guess #2</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">hipcc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
-                <span class="p">[</span><span class="s1">&#39;which&#39;</span><span class="p">,</span> <span class="s1">&#39;hipcc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="p">[</span><span class="s1">&#39;which&#39;</span><span class="p">,</span> <span class="s1">&#39;hipcc&#39;</span><span class="p">],</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="c1"># this will be either &lt;ROCM_HOME&gt;/hip/bin/hipcc or &lt;ROCM_HOME&gt;/bin/hipcc</span>
             <span class="n">rocm_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">hipcc</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">rocm_home</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;hip&#39;</span><span class="p">:</span>
@@ -411,7 +417,7 @@
 
 
 <span class="k">def</span> <span class="nf">_join_rocm_home</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Joins paths with ROCM_HOME, or raises an error if it ROCM_HOME is not set.</span>
 
 <span class="sd">    This is basically a lazy way of raising an error for missing $ROCM_HOME</span>
@@ -470,7 +476,14 @@
 <span class="c1"># it the below pattern.</span>
 <span class="n">BUILT_FROM_SOURCE_VERSION_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+\.\d+\.\d+\w+\+\w+&#39;</span><span class="p">)</span>
 
-<span class="n">COMMON_MSVC_FLAGS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;/MD&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4819&#39;</span><span class="p">,</span> <span class="s1">&#39;/EHsc&#39;</span><span class="p">]</span>
+<span class="n">COMMON_MSVC_FLAGS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;/MD&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4819&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4251&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4244&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4267&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4275&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4018&#39;</span><span class="p">,</span> <span class="s1">&#39;/wd4190&#39;</span><span class="p">,</span> <span class="s1">&#39;/EHsc&#39;</span><span class="p">]</span>
+
+<span class="n">MSVC_IGNORE_CUDAFE_WARNINGS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;base_class_has_different_dll_interface&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;field_without_dll_interface&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dll_interface_conflict_none_assumed&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dll_interface_conflict_dllexport_assumed&#39;</span>
+<span class="p">]</span>
 
 <span class="n">COMMON_NVCC_FLAGS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;-D__CUDA_NO_HALF_OPERATORS__&#39;</span><span class="p">,</span>
@@ -489,6 +502,11 @@
 
 <span class="n">JIT_EXTENSION_VERSIONER</span> <span class="o">=</span> <span class="n">ExtensionVersioner</span><span class="p">()</span>
 
+<span class="n">PLAT_TO_VCVARS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;win32&#39;</span> <span class="p">:</span> <span class="s1">&#39;x86&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;win-amd64&#39;</span> <span class="p">:</span> <span class="s1">&#39;x86_amd64&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
 
 <span class="k">def</span> <span class="nf">_is_binary_build</span><span class="p">():</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="n">BUILT_FROM_SOURCE_VERSION_PATTERN</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
@@ -500,20 +518,22 @@
 
 
 <span class="k">def</span> <span class="nf">get_default_build_root</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the path to the root folder under which extensions will built.</span>
 
 <span class="sd">    For each extension module built, there will be one folder underneath the</span>
 <span class="sd">    folder returned by this function. For example, if ``p`` is the path</span>
 <span class="sd">    returned by this function and ``ext`` the name of an extension, the build</span>
 <span class="sd">    folder for the extension will be ``p/ext``.</span>
+
+<span class="sd">    This directory is **user-specific** so that multiple users on the same</span>
+<span class="sd">    machine won&#39;t meet permission issues.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="c1"># tempfile.gettempdir() will be /tmp on UNIX and \TEMP on Windows.</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s1">&#39;torch_extensions&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">_appdirs</span><span class="o">.</span><span class="n">user_cache_dir</span><span class="p">(</span><span class="n">appname</span><span class="o">=</span><span class="s1">&#39;torch_extensions&#39;</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">check_compiler_ok_for_platform</span><span class="p">(</span><span class="n">compiler</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Verifies that the compiler is the expected one for the current platform.</span>
 
 <span class="sd">    Arguments:</span>
@@ -528,11 +548,27 @@
     <span class="n">which</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s1">&#39;which&#39;</span><span class="p">,</span> <span class="n">compiler</span><span class="p">],</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
     <span class="c1"># Use os.path.realpath to resolve any symlinks, in particular from &#39;c++&#39; to e.g. &#39;g++&#39;.</span>
     <span class="n">compiler_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">which</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">compiler_path</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_accepted_compilers_for_platform</span><span class="p">())</span>
+    <span class="c1"># Check the compiler name</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">compiler_path</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_accepted_compilers_for_platform</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="c1"># If ccache is used the compiler path is /usr/bin/ccache. Check by -v flag.</span>
+    <span class="n">version_string</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="n">compiler</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">],</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;linux&#39;</span><span class="p">):</span>
+        <span class="c1"># Check for &#39;gcc&#39; or &#39;g++&#39;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^COLLECT_GCC=(.*)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">version_string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">compiler_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">compiler_path</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_accepted_compilers_for_platform</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;darwin&#39;</span><span class="p">):</span>
+        <span class="c1"># Check for &#39;clang&#39; or &#39;clang++&#39;</span>
+        <span class="k">return</span> <span class="n">version_string</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Apple clang&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="check_compiler_abi_compatibility"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.check_compiler_abi_compatibility">[docs]</a><span class="k">def</span> <span class="nf">check_compiler_abi_compatibility</span><span class="p">(</span><span class="n">compiler</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Verifies that the given compiler is ABI-compatible with PyTorch.</span>
 
 <span class="sd">    Arguments:</span>
@@ -588,7 +624,7 @@
 
 
 <div class="viewcode-block" id="BuildExtension"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.BuildExtension">[docs]</a><span class="k">class</span> <span class="nc">BuildExtension</span><span class="p">(</span><span class="n">build_ext</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A custom :mod:`setuptools` build extension .</span>
 
 <span class="sd">    This :class:`setuptools.build_ext` subclass takes care of passing the</span>
@@ -615,31 +651,34 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">with_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Returns an alternative constructor that extends any original keyword</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a subclass with alternative constructor that extends any original keyword</span>
 <span class="sd">        arguments to the original constructor with the given options.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">def</span> <span class="nf">init_with_options</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">init_with_options</span>
+        <span class="k">class</span> <span class="nc">cls_with_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cls_with_options</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BuildExtension</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">no_python_abi_suffix</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;no_python_abi_suffix&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_ninja</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_ninja&#39;</span><span class="p">,</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span> <span class="k">else</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_ninja</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_ninja&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ninja</span><span class="p">:</span>
             <span class="c1"># Test if we can use ninja. Fallback otherwise.</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Attempted to use ninja as the BuildExtension backend but &#39;</span>
                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">. Falling back to using the slow distutils backend.&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;HIP extensions is not supported yet for ninja.&#39;</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">use_ninja</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="n">_is_ninja_available</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ninja_available</span><span class="p">():</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;we could not find ninja.&#39;</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">use_ninja</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">finalize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize_options</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ninja</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">build_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_abi</span><span class="p">()</span>
@@ -671,6 +710,13 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">COMMON_NVCC_FLAGS</span> <span class="o">+</span>
                     <span class="p">[</span><span class="s1">&#39;--compiler-options&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;-fPIC&#39;&quot;</span><span class="p">]</span> <span class="o">+</span>
                     <span class="n">cflags</span> <span class="o">+</span> <span class="n">_get_cuda_arch_flags</span><span class="p">(</span><span class="n">cflags</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">convert_to_absolute_paths_inplace</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+            <span class="c1"># Helper function. See Note [Absolute include_dirs]</span>
+            <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                        <span class="n">paths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
         <span class="k">def</span> <span class="nf">unix_wrap_single_compile</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="n">cc_args</span><span class="p">,</span> <span class="n">extra_postargs</span><span class="p">,</span> <span class="n">pp_opts</span><span class="p">):</span>
             <span class="c1"># Copy before we make any modifications.</span>
@@ -707,7 +753,7 @@
                                     <span class="n">extra_preargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">extra_postargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">depends</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Compiles sources by outputting a ninja file and running it.&quot;&quot;&quot;</span>
+            <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compiles sources by outputting a ninja file and running it.&quot;&quot;&quot;</span>
             <span class="c1"># NB: I copied some lines from self.compiler (which is an instance</span>
             <span class="c1"># of distutils.UnixCCompiler). See the following link.</span>
             <span class="c1"># https://github.com/python/cpython/blob/f03a8f8d5001963ad5b5b28dbd95497e9cc15596/Lib/distutils/ccompiler.py#L564-L567</span>
@@ -720,6 +766,10 @@
             <span class="c1"># Use absolute path for output_dir so that the object file paths</span>
             <span class="c1"># (`objects`) get generated with absolute paths.</span>
             <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+            <span class="c1"># See Note [Absolute include_dirs]</span>
+            <span class="n">convert_to_absolute_paths_inplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">include_dirs</span><span class="p">)</span>
+
             <span class="n">_</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">extra_postargs</span><span class="p">,</span> <span class="n">pp_opts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">_setup_compile</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span>
                                              <span class="n">include_dirs</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span>
@@ -735,6 +785,8 @@
                 <span class="n">post_cflags</span> <span class="o">=</span> <span class="n">extra_postargs</span><span class="p">[</span><span class="s1">&#39;cxx&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">post_cflags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">extra_postargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span><span class="p">:</span>
+                <span class="n">post_cflags</span> <span class="o">+=</span> <span class="n">COMMON_HIPCC_FLAGS</span>
             <span class="n">append_std14_if_no_std_present</span><span class="p">(</span><span class="n">post_cflags</span><span class="p">)</span>
 
             <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="kc">None</span>
@@ -745,14 +797,20 @@
                     <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="n">extra_postargs</span><span class="p">[</span><span class="s1">&#39;nvcc&#39;</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">extra_postargs</span><span class="p">)</span>
-                <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="n">unix_cuda_flags</span><span class="p">(</span><span class="n">cuda_post_cflags</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span><span class="p">:</span>
+                    <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="n">cuda_post_cflags</span> <span class="o">+</span> <span class="n">_get_rocm_arch_flags</span><span class="p">(</span><span class="n">cuda_post_cflags</span><span class="p">)</span>
+                    <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="n">cuda_post_cflags</span> <span class="o">+</span> <span class="n">COMMON_HIPCC_FLAGS</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="n">unix_cuda_flags</span><span class="p">(</span><span class="n">cuda_post_cflags</span><span class="p">)</span>
                 <span class="n">append_std14_if_no_std_present</span><span class="p">(</span><span class="n">cuda_post_cflags</span><span class="p">)</span>
+                <span class="n">cuda_cflags</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">cuda_cflags</span><span class="p">]</span>
+                <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">cuda_post_cflags</span><span class="p">]</span>
 
             <span class="n">_write_ninja_file_and_compile_objects</span><span class="p">(</span>
                 <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
                 <span class="n">objects</span><span class="o">=</span><span class="n">objects</span><span class="p">,</span>
-                <span class="n">cflags</span><span class="o">=</span><span class="n">extra_cc_cflags</span> <span class="o">+</span> <span class="n">common_cflags</span><span class="p">,</span>
-                <span class="n">post_cflags</span><span class="o">=</span><span class="n">post_cflags</span><span class="p">,</span>
+                <span class="n">cflags</span><span class="o">=</span><span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">extra_cc_cflags</span> <span class="o">+</span> <span class="n">common_cflags</span><span class="p">],</span>
+                <span class="n">post_cflags</span><span class="o">=</span><span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">post_cflags</span><span class="p">],</span>
                 <span class="n">cuda_cflags</span><span class="o">=</span><span class="n">cuda_cflags</span><span class="p">,</span>
                 <span class="n">cuda_post_cflags</span><span class="o">=</span><span class="n">cuda_post_cflags</span><span class="p">,</span>
                 <span class="n">build_directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
@@ -813,6 +871,8 @@
                         <span class="n">cflags</span> <span class="o">=</span> <span class="n">win_cuda_flags</span><span class="p">(</span><span class="n">cflags</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">COMMON_MSVC_FLAGS</span><span class="p">:</span>
                             <span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-Xcompiler&#39;</span><span class="p">,</span> <span class="n">flag</span><span class="p">]</span> <span class="o">+</span> <span class="n">cflags</span>
+                        <span class="k">for</span> <span class="n">ignore_warning</span> <span class="ow">in</span> <span class="n">MSVC_IGNORE_CUDAFE_WARNINGS</span><span class="p">:</span>
+                            <span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-Xcudafe&#39;</span><span class="p">,</span> <span class="s1">&#39;--diag_suppress=&#39;</span> <span class="o">+</span> <span class="n">ignore_warning</span><span class="p">]</span> <span class="o">+</span> <span class="n">cflags</span>
                         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">nvcc</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="p">]</span> <span class="o">+</span> <span class="n">include_list</span> <span class="o">+</span> <span class="n">cflags</span>
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                         <span class="n">cflags</span> <span class="o">=</span> <span class="n">COMMON_MSVC_FLAGS</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">[</span><span class="s1">&#39;cxx&#39;</span><span class="p">]</span>
@@ -843,6 +903,15 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
             <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+            <span class="c1"># Note [Absolute include_dirs]</span>
+            <span class="c1"># Convert relative path in self.compiler.include_dirs to absolute path if any,</span>
+            <span class="c1"># For ninja build, the build location is not local, the build happens</span>
+            <span class="c1"># in a in script created build folder, relative path lost their correctness.</span>
+            <span class="c1"># To be consistent with jit extension, we allow user to enter relative include_dirs</span>
+            <span class="c1"># in setuptools.setup, and we convert the relative path to absolute path here</span>
+            <span class="n">convert_to_absolute_paths_inplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">include_dirs</span><span class="p">)</span>
+
             <span class="n">_</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">extra_postargs</span><span class="p">,</span> <span class="n">pp_opts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">_setup_compile</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span>
                                              <span class="n">include_dirs</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span>
@@ -873,6 +942,9 @@
                 <span class="k">for</span> <span class="n">common_cflag</span> <span class="ow">in</span> <span class="n">common_cflags</span><span class="p">:</span>
                     <span class="n">cuda_cflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-Xcompiler&#39;</span><span class="p">)</span>
                     <span class="n">cuda_cflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">common_cflag</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ignore_warning</span> <span class="ow">in</span> <span class="n">MSVC_IGNORE_CUDAFE_WARNINGS</span><span class="p">:</span>
+                    <span class="n">cuda_cflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-Xcudafe&#39;</span><span class="p">)</span>
+                    <span class="n">cuda_cflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--diag_suppress=&#39;</span> <span class="o">+</span> <span class="n">ignore_warning</span><span class="p">)</span>
                 <span class="n">cuda_cflags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">pp_opts</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_postargs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                     <span class="n">cuda_post_cflags</span> <span class="o">=</span> <span class="n">extra_postargs</span><span class="p">[</span><span class="s1">&#39;nvcc&#39;</span><span class="p">]</span>
@@ -919,13 +991,12 @@
     <span class="k">def</span> <span class="nf">get_ext_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext_name</span><span class="p">):</span>
         <span class="c1"># Get the original shared library name. For Python 3, this name will be</span>
         <span class="c1"># suffixed with &quot;&lt;SOABI&gt;.so&quot;, where &lt;SOABI&gt; will be something like</span>
-        <span class="c1"># cpython-37m-x86_64-linux-gnu. On Python 2, there is no such ABI name.</span>
-        <span class="c1"># The final extension, .so, would be .lib/.dll on Windows of course.</span>
+        <span class="c1"># cpython-37m-x86_64-linux-gnu.</span>
         <span class="n">ext_filename</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">BuildExtension</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_ext_filename</span><span class="p">(</span><span class="n">ext_name</span><span class="p">)</span>
         <span class="c1"># If `no_python_abi_suffix` is `True`, we omit the Python 3 ABI</span>
         <span class="c1"># component. This makes building shared libraries with setuptools that</span>
         <span class="c1"># aren&#39;t Python modules nicer.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_python_abi_suffix</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_python_abi_suffix</span><span class="p">:</span>
             <span class="c1"># The parts will be e.g. [&quot;my_extension&quot;, &quot;cpython-37m-x86_64-linux-gnu&quot;, &quot;so&quot;].</span>
             <span class="n">ext_filename_parts</span> <span class="o">=</span> <span class="n">ext_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
             <span class="c1"># Omit the second to last element.</span>
@@ -942,6 +1013,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CXX&#39;</span><span class="p">,</span> <span class="s1">&#39;c++&#39;</span><span class="p">)</span>
         <span class="n">check_compiler_abi_compatibility</span><span class="p">(</span><span class="n">compiler</span><span class="p">)</span>
+        <span class="c1"># Warn user if VC env is activated but `DISTUILS_USE_SDK` is not set.</span>
+        <span class="k">if</span> <span class="n">IS_WINDOWS</span> <span class="ow">and</span> <span class="s1">&#39;VSCMD_ARG_TGT_ARCH&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="s1">&#39;DISTUTILS_USE_SDK&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;It seems that the VC environment is activated but DISTUTILS_USE_SDK is not set.&#39;</span>
+                   <span class="s1">&#39;This may lead to multiple activations of the VC env.&#39;</span>
+                   <span class="s1">&#39;Please set `DISTUTILS_USE_SDK=1` and try again.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">UserWarning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_add_compile_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
         <span class="n">extension</span><span class="o">.</span><span class="n">extra_compile_args</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">extension</span><span class="o">.</span><span class="n">extra_compile_args</span><span class="p">)</span>
@@ -967,7 +1044,7 @@
 
 
 <div class="viewcode-block" id="CppExtension"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.CppExtension">[docs]</a><span class="k">def</span> <span class="nf">CppExtension</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Creates a :class:`setuptools.Extension` for C++.</span>
 
 <span class="sd">    Convenience method that creates a :class:`setuptools.Extension` with the</span>
@@ -1011,7 +1088,7 @@
 
 
 <div class="viewcode-block" id="CUDAExtension"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.CUDAExtension">[docs]</a><span class="k">def</span> <span class="nf">CUDAExtension</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Creates a :class:`setuptools.Extension` for CUDA/C++.</span>
 
 <span class="sd">    Convenience method that creates a :class:`setuptools.Extension` with the</span>
@@ -1104,7 +1181,7 @@
 
 
 <span class="k">def</span> <span class="nf">library_paths</span><span class="p">(</span><span class="n">cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get the library paths required to build a C++ or CUDA extension.</span>
 
 <span class="sd">    Args:</span>
@@ -1151,8 +1228,9 @@
          <span class="n">build_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
          <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
          <span class="n">with_cuda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-         <span class="n">is_python_module</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+         <span class="n">is_python_module</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+         <span class="n">keep_intermediates</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Loads a PyTorch C++ extension just-in-time (JIT).</span>
 
 <span class="sd">    To load an extension, a Ninja build file is emitted, which is used to</span>
@@ -1232,7 +1310,8 @@
         <span class="n">build_directory</span> <span class="ow">or</span> <span class="n">_get_build_directory</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">verbose</span><span class="p">),</span>
         <span class="n">verbose</span><span class="p">,</span>
         <span class="n">with_cuda</span><span class="p">,</span>
-        <span class="n">is_python_module</span><span class="p">)</span></div>
+        <span class="n">is_python_module</span><span class="p">,</span>
+        <span class="n">keep_intermediates</span><span class="o">=</span><span class="n">keep_intermediates</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="load_inline"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.load_inline">[docs]</a><span class="k">def</span> <span class="nf">load_inline</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
@@ -1247,8 +1326,9 @@
                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">with_cuda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">is_python_module</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">with_pytorch_error_handling</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+                <span class="n">with_pytorch_error_handling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">keep_intermediates</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Loads a PyTorch C++ extension just-in-time (JIT) from string sources.</span>
 
 <span class="sd">    This function behaves exactly like :func:`load`, but takes its sources as</span>
@@ -1380,7 +1460,8 @@
         <span class="n">build_directory</span><span class="p">,</span>
         <span class="n">verbose</span><span class="p">,</span>
         <span class="n">with_cuda</span><span class="p">,</span>
-        <span class="n">is_python_module</span><span class="p">)</span></div>
+        <span class="n">is_python_module</span><span class="p">,</span>
+        <span class="n">keep_intermediates</span><span class="o">=</span><span class="n">keep_intermediates</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_jit_compile</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
@@ -1392,7 +1473,11 @@
                  <span class="n">build_directory</span><span class="p">,</span>
                  <span class="n">verbose</span><span class="p">,</span>
                  <span class="n">with_cuda</span><span class="p">,</span>
-                 <span class="n">is_python_module</span><span class="p">):</span>
+                 <span class="n">is_python_module</span><span class="p">,</span>
+                 <span class="n">keep_intermediates</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">with_cuda</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">with_cuda</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_is_cuda_file</span><span class="p">,</span> <span class="n">sources</span><span class="p">))</span>
+    <span class="n">with_cudnn</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="s1">&#39;cudnn&#39;</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">extra_ldflags</span> <span class="ow">or</span> <span class="p">[]])</span>
     <span class="n">old_version</span> <span class="o">=</span> <span class="n">JIT_EXTENSION_VERSIONER</span><span class="o">.</span><span class="n">get_version</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">version</span> <span class="o">=</span> <span class="n">JIT_EXTENSION_VERSIONER</span><span class="o">.</span><span class="n">bump_version_if_changed</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
@@ -1411,16 +1496,27 @@
         <span class="n">baton</span> <span class="o">=</span> <span class="n">FileBaton</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_directory</span><span class="p">,</span> <span class="s1">&#39;lock&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">baton</span><span class="o">.</span><span class="n">try_acquire</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">_write_ninja_file_and_build_library</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                    <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
-                    <span class="n">extra_cflags</span><span class="o">=</span><span class="n">extra_cflags</span> <span class="ow">or</span> <span class="p">[],</span>
-                    <span class="n">extra_cuda_cflags</span><span class="o">=</span><span class="n">extra_cuda_cflags</span> <span class="ow">or</span> <span class="p">[],</span>
-                    <span class="n">extra_ldflags</span><span class="o">=</span><span class="n">extra_ldflags</span> <span class="ow">or</span> <span class="p">[],</span>
-                    <span class="n">extra_include_paths</span><span class="o">=</span><span class="n">extra_include_paths</span> <span class="ow">or</span> <span class="p">[],</span>
-                    <span class="n">build_directory</span><span class="o">=</span><span class="n">build_directory</span><span class="p">,</span>
-                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
-                    <span class="n">with_cuda</span><span class="o">=</span><span class="n">with_cuda</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">GeneratedFileCleaner</span><span class="p">(</span><span class="n">keep_intermediates</span><span class="o">=</span><span class="n">keep_intermediates</span><span class="p">)</span> <span class="k">as</span> <span class="n">clean_ctx</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span> <span class="ow">and</span> <span class="p">(</span><span class="n">with_cuda</span> <span class="ow">or</span> <span class="n">with_cudnn</span><span class="p">):</span>
+                        <span class="n">hipify_python</span><span class="o">.</span><span class="n">hipify</span><span class="p">(</span>
+                            <span class="n">project_directory</span><span class="o">=</span><span class="n">build_directory</span><span class="p">,</span>
+                            <span class="n">output_directory</span><span class="o">=</span><span class="n">build_directory</span><span class="p">,</span>
+                            <span class="n">includes</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_directory</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">),</span>
+                            <span class="n">extra_files</span><span class="o">=</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">],</span>
+                            <span class="n">show_detailed</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                            <span class="n">is_pytorch_extension</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">clean_ctx</span><span class="o">=</span><span class="n">clean_ctx</span>
+                        <span class="p">)</span>
+                    <span class="n">_write_ninja_file_and_build_library</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span>
+                        <span class="n">extra_cflags</span><span class="o">=</span><span class="n">extra_cflags</span> <span class="ow">or</span> <span class="p">[],</span>
+                        <span class="n">extra_cuda_cflags</span><span class="o">=</span><span class="n">extra_cuda_cflags</span> <span class="ow">or</span> <span class="p">[],</span>
+                        <span class="n">extra_ldflags</span><span class="o">=</span><span class="n">extra_ldflags</span> <span class="ow">or</span> <span class="p">[],</span>
+                        <span class="n">extra_include_paths</span><span class="o">=</span><span class="n">extra_include_paths</span> <span class="ow">or</span> <span class="p">[],</span>
+                        <span class="n">build_directory</span><span class="o">=</span><span class="n">build_directory</span><span class="p">,</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                        <span class="n">with_cuda</span><span class="o">=</span><span class="n">with_cuda</span><span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="n">baton</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1523,22 +1619,26 @@
         <span class="n">error_prefix</span><span class="o">=</span><span class="s2">&quot;Error building extension &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">_is_ninja_available</span><span class="p">():</span>
+<div class="viewcode-block" id="is_ninja_available"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.is_ninja_available">[docs]</a><span class="k">def</span> <span class="nf">is_ninja_available</span><span class="p">():</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns ``True`` if the `ninja &lt;https://ninja-build.org/&gt;`_ build system is</span>
+<span class="sd">    available on the system, ``False`` otherwise.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">devnull</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="s1">&#39;ninja --version&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">stdout</span><span class="o">=</span><span class="n">devnull</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="verify_ninja_availability"><a class="viewcode-back" href="../../../cpp_extension.html#torch.utils.cpp_extension.verify_ninja_availability">[docs]</a><span class="k">def</span> <span class="nf">verify_ninja_availability</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns ``True`` if the `ninja &lt;https://ninja-build.org/&gt;`_ build system is</span>
-<span class="sd">    available on the system.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Raises ``RuntimeError`` if `ninja &lt;https://ninja-build.org/&gt;`_ build system is not</span>
+<span class="sd">    available on the system, does nothing otherwise.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ninja_available</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ninja_available</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Ninja is required to load C++ extensions&quot;</span><span class="p">)</span></div>
 
 
@@ -1568,10 +1668,10 @@
         <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-L</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lib_path</span><span class="p">))</span>
         <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-lc10&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">with_cuda</span><span class="p">:</span>
-            <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-lc10_cuda&#39;</span><span class="p">)</span>
+            <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-lc10_hip&#39;</span> <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span> <span class="k">else</span> <span class="s1">&#39;-lc10_cuda&#39;</span><span class="p">)</span>
         <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-ltorch_cpu&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">with_cuda</span><span class="p">:</span>
-            <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-ltorch_cuda&#39;</span><span class="p">)</span>
+            <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-ltorch_hip&#39;</span> <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span> <span class="k">else</span> <span class="s1">&#39;-ltorch_cuda&#39;</span><span class="p">)</span>
         <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-ltorch&#39;</span><span class="p">)</span>
         <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-ltorch_python&#39;</span><span class="p">)</span>
 
@@ -1584,7 +1684,7 @@
             <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;cudart.lib&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">CUDNN_HOME</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CUDNN_HOME</span><span class="p">,</span> <span class="s1">&#39;lib/x64&#39;</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">IS_HIP_EXTENSION</span><span class="p">:</span>
             <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-L</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_join_cuda_home</span><span class="p">(</span><span class="s1">&#39;lib64&#39;</span><span class="p">)))</span>
             <span class="n">extra_ldflags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-lcudart&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">CUDNN_HOME</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1594,7 +1694,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_cuda_arch_flags</span><span class="p">(</span><span class="n">cflags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Determine CUDA arch flags to use.</span>
 
 <span class="sd">    For an arch, say &quot;6.1&quot;, the added compile flag will be</span>
@@ -1622,10 +1722,11 @@
         <span class="p">(</span><span class="s1">&#39;Pascal&#39;</span><span class="p">,</span> <span class="s1">&#39;6.0;6.1+PTX&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;Volta&#39;</span><span class="p">,</span> <span class="s1">&#39;7.0+PTX&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;Turing&#39;</span><span class="p">,</span> <span class="s1">&#39;7.5+PTX&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Ampere&#39;</span><span class="p">,</span> <span class="s1">&#39;8.0+PTX&#39;</span><span class="p">),</span>
     <span class="p">])</span>
 
     <span class="n">supported_arches</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;3.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3.7&#39;</span><span class="p">,</span> <span class="s1">&#39;5.0&#39;</span><span class="p">,</span> <span class="s1">&#39;5.2&#39;</span><span class="p">,</span> <span class="s1">&#39;5.3&#39;</span><span class="p">,</span> <span class="s1">&#39;6.0&#39;</span><span class="p">,</span> <span class="s1">&#39;6.1&#39;</span><span class="p">,</span> <span class="s1">&#39;6.2&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;7.0&#39;</span><span class="p">,</span> <span class="s1">&#39;7.2&#39;</span><span class="p">,</span> <span class="s1">&#39;7.5&#39;</span><span class="p">]</span>
+                        <span class="s1">&#39;7.0&#39;</span><span class="p">,</span> <span class="s1">&#39;7.2&#39;</span><span class="p">,</span> <span class="s1">&#39;7.5&#39;</span><span class="p">,</span> <span class="s1">&#39;8.0&#39;</span><span class="p">]</span>
     <span class="n">valid_arch_strings</span> <span class="o">=</span> <span class="n">supported_arches</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;+PTX&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">supported_arches</span><span class="p">]</span>
 
     <span class="c1"># The default is sm_30 for CUDA 9.x and 10.x</span>
@@ -1690,7 +1791,7 @@
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating extension directory </span><span class="si">{}</span><span class="s1">...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">build_directory</span><span class="p">))</span>
         <span class="c1"># This is like mkdir -p, i.e. will also create parent directories.</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">build_directory</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">build_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">build_directory</span>
 
@@ -1712,6 +1813,22 @@
     <span class="n">num_workers</span> <span class="o">=</span> <span class="n">_get_num_workers</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)])</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Try to activate the vc env for the users</span>
+    <span class="k">if</span> <span class="n">IS_WINDOWS</span> <span class="ow">and</span> <span class="s1">&#39;VSCMD_ARG_TGT_ARCH&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">distutils.util</span> <span class="kn">import</span> <span class="n">get_platform</span>
+        <span class="kn">from</span> <span class="nn">distutils._msvccompiler</span> <span class="kn">import</span> <span class="n">_get_vc_env</span>
+
+        <span class="n">plat_name</span> <span class="o">=</span> <span class="n">get_platform</span><span class="p">()</span>
+        <span class="n">plat_spec</span> <span class="o">=</span> <span class="n">PLAT_TO_VCVARS</span><span class="p">[</span><span class="n">plat_name</span><span class="p">]</span>
+
+        <span class="n">vc_env</span> <span class="o">=</span> <span class="n">_get_vc_env</span><span class="p">(</span><span class="n">plat_spec</span><span class="p">)</span>
+        <span class="n">vc_env</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vc_env</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">uk</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">uk</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vc_env</span><span class="p">:</span>
+                <span class="n">vc_env</span><span class="p">[</span><span class="n">uk</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">vc_env</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
@@ -1734,12 +1851,14 @@
                 <span class="n">stdout</span><span class="o">=</span><span class="n">stdout_fileno</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
                 <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
                 <span class="n">cwd</span><span class="o">=</span><span class="n">build_directory</span><span class="p">,</span>
-                <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
                 <span class="n">command</span><span class="p">,</span>
                 <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
-                <span class="n">cwd</span><span class="o">=</span><span class="n">build_directory</span><span class="p">)</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">build_directory</span><span class="p">,</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
         <span class="c1"># Python 2 and 3 compatible way of getting the error object.</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
@@ -1802,11 +1921,21 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cflags</span> <span class="o">=</span> <span class="n">common_cflags</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;-fPIC&#39;</span><span class="p">,</span> <span class="s1">&#39;-std=c++14&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">extra_cflags</span>
 
-    <span class="k">if</span> <span class="n">with_cuda</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">with_cuda</span> <span class="ow">and</span> <span class="n">IS_HIP_EXTENSION</span><span class="p">:</span>
+        <span class="n">cuda_flags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-DWITH_HIP&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cflags</span> <span class="o">+</span> <span class="n">COMMON_HIPCC_FLAGS</span>
+        <span class="n">cuda_flags</span> <span class="o">+=</span> <span class="n">extra_cuda_cflags</span>
+        <span class="n">cuda_flags</span> <span class="o">+=</span> <span class="n">_get_rocm_arch_flags</span><span class="p">(</span><span class="n">cuda_flags</span><span class="p">)</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_cuda_file</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">else</span>
+                   <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                       <span class="n">path</span><span class="p">,</span> <span class="n">get_hip_file_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">path</span><span class="p">))))</span>
+                   <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">with_cuda</span><span class="p">:</span>
         <span class="n">cuda_flags</span> <span class="o">=</span> <span class="n">common_cflags</span> <span class="o">+</span> <span class="n">COMMON_NVCC_FLAGS</span> <span class="o">+</span> <span class="n">_get_cuda_arch_flags</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">IS_WINDOWS</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">COMMON_MSVC_FLAGS</span><span class="p">:</span>
                 <span class="n">cuda_flags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-Xcompiler&#39;</span><span class="p">,</span> <span class="n">flag</span><span class="p">]</span> <span class="o">+</span> <span class="n">cuda_flags</span>
+            <span class="k">for</span> <span class="n">ignore_warning</span> <span class="ow">in</span> <span class="n">MSVC_IGNORE_CUDAFE_WARNINGS</span><span class="p">:</span>
+                <span class="n">cuda_flags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-Xcudafe&#39;</span><span class="p">,</span> <span class="s1">&#39;--diag_suppress=&#39;</span> <span class="o">+</span> <span class="n">ignore_warning</span><span class="p">]</span> <span class="o">+</span> <span class="n">cuda_flags</span>
             <span class="n">cuda_flags</span> <span class="o">=</span> <span class="n">_nt_quote_args</span><span class="p">(</span><span class="n">cuda_flags</span><span class="p">)</span>
             <span class="n">cuda_flags</span> <span class="o">+=</span> <span class="n">_nt_quote_args</span><span class="p">(</span><span class="n">extra_cuda_cflags</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1866,7 +1995,7 @@
                       <span class="n">ldflags</span><span class="p">,</span>
                       <span class="n">library_target</span><span class="p">,</span>
                       <span class="n">with_cuda</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Write a ninja file that does the desired compiling and linking.</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Write a ninja file that does the desired compiling and linking.</span>
 
 <span class="sd">    `path`: Where to write this file</span>
 <span class="sd">    `cflags`: list of flags to pass to $cxx. Can be None.</span>
@@ -1905,7 +2034,11 @@
     <span class="n">config</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ninja_required_version = 1.3&#39;</span><span class="p">]</span>
     <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;cxx = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compiler</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">with_cuda</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;nvcc = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_join_cuda_home</span><span class="p">(</span><span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;nvcc&#39;</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">IS_HIP_EXTENSION</span><span class="p">:</span>
+            <span class="n">nvcc</span> <span class="o">=</span> <span class="n">_join_rocm_home</span><span class="p">(</span><span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;hipcc&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nvcc</span> <span class="o">=</span> <span class="n">_join_cuda_home</span><span class="p">(</span><span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;nvcc&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;nvcc = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nvcc</span><span class="p">))</span>
 
     <span class="n">flags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cflags = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cflags</span><span class="p">))]</span>
     <span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;post_cflags = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">post_cflags</span><span class="p">)))</span>
@@ -1944,6 +2077,7 @@
             <span class="n">source_file</span> <span class="o">=</span> <span class="n">source_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;$:&#39;</span><span class="p">)</span>
             <span class="n">object_file</span> <span class="o">=</span> <span class="n">object_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;$:&#39;</span><span class="p">)</span>
         <span class="n">source_file</span> <span class="o">=</span> <span class="n">source_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;$ &quot;</span><span class="p">)</span>
+        <span class="n">object_file</span> <span class="o">=</span> <span class="n">object_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;$ &quot;</span><span class="p">)</span>
         <span class="n">build</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;build </span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object_file</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">source_file</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">library_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1979,7 +2113,7 @@
 
 
 <span class="k">def</span> <span class="nf">_join_cuda_home</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Joins paths with CUDA_HOME, or raises an error if it CUDA_HOME is not set.</span>
 
 <span class="sd">    This is basically a lazy way of raising an error for missing $CUDA_HOME</span>
@@ -2271,9 +2405,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

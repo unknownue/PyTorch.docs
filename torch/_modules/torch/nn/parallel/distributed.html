@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -210,8 +210,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -226,13 +226,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../storage.html">torch.Storage</a></li>
@@ -241,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../type_info.html">Type Info</a></li>
@@ -367,7 +370,7 @@
     <span class="k">return</span> <span class="p">[]</span>
 
 
-<div class="viewcode-block" id="DistributedDataParallel"><a class="viewcode-back" href="../../../../nn.html#torch.nn.parallel.DistributedDataParallel">[docs]</a><span class="k">class</span> <span class="nc">DistributedDataParallel</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="DistributedDataParallel"><a class="viewcode-back" href="../../../../generated/torch.nn.parallel.DistributedDataParallel.html#torch.nn.parallel.DistributedDataParallel">[docs]</a><span class="k">class</span> <span class="nc">DistributedDataParallel</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Implements distributed data parallelism that is based on</span>
 <span class="sd">    ``torch.distributed`` package at the module level.</span>
 
@@ -404,6 +407,10 @@
 
 <span class="sd">    In order to spawn up multiple processes per node, you can use either</span>
 <span class="sd">    ``torch.distributed.launch`` or ``torch.multiprocessing.spawn``</span>
+
+<span class="sd">    .. note ::</span>
+<span class="sd">        Please refer to `PyTorch Distributed Overview &lt;https://pytorch.org/tutorials/beginner/dist_overview.html&gt;`__</span>
+<span class="sd">        for a brief introduction to all features related to distributed training.</span>
 
 <span class="sd">    .. note:: ``nccl`` backend is currently the fastest and</span>
 <span class="sd">        highly recommended backend to be used with Multi-Process Single-GPU</span>
@@ -446,7 +453,12 @@
 <span class="sd">        same model and thus the exact same parameter registration order.</span>
 
 <span class="sd">    .. warning::</span>
-<span class="sd">        This module assumes all buffers and gradients are dense.</span>
+<span class="sd">        This module allows parameters with non-rowmajor-contiguous strides.</span>
+<span class="sd">        For example, your model may contain some parameters whose</span>
+<span class="sd">        :class:`torch.memory_format` is ``torch.contiguous_format``</span>
+<span class="sd">        and others whose format is ``torch.channels_last``.  However,</span>
+<span class="sd">        corresponding parameters in different processes must have the</span>
+<span class="sd">        same strides.</span>
 
 <span class="sd">    .. warning::</span>
 <span class="sd">        This module doesn&#39;t work with :func:`torch.autograd.grad` (i.e. it will</span>
@@ -484,6 +496,46 @@
 <span class="sd">        by the optimizer in all processes in the same way. Buffers</span>
 <span class="sd">        (e.g. BatchNorm stats) are broadcast from the module in process of rank</span>
 <span class="sd">        0, to all other replicas in the system in every iteration.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        If you are using DistributedDataParallel in conjunction with the</span>
+<span class="sd">        :ref:`distributed-rpc-framework`, you should always use</span>
+<span class="sd">        :meth:`torch.distributed.autograd.backward` to compute gradients and</span>
+<span class="sd">        :class:`torch.distributed.optim.DistributedOptimizer` for optimizing</span>
+<span class="sd">        parameters.</span>
+
+<span class="sd">    Example::</span>
+<span class="sd">        &gt;&gt;&gt; import torch.distributed.autograd as dist_autograd</span>
+<span class="sd">        &gt;&gt;&gt; from torch.nn.parallel import DistributedDataParallel as DDP</span>
+<span class="sd">        &gt;&gt;&gt; from torch import optim</span>
+<span class="sd">        &gt;&gt;&gt; from torch.distributed.optim import DistributedOptimizer</span>
+<span class="sd">        &gt;&gt;&gt; from torch.distributed.rpc import RRef</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; t1 = torch.rand((3, 3), requires_grad=True)</span>
+<span class="sd">        &gt;&gt;&gt; t2 = torch.rand((3, 3), requires_grad=True)</span>
+<span class="sd">        &gt;&gt;&gt; rref = rpc.remote(&quot;worker1&quot;, torch.add, args=(t1, t2))</span>
+<span class="sd">        &gt;&gt;&gt; ddp_model = DDP(my_model)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Setup optimizer</span>
+<span class="sd">        &gt;&gt;&gt; optimizer_params = [rref]</span>
+<span class="sd">        &gt;&gt;&gt; for param in ddp_model.parameters():</span>
+<span class="sd">        &gt;&gt;&gt;     optimizer_params.append(RRef(param))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; dist_optim = DistributedOptimizer(</span>
+<span class="sd">        &gt;&gt;&gt;     optim.SGD,</span>
+<span class="sd">        &gt;&gt;&gt;     optimizer_params,</span>
+<span class="sd">        &gt;&gt;&gt;     lr=0.05,</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; with dist_autograd.context() as context_id:</span>
+<span class="sd">        &gt;&gt;&gt;     pred = ddp_model(rref.to_here())</span>
+<span class="sd">        &gt;&gt;&gt;     loss = loss_func(pred, loss)</span>
+<span class="sd">        &gt;&gt;&gt;     dist_autograd.backward(context_id, loss)</span>
+<span class="sd">        &gt;&gt;&gt;     dist_optim.step()</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        Using DistributedDataParallel in conjuction with the</span>
+<span class="sd">        :ref:`distributed-rpc-framework` is experimental and subject to change.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        module (Module): module to be parallelized</span>
@@ -547,7 +599,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">device_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">output_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">broadcast_buffers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">process_group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bucket_cap_mb</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+                 <span class="n">process_group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bucket_cap_mb</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
                  <span class="n">find_unused_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">check_reduction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
@@ -606,13 +659,11 @@
             <span class="c1"># do not receive gradients.</span>
             <span class="k">pass</span>
 
-        <span class="n">MB</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
-
         <span class="c1"># used for intra-node param sync and inter-node sync as well</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">broadcast_bucket_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">250</span> <span class="o">*</span> <span class="n">MB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">broadcast_bucket_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">250</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
 
         <span class="c1"># reduction bucket size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bucket_bytes_cap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bucket_cap_mb</span> <span class="o">*</span> <span class="n">MB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bucket_bytes_cap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bucket_cap_mb</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
 
         <span class="c1"># Sync params and buffers</span>
         <span class="n">module_states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -633,6 +684,19 @@
 <span class="sd">        (4) registering the grad hooks</span>
 <span class="sd">        (5) passing a handle of DDP to SyncBatchNorm Layer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">model_parameters</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+                <span class="n">ps</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">_former_parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> \
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s2">&quot;_former_parameters&quot;</span><span class="p">)</span> \
+                    <span class="k">else</span> <span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">(</span><span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ps</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">p</span>
+
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">modules</span><span class="p">()</span> <span class="k">if</span> <span class="n">recurse</span> <span class="k">else</span> <span class="p">[</span><span class="n">m</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model_parameters</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">p</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
 
             <span class="kn">import</span> <span class="nn">warnings</span>
@@ -645,9 +709,6 @@
                 <span class="s2">&quot;Please consider using one DDP instance per device or per &quot;</span>
                 <span class="s2">&quot;module replica by explicitly setting device_ids or &quot;</span>
                 <span class="s2">&quot;CUDA_VISIBLE_DEVICES. &quot;</span>
-                <span class="s2">&quot;NB: There is a known issue in nn.parallel.replicate that &quot;</span>
-                <span class="s2">&quot;prevents a single DDP instance to operate on multiple model &quot;</span>
-                <span class="s2">&quot;replicas.&quot;</span>
             <span class="p">)</span>
 
             <span class="c1"># only create replicas for single-device CUDA modules</span>
@@ -659,13 +720,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span>
 
             <span class="k">for</span> <span class="n">module_copy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">copy_param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">module_copy</span><span class="o">.</span><span class="n">parameters</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">copy_param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">parameters</span><span class="p">(</span><span class="n">module_copy</span><span class="p">)):</span>
+                    <span class="c1"># Reducer requires param copies have the same strides across replicas.</span>
+                    <span class="c1"># Fixes up copy_param strides in case replicate didn&#39;t match param strides.</span>
+                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">layout</span> <span class="ow">is</span> <span class="n">torch</span><span class="o">.</span><span class="n">strided</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">stride</span><span class="p">()</span> <span class="o">!=</span> <span class="n">copy_param</span><span class="o">.</span><span class="n">stride</span><span class="p">():</span>
+                        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                            <span class="n">copy_param</span><span class="o">.</span><span class="n">set_</span><span class="p">(</span><span class="n">copy_param</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+                                                      <span class="o">.</span><span class="n">as_strided</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">param</span><span class="o">.</span><span class="n">stride</span><span class="p">())</span>
+                                                      <span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">copy_param</span><span class="p">))</span>
                     <span class="n">copy_param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">modules_params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules_params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modules_buffers</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">buffers</span><span class="p">())</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">]</span>
 
         <span class="c1"># Build tuple of (module, parameter) for all parameters that require grads.</span>
@@ -675,7 +743,7 @@
                 <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">replica</span><span class="o">.</span><span class="n">modules</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span>
                     <span class="k">lambda</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span>
-                    <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">(</span><span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+                    <span class="n">parameters</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
             <span class="p">]</span> <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">]</span>
 
         <span class="c1"># Build list of parameters.</span>
@@ -704,7 +772,7 @@
         <span class="c1"># computation finishes. Experiments showed 1MB is a reasonable value.</span>
         <span class="n">bucket_indices</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">_compute_bucket_assignment_by_size</span><span class="p">(</span>
             <span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="p">[</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_bytes_cap</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">dist</span><span class="o">.</span><span class="n">_DEFAULT_FIRST_BUCKET_BYTES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_bytes_cap</span><span class="p">],</span>
             <span class="n">expect_sparse_gradient</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="c1"># Note: reverse list of buckets because we want to approximate the</span>
@@ -714,7 +782,8 @@
             <span class="n">parameters</span><span class="p">,</span>
             <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">bucket_indices</span><span class="p">)),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process_group</span><span class="p">,</span>
-            <span class="n">expect_sparse_gradient</span><span class="p">)</span>
+            <span class="n">expect_sparse_gradient</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bucket_bytes_cap</span><span class="p">)</span>
 
         <span class="c1"># passing a handle to torch.nn.SyncBatchNorm layer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_passing_sync_batchnorm_handle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_module_copies</span><span class="p">)</span>
@@ -749,7 +818,7 @@
                                <span class="s2">&quot;init_process_group and have not passed &quot;</span>
                                <span class="s2">&quot;process_group argument to DDP constructor&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DistributedDataParallel.no_sync"><a class="viewcode-back" href="../../../../nn.html#torch.nn.parallel.DistributedDataParallel.no_sync">[docs]</a>    <span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="DistributedDataParallel.no_sync"><a class="viewcode-back" href="../../../../generated/torch.nn.parallel.DistributedDataParallel.html#torch.nn.parallel.DistributedDataParallel.no_sync">[docs]</a>    <span class="nd">@contextmanager</span>
     <span class="k">def</span> <span class="nf">no_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A context manager to disable gradient synchronizations across DDP</span>
@@ -832,7 +901,13 @@
                 <span class="k">for</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">module_params</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
                                                   <span class="bp">self</span><span class="o">.</span><span class="n">modules_params</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
                     <span class="k">for</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">module_params</span><span class="p">):</span>
-                        <span class="n">param</span><span class="o">.</span><span class="n">set_</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+                        <span class="c1"># Formerly, this spot used param.set_(tensor) to steal tensor&#39;s</span>
+                        <span class="c1"># data without a deep copy.  Unfortunately, that wiped out the</span>
+                        <span class="c1"># allreduce hook attached to param&#39;s AccumulateGrad function,</span>
+                        <span class="c1"># likely causing https://github.com/pytorch/pytorch/issues/37079.</span>
+                        <span class="c1"># TODO:  If set_ becomes safe to use here, use set_.</span>
+                        <span class="c1"># Otherwise, find another way to steal tensor&#39;s data.</span>
+                        <span class="n">param</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
                         <span class="c1"># Assume we have just run the optimizer and zeroed the</span>
                         <span class="c1"># grads of the parameters on the root model. We need</span>
                         <span class="c1"># to zero the grads on all model replicas as well.</span>
@@ -1143,9 +1218,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

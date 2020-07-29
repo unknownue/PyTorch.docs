@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -210,8 +210,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -226,13 +226,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../storage.html">torch.Storage</a></li>
@@ -241,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../type_info.html">Type Info</a></li>
@@ -338,10 +341,12 @@
               
   <h1>Source code for torch.autograd.gradcheck</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.types</span> <span class="kn">import</span> <span class="n">_TensorOrTensors</span>
 <span class="kn">from</span> <span class="nn">torch._six</span> <span class="kn">import</span> <span class="n">container_abcs</span><span class="p">,</span> <span class="n">istuple</span>
 <span class="kn">import</span> <span class="nn">torch.testing</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="k">def</span> <span class="nf">zero_gradients</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
@@ -355,7 +360,7 @@
 
 <span class="k">def</span> <span class="nf">make_jacobian</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">num_out</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">input</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">input</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">input</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">input</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -379,7 +384,6 @@
             <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">iter_tensors</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">only_requiring_grad</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">result</span>
 
-
 <span class="k">def</span> <span class="nf">get_numerical_jacobian</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    input: input to `fn`</span>
@@ -401,6 +405,9 @@
 
     <span class="c1"># TODO: compare structure</span>
     <span class="k">for</span> <span class="n">x_tensor</span><span class="p">,</span> <span class="n">d_tensor</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_tensors</span><span class="p">,</span> <span class="n">j_tensors</span><span class="p">):</span>
+        <span class="n">is_complex</span> <span class="o">=</span> <span class="n">x_tensor</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">is_complex</span>
+        <span class="k">if</span> <span class="n">is_complex</span><span class="p">:</span>
+            <span class="n">eps</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">x_tensor</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">get_stride</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
                 <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
@@ -525,9 +532,28 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">_as_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="gradcheck"><a class="viewcode-back" href="../../../autograd.html#torch.autograd.gradcheck">[docs]</a><span class="k">def</span> <span class="nf">gradcheck</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check_sparse_nnz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nondet_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<span class="c1"># Note [VarArg of Tensors]</span>
+<span class="c1"># ~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="c1"># &#39;func&#39; accepts a vararg of tensors, which isn&#39;t expressable in the type system at the moment.</span>
+<span class="c1"># If https://mypy.readthedocs.io/en/latest/additional_features.html?highlight=callable#extended-callable-types is accepted,</span>
+<span class="c1"># the &#39;...&#39; first argument of Callable can be replaced with VarArg(Tensor).</span>
+<span class="c1"># For now, we permit any input.</span>
+<span class="c1"># the &#39;...&#39; first argument of Callable can be replaced with VarArg(Tensor).</span>
+<span class="c1"># For now, we permit any input.</span>
+
+<div class="viewcode-block" id="gradcheck"><a class="viewcode-back" href="../../../autograd.html#torch.autograd.gradcheck">[docs]</a><span class="k">def</span> <span class="nf">gradcheck</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">_TensorOrTensors</span><span class="p">]],</span>  <span class="c1"># See Note [VarArg of Tensors]</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="n">_TensorOrTensors</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">raise_exception</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">check_sparse_nnz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">nondet_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">check_undefined_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Check gradients computed via small finite differences against analytical</span>
-<span class="sd">    gradients w.r.t. tensors in :attr:`inputs` that are of floating point type</span>
+<span class="sd">    gradients w.r.t. tensors in :attr:`inputs` that are of floating point or complex type</span>
 <span class="sd">    and with ``requires_grad=True``.</span>
 
 <span class="sd">    The check between numerical and analytical gradients uses :func:`~torch.allclose`.</span>
@@ -559,6 +585,8 @@
 <span class="sd">        nondet_tol (float, optional): tolerance for non-determinism. When running</span>
 <span class="sd">            identical inputs through the differentiation, the results must either match</span>
 <span class="sd">            exactly (default, 0.0) or be within this tolerance.</span>
+<span class="sd">        check_undefined_grad (bool, options): if True, check if undefined output grads</span>
+<span class="sd">            are supported and treated as zeros</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        True if all differences satisfy allclose condition</span>
@@ -572,30 +600,32 @@
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_sparse</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tupled_inputs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check_sparse_nnz</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fail_test</span><span class="p">(</span><span class="s1">&#39;gradcheck expects all tensor inputs are dense when check_sparse_nnz is set to False.&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Make sure that gradients are saved for all inputs</span>
+    <span class="c1"># Make sure that gradients are saved for at least one input</span>
     <span class="n">any_input_requiring_grad</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">some_input_not_requiring_grad</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">tupled_inputs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="s1">&#39;At least one of the inputs that requires gradient &#39;</span>
-                        <span class="s1">&#39;is not of double precision floating point. &#39;</span>
-                        <span class="s1">&#39;This check will likely fail if all the inputs are &#39;</span>
-                        <span class="s1">&#39;not of double precision floating point. &#39;</span><span class="p">)</span>
-                <span class="n">any_input_requiring_grad</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">inp</span><span class="o">.</span><span class="n">retain_grad</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">some_input_not_requiring_grad</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">inp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tupled_inputs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="ow">and</span> <span class="n">inp</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">float64</span> <span class="ow">or</span> <span class="n">inp</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">complex128</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s1">&#39;The </span><span class="si">{}</span><span class="s1">th input requires gradient and &#39;</span>
+                    <span class="s1">&#39;is not a double precision floating point or complex. &#39;</span>
+                    <span class="s1">&#39;This check will likely fail if all the inputs are &#39;</span>
+                    <span class="s1">&#39;not of double precision floating point or complex. &#39;</span><span class="p">)</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">_values</span><span class="p">()</span> <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">is_sparse</span> <span class="k">else</span> <span class="n">inp</span>
+            <span class="c1"># TODO: To cover more problematic cases, replace stride = 0 check with</span>
+            <span class="c1"># &quot;any overlap in memory&quot; once we have a proper function to check it.</span>
+            <span class="k">if</span> <span class="n">content</span><span class="o">.</span><span class="n">layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">_mkldnn</span> <span class="ow">and</span> \
+               <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">st</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">sz</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">st</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">stride</span><span class="p">(),</span> <span class="n">content</span><span class="o">.</span><span class="n">size</span><span class="p">())):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;The </span><span class="si">{}</span><span class="s1">th input has a dimension with stride 0. gradcheck only &#39;</span>
+                    <span class="s1">&#39;supports inputs that are non-overlapping to be able to &#39;</span>
+                    <span class="s1">&#39;compute the numerical gradients correctly. You should call &#39;</span>
+                    <span class="s1">&#39;.contiguous on the input before passing it to gradcheck.&#39;</span><span class="p">)</span>
+            <span class="n">any_input_requiring_grad</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">inp</span><span class="o">.</span><span class="n">retain_grad</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">any_input_requiring_grad</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s1">&#39;gradcheck expects at least one input tensor to require gradient, &#39;</span>
             <span class="s1">&#39;but none of the them have requires_grad=True.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">some_input_not_requiring_grad</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;gradcheck expects if at least one input tensor is required gradient, &#39;</span>
-                <span class="s1">&#39;then all other inputs should have requires_grad=True.&#39;</span><span class="p">)</span>
 
     <span class="n">func_out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">tupled_inputs</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">_differentiable_outputs</span><span class="p">(</span><span class="n">func_out</span><span class="p">)</span>
@@ -606,7 +636,7 @@
                 <span class="k">return</span> <span class="n">_as_tuple</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="nb">input</span><span class="p">))[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">numerical</span> <span class="o">=</span> <span class="n">get_numerical_jacobian</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">tupled_inputs</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">numerical</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">ne</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">fail_test</span><span class="p">(</span><span class="s1">&#39;Numerical gradient for function expected to be zero&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
 
@@ -659,20 +689,75 @@
                 <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">gi</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
                 <span class="k">return</span> <span class="n">fail_test</span><span class="p">(</span><span class="s1">&#39;backward not multiplied by grad_output&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">gi</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">type</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">gi</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">or</span> <span class="n">gi</span><span class="o">.</span><span class="n">device</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">device</span> <span class="ow">or</span> <span class="n">gi</span><span class="o">.</span><span class="n">is_sparse</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">fail_test</span><span class="p">(</span><span class="s2">&quot;grad is incorrect type&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">gi</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
                 <span class="k">return</span> <span class="n">fail_test</span><span class="p">(</span><span class="s1">&#39;grad is incorrect size&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">check_undefined_grad</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">warn_bc_breaking</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">((</span>
+                    <span class="s1">&#39;Backwards compatibility: New undefined gradient support checking &#39;</span>
+                    <span class="s1">&#39;feature is enabled by default, but it may break existing callers &#39;</span>
+                    <span class="s1">&#39;of this function. If this is true for you, you can call this &#39;</span>
+                    <span class="s1">&#39;function with &quot;check_undefined_grad=False&quot; to disable the feature&#39;</span><span class="p">))</span>
+
+            <span class="k">def</span> <span class="nf">check_undefined_grad_support</span><span class="p">(</span><span class="n">output_to_check</span><span class="p">):</span>
+                <span class="n">grads_output</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">legacy_contiguous_format</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">output_to_check</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">grads_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">output_to_check</span><span class="p">,</span>
+                                                      <span class="n">diff_input_list</span><span class="p">,</span>
+                                                      <span class="n">grads_output</span><span class="p">,</span>
+                                                      <span class="n">allow_unused</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+                    <span class="n">warn_bc_breaking</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">fail_test</span><span class="p">((</span>
+                        <span class="s1">&#39;Expected backward function to handle undefined output grads. &#39;</span>
+                        <span class="s1">&#39;Please look at &quot;Notes about undefined output gradients&quot; in &#39;</span>
+                        <span class="s1">&#39;&quot;tools/autograd/derivatives.yaml&quot;&#39;</span><span class="p">))</span>
+
+                <span class="k">for</span> <span class="n">gi</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grads_input</span><span class="p">,</span> <span class="n">diff_input_list</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">gi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">gi</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+                        <span class="n">warn_bc_breaking</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="n">fail_test</span><span class="p">((</span>
+                            <span class="s1">&#39;Expected all input grads to be undefined or zero when all output grads are undefined &#39;</span>
+                            <span class="s1">&#39;or zero. Please look at &quot;Notes about undefined output gradients&quot; in &#39;</span>
+                            <span class="s1">&#39;&quot;tools/autograd/derivatives.yaml&quot;&#39;</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="c1"># All backward functions must work properly if all output grads are undefined</span>
+            <span class="n">outputs_to_check</span> <span class="o">=</span> <span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_functions</span><span class="o">.</span><span class="n">UndefinedGrad</span><span class="p">()(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">_differentiable_outputs</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">tupled_inputs</span><span class="p">))]]</span>
+
+            <span class="c1"># If there are multiple output grads, we should be able to undef one at a time without error</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs_to_check</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">undef_grad_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)):</span>
+                    <span class="n">output_to_check</span> <span class="o">=</span> <span class="n">_differentiable_outputs</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">tupled_inputs</span><span class="p">))</span>
+                    <span class="n">outputs_to_check</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                        <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_functions</span><span class="o">.</span><span class="n">UndefinedGrad</span><span class="p">()(</span><span class="n">o</span><span class="p">)</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">undef_grad_idx</span> <span class="k">else</span> <span class="n">o</span>
+                        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_to_check</span><span class="p">)])</span>
+
+            <span class="k">for</span> <span class="n">output_to_check</span> <span class="ow">in</span> <span class="n">outputs_to_check</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">check_undefined_grad_support</span><span class="p">(</span><span class="n">output_to_check</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="gradgradcheck"><a class="viewcode-back" href="../../../autograd.html#torch.autograd.gradgradcheck">[docs]</a><span class="k">def</span> <span class="nf">gradgradcheck</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
-                  <span class="n">gen_non_contig_grad_outputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                  <span class="n">nondet_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<div class="viewcode-block" id="gradgradcheck"><a class="viewcode-back" href="../../../autograd.html#torch.autograd.gradgradcheck">[docs]</a><span class="k">def</span> <span class="nf">gradgradcheck</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_TensorOrTensors</span><span class="p">],</span>  <span class="c1"># See Note [VarArg of Tensors]</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="n">_TensorOrTensors</span><span class="p">,</span>
+    <span class="n">grad_outputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_TensorOrTensors</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">gen_non_contig_grad_outputs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">raise_exception</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">nondet_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">check_undefined_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Check gradients of gradients computed via small finite differences</span>
 <span class="sd">    against analytical gradients w.r.t. tensors in :attr:`inputs` and</span>
-<span class="sd">    :attr:`grad_outputs` that are of floating point type and with</span>
+<span class="sd">    :attr:`grad_outputs` that are of floating point or complex type and with</span>
 <span class="sd">    ``requires_grad=True``.</span>
 
 <span class="sd">    This function checks that backpropagating through the gradients computed</span>
@@ -713,6 +798,8 @@
 <span class="sd">            exactly (default, 0.0) or be within this tolerance. Note that a small amount</span>
 <span class="sd">            of nondeterminism in the gradient will lead to larger inaccuracies in</span>
 <span class="sd">            the second derivative.</span>
+<span class="sd">        check_undefined_grad (bool, options): if True, check if undefined output grads</span>
+<span class="sd">            are supported and treated as zeros</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        True if all differences satisfy allclose condition</span>
@@ -723,7 +810,8 @@
         <span class="c1"># If grad_outputs is not specified, create random Tensors of the same</span>
         <span class="c1"># shape, type, and device as the outputs</span>
         <span class="k">def</span> <span class="nf">randn_like</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">x</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">()</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">double</span><span class="p">(),</span> <span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">legacy_contiguous_format</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span>
+                <span class="n">x</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">()</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">is_complex</span><span class="p">())</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">double</span><span class="p">(),</span> <span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">legacy_contiguous_format</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">gen_non_contig_grad_outputs</span><span class="p">:</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">make_non_contiguous</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>
@@ -743,7 +831,7 @@
         <span class="k">return</span> <span class="n">grad_inputs</span>
 
     <span class="k">return</span> <span class="n">gradcheck</span><span class="p">(</span><span class="n">new_func</span><span class="p">,</span> <span class="n">tupled_inputs</span> <span class="o">+</span> <span class="n">tupled_grad_outputs</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">atol</span><span class="p">,</span> <span class="n">rtol</span><span class="p">,</span> <span class="n">raise_exception</span><span class="p">,</span>
-                     <span class="n">nondet_tol</span><span class="o">=</span><span class="n">nondet_tol</span><span class="p">)</span></div>
+                     <span class="n">nondet_tol</span><span class="o">=</span><span class="n">nondet_tol</span><span class="p">,</span> <span class="n">check_undefined_grad</span><span class="o">=</span><span class="n">check_undefined_grad</span><span class="p">)</span></div>
 </pre></div>
 
              </article>
@@ -1019,9 +1107,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

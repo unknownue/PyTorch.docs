@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -210,8 +210,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -226,13 +226,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../storage.html">torch.Storage</a></li>
@@ -241,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../type_info.html">Type Info</a></li>
@@ -347,7 +350,7 @@
 
 
 <span class="k">def</span> <span class="nf">is_available</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="p">,</span> <span class="s2">&quot;_rpc_init&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="p">,</span> <span class="s2">&quot;_rpc_init&quot;</span><span class="p">)</span>
 
 
 <span class="k">if</span> <span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_rpc_init</span><span class="p">():</span>
@@ -355,48 +358,49 @@
 
 
 <span class="k">if</span> <span class="n">is_available</span><span class="p">():</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">api</span><span class="p">,</span> <span class="n">backend_registry</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">api</span><span class="p">,</span> <span class="n">backend_registry</span><span class="p">,</span> <span class="n">functions</span><span class="p">,</span> <span class="n">_set_profiler_node_id</span>
     <span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F401</span>
+    <span class="kn">from</span> <span class="nn">.backend_registry</span> <span class="kn">import</span> <span class="n">BackendType</span>
+    <span class="kn">from</span> <span class="nn">.server_process_global_profiler</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="n">_server_process_global_profile</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="kn">import</span> <span class="nn">torch.distributed.autograd</span> <span class="k">as</span> <span class="nn">dist_autograd</span>
 
-<div class="viewcode-block" id="init_rpc"><a class="viewcode-back" href="../../../rpc/rpc.html#torch.distributed.rpc.init_rpc">[docs]</a>    <span class="k">def</span> <span class="nf">init_rpc</span><span class="p">(</span>
+<div class="viewcode-block" id="init_rpc"><a class="viewcode-back" href="../../../rpc.html#torch.distributed.rpc.init_rpc">[docs]</a>    <span class="k">def</span> <span class="nf">init_rpc</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
-        <span class="n">backend</span><span class="o">=</span><span class="n">backend_registry</span><span class="o">.</span><span class="n">BackendType</span><span class="o">.</span><span class="n">PROCESS_GROUP</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">BackendType</span><span class="o">.</span><span class="n">PROCESS_GROUP</span><span class="p">,</span>
         <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">world_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">rpc_backend_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes RPC primitives such as the local RPC agent</span>
-<span class="sd">        and distributed autograd.</span>
-
-<span class="sd">        Initializes the local RPC agent which immediately makes the current</span>
-<span class="sd">        process ready to send and receive RPCs. This method also properly</span>
-<span class="sd">        initializes a default process group backend that uses Gloo for</span>
-<span class="sd">        communication.</span>
+<span class="sd">        and distributed autograd, which immediately makes the current</span>
+<span class="sd">        process ready to send and receive RPCs.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">            backend (Enum): type of RPC backend implementation. Currently,</span>
-<span class="sd">                process group backend is the only available backend</span>
-<span class="sd">                implementation. (default: ``RpcBackend.PROCESS_GROUP``).</span>
+<span class="sd">            backend (BackendType, optional): The type of RPC backend</span>
+<span class="sd">                implementation. Supported values include</span>
+<span class="sd">                ``BackendType.PROCESS_GROUP`` (the default) and</span>
+<span class="sd">                ``BackendType.TENSORPIPE``. See :ref:`rpc-backends` for more</span>
+<span class="sd">                information.</span>
 <span class="sd">            name (str): a globally unique name of this node. (e.g.,</span>
 <span class="sd">                ``Trainer3``, ``ParameterServer2``, ``Master``, ``Worker1``)</span>
-<span class="sd">                Name can only contain number, alphabet, underscore, and/or dash,</span>
-<span class="sd">                and must be shorter than 128 characters.</span>
+<span class="sd">                Name can only contain number, alphabet, underscore, colon,</span>
+<span class="sd">                and/or dash, and must be shorter than 128 characters.</span>
 <span class="sd">            rank (int): a globally unique id/rank of this node.</span>
 <span class="sd">            world_size (int): The number of workers in the group.</span>
-<span class="sd">            rpc_backend_options (RpcBackendOptions): The options passed to</span>
-<span class="sd">                RpcAgent constructor. It contains RpcAgent specific</span>
-<span class="sd">                initialization configurations. By default, it contains</span>
-<span class="sd">                ``rpc_timeout = timedelta(seconds=60)``,</span>
-<span class="sd">                ``init_method = &quot;env://&quot;``, ``num_send_recv_threads = 4`` for</span>
-<span class="sd">                process group agent. If using the default</span>
-<span class="sd">                ``rpc_backend_options``, RPC would initialize the underlying</span>
-<span class="sd">                process group backend using ``init_method = &quot;env://&quot;``,</span>
-<span class="sd">                meaning that environment variables ``MASTER_ADDRESS`` and</span>
-<span class="sd">                ``MASTER_PORT`` needs to be set properly. See</span>
-<span class="sd">                :class:`~torch.distributed.rpc.ProcessGroupRpcBackendOptions`</span>
-<span class="sd">                for examples.</span>
+<span class="sd">            rpc_backend_options (RpcBackendOptions, optional): The options</span>
+<span class="sd">                passed to the RpcAgent constructor. It must be an agent-specific</span>
+<span class="sd">                subclass of :class:`~torch.distributed.rpc.RpcBackendOptions`</span>
+<span class="sd">                and contains agent-specific initialization configurations. By</span>
+<span class="sd">                default, for all agents, it sets the default timeout to 60</span>
+<span class="sd">                seconds and performs the rendezvous with an underlying process</span>
+<span class="sd">                group initialized using ``init_method = &quot;env://&quot;``,</span>
+<span class="sd">                meaning that environment variables ``MASTER_ADDR`` and</span>
+<span class="sd">                ``MASTER_PORT`` need to be set properly. See</span>
+<span class="sd">                :ref:`rpc-backends` for more information and find which options</span>
+<span class="sd">                are available.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rpc_backend_options</span><span class="p">:</span>
@@ -423,6 +427,7 @@
         <span class="c1"># other nodes might not have been initialized.</span>
         <span class="n">dist_autograd</span><span class="o">.</span><span class="n">_init</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
 
+        <span class="n">_set_profiler_node_id</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
         <span class="c1"># Initialize RPC.</span>
         <span class="n">api</span><span class="o">.</span><span class="n">_init_rpc_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">world_size</span><span class="p">,</span> <span class="n">rpc_backend_options</span><span class="p">)</span></div>
 
@@ -709,9 +714,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

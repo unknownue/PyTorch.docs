@@ -162,7 +162,7 @@
               
               
                 <div class="version">
-                  master (0.6.0 )
+                  master (0.7.0 )
                 </div>
               
             
@@ -354,7 +354,7 @@
 <span class="sd">            both extensions and is_valid_file should not be passed.</span>
 
 <span class="sd">     Attributes:</span>
-<span class="sd">        classes (list): List of the class names.</span>
+<span class="sd">        classes (list): List of the class names sorted alphabetically.</span>
 <span class="sd">        class_to_idx (dict): Dict with items (class_name, class_index).</span>
 <span class="sd">        samples (list): List of (sample path, class_index) tuples</span>
 <span class="sd">        targets (list): The class_index value for each image in the dataset</span>
@@ -367,8 +367,10 @@
         <span class="n">classes</span><span class="p">,</span> <span class="n">class_to_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_classes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="n">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">class_to_idx</span><span class="p">,</span> <span class="n">extensions</span><span class="p">,</span> <span class="n">is_valid_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Found 0 files in subfolders of: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                                <span class="s2">&quot;Supported extensions are: &quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extensions</span><span class="p">)))</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Found 0 files in subfolders of: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">extensions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;Supported extensions are: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extensions</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">loader</span> <span class="o">=</span> <span class="n">loader</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span> <span class="o">=</span> <span class="n">extensions</span>
@@ -393,7 +395,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()]</span>
         <span class="n">classes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-        <span class="n">class_to_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">classes</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">))}</span>
+        <span class="n">class_to_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">cls_name</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cls_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classes</span><span class="p">)}</span>
         <span class="k">return</span> <span class="n">classes</span><span class="p">,</span> <span class="n">class_to_idx</span>
 
 <div class="viewcode-block" id="DatasetFolder.__getitem__"><a class="viewcode-back" href="../../../datasets.html#torchvision.datasets.DatasetFolder.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
@@ -466,7 +468,7 @@
 <span class="sd">            and check if the file is a valid file (used to check of corrupt files)</span>
 
 <span class="sd">     Attributes:</span>
-<span class="sd">        classes (list): List of the class names.</span>
+<span class="sd">        classes (list): List of the class names sorted alphabetically.</span>
 <span class="sd">        class_to_idx (dict): Dict with items (class_name, class_index).</span>
 <span class="sd">        imgs (list): List of (image path, class_index) tuples</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -738,9 +740,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {

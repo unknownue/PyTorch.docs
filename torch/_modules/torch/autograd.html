@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.5.0 )
+                  master (1.6.0 )
                 </div>
               
             
@@ -210,8 +210,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Language Bindings</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/cppdocs/">C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../packages.html">Javadoc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp_index.html">C++</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/javadoc/">Javadoc</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Python API</span></p>
 <ul>
@@ -226,13 +226,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../amp.html">torch.cuda.amp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../jit.html">torch.jit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../optim.html">torch.optim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../complex_numbers.html">Complex Numbers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quantization.html">Quantization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../rpc/index.html">Distributed RPC Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rpc.html">Distributed RPC Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../random.html">torch.random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sparse.html">torch.sparse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage.html">torch.Storage</a></li>
@@ -241,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cpp_extension.html">torch.utils.cpp_extension</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../data.html">torch.utils.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../dlpack.html">torch.utils.dlpack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mobile_optimizer.html">torch.utils.mobile_optimizer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model_zoo.html">torch.utils.model_zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tensorboard.html">torch.utils.tensorboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../type_info.html">Type Info</a></li>
@@ -340,9 +343,13 @@
 <span class="sd">differentiation of arbitrary scalar valued functions. It requires minimal</span>
 <span class="sd">changes to the existing code - you only need to declare :class:`Tensor` s</span>
 <span class="sd">for which gradients should be computed with the ``requires_grad=True`` keyword.</span>
+<span class="sd">As of now, we only support autograd for floating point :class:`Tensor` types (</span>
+<span class="sd">half, float, double and bfloat16) and complex :class:`Tensor` types (cfloat, cdouble).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">torch.types</span> <span class="kn">import</span> <span class="n">_TensorOrTensors</span>
 
 <span class="kn">from</span> <span class="nn">.variable</span> <span class="kn">import</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.function</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">NestedIOFunction</span>
@@ -365,6 +372,14 @@
                                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">grad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; and output[&quot;</span>
                                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">out</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;] has a shape of &quot;</span>
                                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">is_complex</span> <span class="o">!=</span> <span class="n">grad</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">is_complex</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;For complex Tensors, both grad_output and output&quot;</span>
+                                   <span class="s2">&quot; are required to have the same dtype.&quot;</span>
+                                   <span class="s2">&quot; Mismatch in dtype: grad_output[&quot;</span>
+                                   <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">grads</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">grad</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;] has a dtype of &quot;</span>
+                                   <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">grad</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; and output[&quot;</span>
+                                   <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">out</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;] has a dtype of &quot;</span>
+                                   <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
             <span class="n">new_grads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">grad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
@@ -379,7 +394,13 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_grads</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="backward"><a class="viewcode-back" href="../../autograd.html#torch.autograd.backward">[docs]</a><span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">grad_tensors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">create_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">grad_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="backward"><a class="viewcode-back" href="../../autograd.html#torch.autograd.backward">[docs]</a><span class="k">def</span> <span class="nf">backward</span><span class="p">(</span>
+    <span class="n">tensors</span><span class="p">:</span> <span class="n">_TensorOrTensors</span><span class="p">,</span>
+    <span class="n">grad_tensors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_TensorOrTensors</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">retain_graph</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">grad_variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_TensorOrTensors</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes the sum of gradients of given tensors w.r.t. graph leaves.</span>
 
 <span class="sd">    The graph is differentiated using the chain rule. If any of ``tensors``</span>
@@ -392,7 +413,16 @@
 <span class="sd">    all tensors that don&#39;t need gradient tensors).</span>
 
 <span class="sd">    This function accumulates gradients in the leaves - you might need to zero</span>
-<span class="sd">    them before calling it.</span>
+<span class="sd">    ``.grad`` attributes or set them to ``None`` before calling it.</span>
+<span class="sd">    See :ref:`Default gradient layouts&lt;default-grad-layouts&gt;`</span>
+<span class="sd">    for details on the memory layout of accumulated gradients.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Using this method with ``create_graph=True`` will create a reference cycle</span>
+<span class="sd">        between the parameter and its gradient which can cause a memory leak.</span>
+<span class="sd">        We recommend using ``autograd.grad`` when creating the graph to avoid this.</span>
+<span class="sd">        If you have to use this function, make sure to reset the ``.grad`` fields of your</span>
+<span class="sd">        parameters to ``None`` after use to break the cycle and avoid the leak.</span>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        tensors (sequence of Tensor): Tensors of which the derivative will be</span>
@@ -437,8 +467,15 @@
         <span class="n">allow_unreachable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># allow_unreachable flag</span></div>
 
 
-<div class="viewcode-block" id="grad"><a class="viewcode-back" href="../../autograd.html#torch.autograd.grad">[docs]</a><span class="k">def</span> <span class="nf">grad</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">create_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-         <span class="n">only_inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_unused</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="grad"><a class="viewcode-back" href="../../autograd.html#torch.autograd.grad">[docs]</a><span class="k">def</span> <span class="nf">grad</span><span class="p">(</span>
+    <span class="n">outputs</span><span class="p">:</span> <span class="n">_TensorOrTensors</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="n">_TensorOrTensors</span><span class="p">,</span>
+    <span class="n">grad_outputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_TensorOrTensors</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">retain_graph</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">only_inputs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">allow_unused</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and returns the sum of gradients of outputs w.r.t. the inputs.</span>
 
 <span class="sd">    ``grad_outputs`` should be a sequence of length matching ``output``</span>
@@ -794,9 +831,6 @@
       highlightNavigation.bind();
       mainMenuDropdown.bind();
       filterTags.bind();
-
-      // Remove any empty p tags that Sphinx adds
-      $("[data-tags='null']").remove();
 
       // Add class to links that have code blocks, since we cannot create links in code blocks
       $("article.pytorch-article a span.pre").each(function(e) {
