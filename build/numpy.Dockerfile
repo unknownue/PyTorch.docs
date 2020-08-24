@@ -9,6 +9,8 @@ LABEL numpy-version="1.18.1"
 LABEL python-version="3.6.x"
 LABEL license="MIT"
 
+ARG NUMPY_VERSION=1.18.1
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root/
@@ -25,14 +27,14 @@ RUN apt install -y --no-install-recommends python3.6 python3-distutils && \
     apt clean && \
     ln -sf python3.6 /usr/bin/python && ln -sf pip3 /usr/bin/pip && \
     pip3 install --upgrade pip && \
-    pip install --no-cache-dir numpy==1.18.1 sphinx==2.4.2 scipy==1.4.1 ipython Matplotlib numpydoc
+    pip install --no-cache-dir numpy==$NUMPY_VERSION sphinx==2.4.2 scipy==1.4.1 ipython Matplotlib numpydoc
 
 # install latex
 RUN apt install -y --no-install-recommends latexmk && \
     apt install -y --no-install-recommends texlive-latex-extra
 
 RUN git clone https://github.com/numpy/numpy.git && cd numpy && \
-    git checkout tags/v1.18.1 && \
+    git checkout tags/v$NUMPY_VERSION && \
     git submodule init && \
     git submodule update
 

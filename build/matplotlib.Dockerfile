@@ -8,7 +8,7 @@ LABEL description="An docker environment to build offline Matplotlib docs"
 LABEL python-version="3.8.x"
 LABEL license="MIT"
 
-ARG MATPLOTLIB_VERSION=v3.3.1
+ARG MATPLOTLIB_VERSION=3.3.1
 ARG PYTHON_VERSION=3.8
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -30,18 +30,16 @@ RUN pip3 install --upgrade pip
 
 # Install docs build dependencies
 RUN apt install -y --no-install-recommends graphviz python3-tk optipng inkscape && \
-    pip install --no-cache-dir matplotlib \
+    pip install --no-cache-dir matplotlib==$MATPLOTLIB_VERSION \
         sphinx sphinx_gallery sphinx_copybutton sphinxcontrib-svg2pdfconverter \
         numpydoc ipython colorspacious scipy ipykernel
+
 # Install latex dependencies
 RUN apt install -y --no-install-recommends latexmk && \
     apt install -y --no-install-recommends dvipng texlive-latex-extra cm-super
-# RUN apt install -y --no-install-recommends nodejs npm
-# RUN npm set registry https://registry.npm.taobao.org/ && \
-#     npm install -g katex
 
 RUN git clone https://github.com/matplotlib/matplotlib.git && \
-    git checkout tags/$MATPLOTLIB_VERSION
+    git checkout tags/v$MATPLOTLIB_VERSION
 
 WORKDIR /root/matplotlib/doc
 CMD ["bash"]
