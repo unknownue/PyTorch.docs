@@ -1,0 +1,224 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_gallery_images_contours_and_fields_image_antialiasing.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_gallery_images_contours_and_fields_image_antialiasing.py:
+
+
+==================
+Image antialiasing
+==================
+
+Images are represented by discrete pixels, either on the screen or in an
+image file.  When data that makes up the image has a different resolution
+than its representation on the screen we will see aliasing effects.
+
+The default image interpolation in Matplotlib is 'antialiased'.  This uses a
+hanning interpolation for reduced aliasing in most situations. Only when there
+is upsampling by a factor of 1, 2 or >=3 is 'nearest' neighbor interpolation
+used.
+
+Other anti-aliasing filters can be specified in `.Axes.imshow` using the
+*interpolation* keyword argument.
+
+
+.. code-block:: default
+
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+
+
+
+
+
+
+
+First we generate a 500x500 px image with varying frequency content:
+
+
+.. code-block:: default
+
+    x = np.arange(500) / 500 - 0.5
+    y = np.arange(500) / 500 - 0.5
+
+    X, Y = np.meshgrid(x, y)
+    R = np.sqrt(X**2 + Y**2)
+    f0 = 10
+    k = 250
+    a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
+
+
+
+
+
+
+
+
+
+The following images are subsampled from 500 data pixels to 303 rendered
+pixels. The Moire patterns in the 'nearest' interpolation are caused by the
+high-frequency data being subsampled.  The 'antialiased' image
+still has some Moire patterns as well, but they are greatly reduced.
+
+
+.. code-block:: default
+
+    fig, axs = plt.subplots(1, 2, figsize=(7, 4), constrained_layout=True)
+    for ax, interp in zip(axs, ['nearest', 'antialiased']):
+        ax.imshow(a, interpolation=interp, cmap='gray')
+        ax.set_title(f"interpolation='{interp}'")
+    plt.show()
+
+
+
+
+.. image:: /gallery/images_contours_and_fields/images/sphx_glr_image_antialiasing_001.png
+    :alt: interpolation='nearest', interpolation='antialiased'
+    :class: sphx-glr-single-img
+
+
+
+
+
+Even up-sampling an image with 'nearest' interpolation will lead to Moire
+patterns when the upsampling factor is not integer. The following image
+upsamples 500 data pixels to 530 rendered pixels. You may note a grid of
+30 line-like artifacts which stem from the 524 - 500 = 24 extra pixels that
+had to be made up. Since interpolation is 'nearest' they are the same as a
+neighboring line of pixels and thus stretch the image locally so that it
+looks distorted.
+
+
+.. code-block:: default
+
+    fig, ax = plt.subplots(figsize=(6.8, 6.8))
+    ax.imshow(a, interpolation='nearest', cmap='gray')
+    ax.set_title("upsampled by factor a 1.048, interpolation='nearest'")
+    plt.show()
+
+
+
+
+.. image:: /gallery/images_contours_and_fields/images/sphx_glr_image_antialiasing_002.png
+    :alt: upsampled by factor a 1.048, interpolation='nearest'
+    :class: sphx-glr-single-img
+
+
+
+
+
+Better antialiasing algorithms can reduce this effect:
+
+
+.. code-block:: default
+
+    fig, ax = plt.subplots(figsize=(6.8, 6.8))
+    ax.imshow(a, interpolation='antialiased', cmap='gray')
+    ax.set_title("upsampled by factor a 1.048, interpolation='antialiased'")
+    plt.show()
+
+
+
+
+.. image:: /gallery/images_contours_and_fields/images/sphx_glr_image_antialiasing_003.png
+    :alt: upsampled by factor a 1.048, interpolation='antialiased'
+    :class: sphx-glr-single-img
+
+
+
+
+
+Apart from the default 'hanning' antialiasing  `~.Axes.imshow` supports a
+number of different interpolation algorithms, which may work better or
+worse depending on the pattern.
+
+
+.. code-block:: default
+
+    fig, axs = plt.subplots(1, 2, figsize=(7, 4), constrained_layout=True)
+    for ax, interp in zip(axs, ['hanning', 'lanczos']):
+        ax.imshow(a, interpolation=interp, cmap='gray')
+        ax.set_title(f"interpolation='{interp}'")
+    plt.show()
+
+
+
+
+
+.. image:: /gallery/images_contours_and_fields/images/sphx_glr_image_antialiasing_004.png
+    :alt: interpolation='hanning', interpolation='lanczos'
+    :class: sphx-glr-single-img
+
+
+
+
+
+------------
+
+References
+""""""""""
+
+The use of the following functions and methods is shown
+in this example:
+
+
+.. code-block:: default
+
+
+    import matplotlib
+    matplotlib.axes.Axes.imshow
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+
+    <function Axes.imshow at 0x7f65080d0940>
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  1.460 seconds)
+
+
+.. _sphx_glr_download_gallery_images_contours_and_fields_image_antialiasing.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: image_antialiasing.py <image_antialiasing.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: image_antialiasing.ipynb <image_antialiasing.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    Keywords: matplotlib code example, codex, python plot, pyplot
+    `Gallery generated by Sphinx-Gallery
+    <https://sphinx-gallery.readthedocs.io>`_

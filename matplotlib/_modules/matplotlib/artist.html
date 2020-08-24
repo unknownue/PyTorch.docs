@@ -1,0 +1,1777 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>matplotlib.artist &#8212; Matplotlib 3.3.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/mpl.css?v3.3.1-dirty" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.3.1 documentation"
+          href="../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="top" title="Matplotlib 3.3.1 documentation" href="#" />
+    <link rel="canonical" href="https://matplotlib.org/3.3.1/_modules/matplotlib/artist.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
+    <a href="../../index.html">
+        <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version 3.3.1</span></div>
+        <img src="../../_static/logo2_compressed.svg" height="125px" border="0" alt="matplotlib"/></a>
+
+    <!-- The "Fork me on github" ribbon -->
+    <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="../../users/installing.html">Installation</a></li>
+            <li><a href="../../contents.html">Documentation</a></li>
+            <li><a href="../../gallery/index.html">Examples</a></li>
+            <li><a href="../../tutorials/index.html">Tutorials</a></li>
+            <li><a href="../../devel/index.html">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">home</a>|&nbsp;</li>
+        <li><a href="../../contents.html">contents</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../matplotlib.html" accesskey="U">matplotlib</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">matplotlib.artist</a></li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../matplotlib.html">matplotlib</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for matplotlib.artist</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">cbook</span><span class="p">,</span> <span class="n">docstring</span>
+<span class="kn">from</span> <span class="nn">.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">.transforms</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Bbox</span><span class="p">,</span> <span class="n">IdentityTransform</span><span class="p">,</span> <span class="n">Transform</span><span class="p">,</span> <span class="n">TransformedBbox</span><span class="p">,</span>
+                         <span class="n">TransformedPatchPath</span><span class="p">,</span> <span class="n">TransformedPath</span><span class="p">)</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="allow_rasterization"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.allow_rasterization.html#matplotlib.artist.allow_rasterization">[docs]</a><span class="k">def</span> <span class="nf">allow_rasterization</span><span class="p">(</span><span class="n">draw</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator for Artist.draw method. Provides routines</span>
+<span class="sd">    that run before and after the draw call. The before and after functions</span>
+<span class="sd">    are useful for changing artist-dependent renderer attributes or making</span>
+<span class="sd">    other setup function calls, such as starting and flushing a mixed-mode</span>
+<span class="sd">    renderer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Axes has a second (deprecated) argument inframe for its draw method.</span>
+    <span class="c1"># args and kwargs are deprecated, but we don&#39;t wrap this in</span>
+    <span class="c1"># cbook._delete_parameter for performance; the relevant deprecation</span>
+    <span class="c1"># warning will be emitted by the inner draw() call.</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">draw</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">draw_wrapper</span><span class="p">(</span><span class="n">artist</span><span class="p">,</span> <span class="n">renderer</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">artist</span><span class="o">.</span><span class="n">get_rasterized</span><span class="p">():</span>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">start_rasterizing</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">artist</span><span class="o">.</span><span class="n">get_agg_filter</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">start_filter</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">draw</span><span class="p">(</span><span class="n">artist</span><span class="p">,</span> <span class="n">renderer</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">artist</span><span class="o">.</span><span class="n">get_agg_filter</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">stop_filter</span><span class="p">(</span><span class="n">artist</span><span class="o">.</span><span class="n">get_agg_filter</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">artist</span><span class="o">.</span><span class="n">get_rasterized</span><span class="p">():</span>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">stop_rasterizing</span><span class="p">()</span>
+
+    <span class="n">draw_wrapper</span><span class="o">.</span><span class="n">_supports_rasterization</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">draw_wrapper</span></div>
+
+
+<span class="k">def</span> <span class="nf">_stale_axes_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="n">val</span>
+
+
+<span class="n">_XYPair</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_XYPair&quot;</span><span class="p">,</span> <span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Artist"><a class="viewcode-back" href="../../api/artist_api.html#matplotlib.artist.Artist">[docs]</a><span class="k">class</span> <span class="nc">Artist</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for objects that render into a FigureCanvas.</span>
+
+<span class="sd">    Typically, all visible elements in a figure are subclasses of Artist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">zorder</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stale</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale_callback</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transformSet</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_animated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_picker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rasterized</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agg_filter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Normally, artist classes need to be queried for mouseover info if and</span>
+        <span class="c1"># only if they override get_cursor_data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouseover</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_cursor_data</span> <span class="o">!=</span> <span class="n">Artist</span><span class="o">.</span><span class="n">get_cursor_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventson</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># fire events only if eventson</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oid</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># an observer id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_propobservers</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># a dict from oids to funcs</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c1"># Handle self.axes as a read-only property, as in Figure.</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_method</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gid</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snap</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sketch</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;path.sketch&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_effects</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;path.effects&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sticky_edges</span> <span class="o">=</span> <span class="n">_XYPair</span><span class="p">([],</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_layout</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># remove the unpicklable remove method, this will get re-added on load</span>
+        <span class="c1"># (by the axes) if the artist lives on an axes.</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;stale_callback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+<div class="viewcode-block" id="Artist.remove"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.remove.html#matplotlib.artist.Artist.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the artist from the figure if possible.</span>
+
+<span class="sd">        The effect will not be visible until the figure is redrawn, e.g.,</span>
+<span class="sd">        with `.FigureCanvasBase.draw_idle`.  Call `~.axes.Axes.relim` to</span>
+<span class="sd">        update the axes limits if desired.</span>
+
+<span class="sd">        Note: `~.axes.Axes.relim` will not see collections even if the</span>
+<span class="sd">        collection was added to the axes with *autolim* = True.</span>
+
+<span class="sd">        Note: there is no support for removing the artist&#39;s legend entry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># There is no method to set the callback.  Instead the parent should</span>
+        <span class="c1"># set the _remove_method attribute directly.  This would be a</span>
+        <span class="c1"># protected attribute if Python supported that sort of thing.  The</span>
+        <span class="c1"># callback has one parameter, which is the child to be removed.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_method</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="c1"># clear stale callback</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stale_callback</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">_ax_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;axes&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+                <span class="c1"># remove from the mouse hit list</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_mouseover_set</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="c1"># mark the axes as stale</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># decouple the artist from the axes</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">_ax_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_ax_flag</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;cannot remove artist&#39;</span><span class="p">)</span></div>
+        <span class="c1"># TODO: the fix for the collections relim problem is to move the</span>
+        <span class="c1"># limits calculation into the artist itself, including the property of</span>
+        <span class="c1"># whether or not the artist should affect the limits.  Then there will</span>
+        <span class="c1"># be no distinction between axes.add_line, axes.add_patch, etc.</span>
+        <span class="c1"># TODO: add legend support</span>
+
+<div class="viewcode-block" id="Artist.have_units"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.have_units.html#matplotlib.artist.Artist.have_units">[docs]</a>    <span class="k">def</span> <span class="nf">have_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return *True* if units are set on any axis.&quot;&quot;&quot;</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
+        <span class="k">return</span> <span class="n">ax</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">axis</span><span class="o">.</span><span class="n">have_units</span><span class="p">()</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">_get_axis_list</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Artist.convert_xunits"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.convert_xunits.html#matplotlib.artist.Artist.convert_xunits">[docs]</a>    <span class="k">def</span> <span class="nf">convert_xunits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert *x* using the unit type of the xaxis.</span>
+
+<span class="sd">        If the artist is not in contained in an Axes or if the xaxis does not</span>
+<span class="sd">        have units, *x* itself is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;axes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Artist.convert_yunits"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.convert_yunits.html#matplotlib.artist.Artist.convert_yunits">[docs]</a>    <span class="k">def</span> <span class="nf">convert_yunits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert *y* using the unit type of the yaxis.</span>
+
+<span class="sd">        If the artist is not in contained in an Axes or if the yaxis does not</span>
+<span class="sd">        have units, *y* itself is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;axes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">y</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">axes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The `~.axes.Axes` instance the artist resides in, or *None*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span>
+
+    <span class="nd">@axes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_axes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">new_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">new_axes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can not reset the axes.  You are probably &quot;</span>
+                             <span class="s2">&quot;trying to re-use an artist in more than one &quot;</span>
+                             <span class="s2">&quot;Axes which is not supported&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span> <span class="o">=</span> <span class="n">new_axes</span>
+        <span class="k">if</span> <span class="n">new_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stale_callback</span> <span class="o">=</span> <span class="n">_stale_axes_callback</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether the artist is &#39;stale&#39; and needs to be re-drawn for the output</span>
+<span class="sd">        to match the internal state of the artist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stale</span>
+
+    <span class="nd">@stale</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">stale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stale</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># if the artist is animated it does not take normal part in the</span>
+        <span class="c1"># draw stack and is not expected to be drawn as part of the normal</span>
+        <span class="c1"># draw loop (when not saving) so do not propagate this change</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_animated</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stale_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stale_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Artist.get_window_extent"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_window_extent.html#matplotlib.artist.Artist.get_window_extent">[docs]</a>    <span class="k">def</span> <span class="nf">get_window_extent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the axes bounding box in display space.</span>
+
+<span class="sd">        The bounding box&#39; width and height are nonnegative.</span>
+
+<span class="sd">        Subclasses should override for inclusion in the bounding box</span>
+<span class="sd">        &quot;tight&quot; calculation. Default is to return an empty bounding</span>
+<span class="sd">        box at 0, 0.</span>
+
+<span class="sd">        Be careful when using this function, the results will not update</span>
+<span class="sd">        if the artist window extent of the artist changes.  The extent</span>
+<span class="sd">        can change due to any changes in the transform stack, such as</span>
+<span class="sd">        changing the axes limits, the figure size, or the canvas used</span>
+<span class="sd">        (as is done when saving a figure).  This can lead to unexpected</span>
+<span class="sd">        behavior where interactive figures will look fine on the screen,</span>
+<span class="sd">        but will save incorrectly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Bbox</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_clipping_extent_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a bbox with the extents of the intersection of the clip_path</span>
+<span class="sd">        and clip_box for this artist, or None if both of these are</span>
+<span class="sd">        None, or ``get_clip_on`` is False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clip_on</span><span class="p">():</span>
+            <span class="n">clip_box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clip_box</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">clip_box</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">clip_box</span>
+            <span class="n">clip_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clip_path</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">clip_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">clip_path</span> <span class="o">=</span> <span class="n">clip_path</span><span class="o">.</span><span class="n">get_fully_transformed_path</span><span class="p">()</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">Bbox</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">clip_path</span><span class="o">.</span><span class="n">get_extents</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">bbox</span>
+
+    <span class="k">def</span> <span class="nf">get_tightbbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Like `.Artist.get_window_extent`, but includes any clipping.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        renderer : `.RendererBase` subclass</span>
+<span class="sd">            renderer that will be used to draw the figures (i.e.</span>
+<span class="sd">            ``fig.canvas.get_renderer()``)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        `.Bbox`</span>
+<span class="sd">            The enclosing bounding box (in figure pixel coordinates).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window_extent</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clip_on</span><span class="p">():</span>
+            <span class="n">clip_box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clip_box</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">clip_box</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">Bbox</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">clip_box</span><span class="p">)</span>
+            <span class="n">clip_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clip_path</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">clip_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">clip_path</span> <span class="o">=</span> <span class="n">clip_path</span><span class="o">.</span><span class="n">get_fully_transformed_path</span><span class="p">()</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">Bbox</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">clip_path</span><span class="o">.</span><span class="n">get_extents</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">bbox</span>
+
+<div class="viewcode-block" id="Artist.add_callback"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.add_callback.html#matplotlib.artist.Artist.add_callback">[docs]</a>    <span class="k">def</span> <span class="nf">add_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a callback function that will be called whenever one of the</span>
+<span class="sd">        `.Artist`&#39;s properties changes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        func : callable</span>
+<span class="sd">            The callback function. It must have the signature::</span>
+
+<span class="sd">                def func(artist: Artist) -&gt; Any</span>
+
+<span class="sd">            where *artist* is the calling `.Artist`. Return values may exist</span>
+<span class="sd">            but are ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The observer id associated with the callback. This id can be</span>
+<span class="sd">            used for removing the callback with `.remove_callback` later.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        remove_callback</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">oid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_propobservers</span><span class="p">[</span><span class="n">oid</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oid</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">oid</span></div>
+
+<div class="viewcode-block" id="Artist.remove_callback"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.remove_callback.html#matplotlib.artist.Artist.remove_callback">[docs]</a>    <span class="k">def</span> <span class="nf">remove_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove a callback based on its observer id.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        add_callback</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_propobservers</span><span class="p">[</span><span class="n">oid</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Artist.pchanged"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.pchanged.html#matplotlib.artist.Artist.pchanged">[docs]</a>    <span class="k">def</span> <span class="nf">pchanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call all of the registered callbacks.</span>
+
+<span class="sd">        This function is triggered internally when a property is changed.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        add_callback</span>
+<span class="sd">        remove_callback</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">oid</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_propobservers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Artist.is_transform_set"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.is_transform_set.html#matplotlib.artist.Artist.is_transform_set">[docs]</a>    <span class="k">def</span> <span class="nf">is_transform_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the Artist has an explicitly set transform.</span>
+
+<span class="sd">        This is *True* after `.set_transform` has been called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformSet</span></div>
+
+<div class="viewcode-block" id="Artist.set_transform"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_transform.html#matplotlib.artist.Artist.set_transform">[docs]</a>    <span class="k">def</span> <span class="nf">set_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the artist transform.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : `.Transform`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transformSet</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.get_transform"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_transform.html#matplotlib.artist.Artist.get_transform">[docs]</a>    <span class="k">def</span> <span class="nf">get_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the `.Transform` instance used by this artist.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="o">=</span> <span class="n">IdentityTransform</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">,</span> <span class="n">Transform</span><span class="p">)</span>
+              <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">,</span> <span class="s1">&#39;_as_mpl_transform&#39;</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="o">.</span><span class="n">_as_mpl_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span></div>
+
+<div class="viewcode-block" id="Artist.get_children"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_children.html#matplotlib.artist.Artist.get_children">[docs]</a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a list of the child `.Artist`\s of this `.Artist`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+    <span class="k">def</span> <span class="nf">_default_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseevent</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base impl. for checking whether a mouseevent happened in an artist.</span>
+
+<span class="sd">        1. If the artist defines a custom checker, use it (deprecated).</span>
+<span class="sd">        2. If the artist figure is known and the event did not occur in that</span>
+<span class="sd">           figure (by checking its ``canvas`` attribute), reject it.</span>
+<span class="sd">        3. Otherwise, return `None, {}`, indicating that the subclass&#39;</span>
+<span class="sd">           implementation should be used.</span>
+
+<span class="sd">        Subclasses should start their definition of `contains` as follows:</span>
+
+<span class="sd">            inside, info = self._default_contains(mouseevent)</span>
+<span class="sd">            if inside is not None:</span>
+<span class="sd">                return inside, info</span>
+<span class="sd">            # subclass-specific implementation follows</span>
+
+<span class="sd">        The *figure* kwarg is provided for the implementation of</span>
+<span class="sd">        `.Figure.contains`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contains</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseevent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mouseevent</span><span class="o">.</span><span class="n">canvas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Artist.contains"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.contains.html#matplotlib.artist.Artist.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseevent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test whether the artist contains the mouse event.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mouseevent : `matplotlib.backend_bases.MouseEvent`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        contains : bool</span>
+<span class="sd">            Whether any values are within the radius.</span>
+<span class="sd">        details : dict</span>
+<span class="sd">            An artist-specific dictionary of details of the event context,</span>
+<span class="sd">            such as which points are contained in the pick radius. See the</span>
+<span class="sd">            individual Artist subclasses for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inside</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_contains</span><span class="p">(</span><span class="n">mouseevent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inside</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inside</span><span class="p">,</span> <span class="n">info</span>
+        <span class="n">_log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%r</span><span class="s2"> needs &#39;contains&#39; method&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Artist.set_contains"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_contains.html#matplotlib.artist.Artist.set_contains">[docs]</a>    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;set_picker&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">set_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">picker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define a custom contains test for the artist.</span>
+
+<span class="sd">        The provided callable replaces the default `.contains` method</span>
+<span class="sd">        of the artist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        picker : callable</span>
+<span class="sd">            A custom picker function to evaluate if an event is within the</span>
+<span class="sd">            artist. The function must have the signature::</span>
+
+<span class="sd">                def contains(artist: Artist, event: MouseEvent) -&gt; bool, dict</span>
+
+<span class="sd">            that returns:</span>
+
+<span class="sd">            - a bool indicating if the event is within the artist</span>
+<span class="sd">            - a dict of additional information. The dict should at least</span>
+<span class="sd">              return the same information as the default ``contains()``</span>
+<span class="sd">              implementation of the respective artist, but may provide</span>
+<span class="sd">              additional information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">picker</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;picker is not a callable&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span> <span class="o">=</span> <span class="n">picker</span></div>
+
+<div class="viewcode-block" id="Artist.get_contains"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_contains.html#matplotlib.artist.Artist.get_contains">[docs]</a>    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;get_picker&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the custom contains function of the artist if set, or *None*.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_contains</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span></div>
+
+<div class="viewcode-block" id="Artist.pickable"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.pickable.html#matplotlib.artist.Artist.pickable">[docs]</a>    <span class="k">def</span> <span class="nf">pickable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the artist is pickable.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_picker, get_picker, pick</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_picker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Artist.pick"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.pick.html#matplotlib.artist.Artist.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseevent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a pick event.</span>
+
+<span class="sd">        Each child artist will fire a pick event if *mouseevent* is over</span>
+<span class="sd">        the artist and the artist has picker set.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_picker, get_picker, pickable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Pick self</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pickable</span><span class="p">():</span>
+            <span class="n">picker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_picker</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">picker</span><span class="p">):</span>
+                <span class="n">inside</span><span class="p">,</span> <span class="n">prop</span> <span class="o">=</span> <span class="n">picker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseevent</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">inside</span><span class="p">,</span> <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">mouseevent</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">inside</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_event</span><span class="p">(</span><span class="n">mouseevent</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">prop</span><span class="p">)</span>
+
+        <span class="c1"># Pick children</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+            <span class="c1"># make sure the event happened in the same axes</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;axes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">mouseevent</span><span class="o">.</span><span class="n">inaxes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="n">mouseevent</span><span class="o">.</span><span class="n">inaxes</span> <span class="o">==</span> <span class="n">ax</span><span class="p">):</span>
+                <span class="c1"># we need to check if mouseevent.inaxes is None</span>
+                <span class="c1"># because some objects associated with an axes (e.g., a</span>
+                <span class="c1"># tick label) can be outside the bounding box of the</span>
+                <span class="c1"># axes and inaxes will be None</span>
+                <span class="c1"># also check that ax is None so that it traverse objects</span>
+                <span class="c1"># which do no have an axes property but children might</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="n">mouseevent</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Artist.set_picker"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_picker.html#matplotlib.artist.Artist.set_picker">[docs]</a>    <span class="k">def</span> <span class="nf">set_picker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">picker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the picking behavior of the artist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        picker : None or bool or callable</span>
+<span class="sd">            This can be one of the following:</span>
+
+<span class="sd">            - *None*: Picking is disabled for this artist (default).</span>
+
+<span class="sd">            - A boolean: If *True* then picking will be enabled and the</span>
+<span class="sd">              artist will fire a pick event if the mouse event is over</span>
+<span class="sd">              the artist.</span>
+
+<span class="sd">            - A function: If picker is callable, it is a user supplied</span>
+<span class="sd">              function which determines whether the artist is hit by the</span>
+<span class="sd">              mouse event::</span>
+
+<span class="sd">                hit, props = picker(artist, mouseevent)</span>
+
+<span class="sd">              to determine the hit test.  if the mouse event is over the</span>
+<span class="sd">              artist, return *hit=True* and props is a dictionary of</span>
+<span class="sd">              properties you want added to the PickEvent attributes.</span>
+
+<span class="sd">            - *deprecated*: For `.Line2D` only, *picker* can also be a float</span>
+<span class="sd">              that sets the tolerance for checking whether an event occurred</span>
+<span class="sd">              &quot;on&quot; the line; this is deprecated.  Use `.Line2D.set_pickradius`</span>
+<span class="sd">              instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_picker</span> <span class="o">=</span> <span class="n">picker</span></div>
+
+<div class="viewcode-block" id="Artist.get_picker"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_picker.html#matplotlib.artist.Artist.get_picker">[docs]</a>    <span class="k">def</span> <span class="nf">get_picker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the picking behavior of the artist.</span>
+
+<span class="sd">        The possible values are described in `.set_picker`.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_picker, pickable, pick</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_picker</span></div>
+
+<div class="viewcode-block" id="Artist.get_url"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_url.html#matplotlib.artist.Artist.get_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the url.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span></div>
+
+<div class="viewcode-block" id="Artist.set_url"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_url.html#matplotlib.artist.Artist.set_url">[docs]</a>    <span class="k">def</span> <span class="nf">set_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the url for the artist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="n">url</span></div>
+
+<div class="viewcode-block" id="Artist.get_gid"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_gid.html#matplotlib.artist.Artist.get_gid">[docs]</a>    <span class="k">def</span> <span class="nf">get_gid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the group id.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gid</span></div>
+
+<div class="viewcode-block" id="Artist.set_gid"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_gid.html#matplotlib.artist.Artist.set_gid">[docs]</a>    <span class="k">def</span> <span class="nf">set_gid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the (group) id for the artist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gid : str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gid</span> <span class="o">=</span> <span class="n">gid</span></div>
+
+<div class="viewcode-block" id="Artist.get_snap"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_snap.html#matplotlib.artist.Artist.get_snap">[docs]</a>    <span class="k">def</span> <span class="nf">get_snap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the snap setting.</span>
+
+<span class="sd">        See `.set_snap` for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;path.snap&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snap</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Artist.set_snap"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_snap.html#matplotlib.artist.Artist.set_snap">[docs]</a>    <span class="k">def</span> <span class="nf">set_snap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snap</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the snapping behavior.</span>
+
+<span class="sd">        Snapping aligns positions with the pixel grid, which results in</span>
+<span class="sd">        clearer images. For example, if a black line of 1px width was</span>
+<span class="sd">        defined at a position in between two pixels, the resulting image</span>
+<span class="sd">        would contain the interpolated value of that line in the pixel grid,</span>
+<span class="sd">        which would be a grey value on both adjacent pixel positions. In</span>
+<span class="sd">        contrast, snapping will move the line to the nearest integer pixel</span>
+<span class="sd">        value, so that the resulting image will really contain a 1px wide</span>
+<span class="sd">        black line.</span>
+
+<span class="sd">        Snapping is currently only supported by the Agg and MacOSX backends.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snap : bool or None</span>
+<span class="sd">            Possible values:</span>
+
+<span class="sd">            - *True*: Snap vertices to the nearest pixel center.</span>
+<span class="sd">            - *False*: Do not modify vertex positions.</span>
+<span class="sd">            - *None*: (auto) If the path contains only rectilinear line</span>
+<span class="sd">              segments, round to the nearest pixel center.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snap</span> <span class="o">=</span> <span class="n">snap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.get_sketch_params"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_sketch_params.html#matplotlib.artist.Artist.get_sketch_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_sketch_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the sketch parameters for the artist.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple or None</span>
+
+<span class="sd">            A 3-tuple with the following elements:</span>
+
+<span class="sd">            - *scale*: The amplitude of the wiggle perpendicular to the</span>
+<span class="sd">              source line.</span>
+<span class="sd">            - *length*: The length of the wiggle along the line.</span>
+<span class="sd">            - *randomness*: The scale factor by which the length is</span>
+<span class="sd">              shrunken or expanded.</span>
+
+<span class="sd">            Returns *None* if no sketch parameters were set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sketch</span></div>
+
+<div class="viewcode-block" id="Artist.set_sketch_params"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_sketch_params.html#matplotlib.artist.Artist.set_sketch_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_sketch_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">randomness</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the sketch parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        scale : float, optional</span>
+<span class="sd">            The amplitude of the wiggle perpendicular to the source</span>
+<span class="sd">            line, in pixels.  If scale is `None`, or not provided, no</span>
+<span class="sd">            sketch filter will be provided.</span>
+<span class="sd">        length : float, optional</span>
+<span class="sd">             The length of the wiggle along the line, in pixels</span>
+<span class="sd">             (default 128.0)</span>
+<span class="sd">        randomness : float, optional</span>
+<span class="sd">            The scale factor by which the length is shrunken or</span>
+<span class="sd">            expanded (default 16.0)</span>
+
+<span class="sd">            .. ACCEPTS: (scale: float, length: float, randomness: float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sketch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sketch</span> <span class="o">=</span> <span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">length</span> <span class="ow">or</span> <span class="mf">128.0</span><span class="p">,</span> <span class="n">randomness</span> <span class="ow">or</span> <span class="mf">16.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.set_path_effects"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_path_effects.html#matplotlib.artist.Artist.set_path_effects">[docs]</a>    <span class="k">def</span> <span class="nf">set_path_effects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_effects</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the path effects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path_effects : `.AbstractPathEffect`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_effects</span> <span class="o">=</span> <span class="n">path_effects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.get_path_effects"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_path_effects.html#matplotlib.artist.Artist.get_path_effects">[docs]</a>    <span class="k">def</span> <span class="nf">get_path_effects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_effects</span></div>
+
+<div class="viewcode-block" id="Artist.get_figure"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_figure.html#matplotlib.artist.Artist.get_figure">[docs]</a>    <span class="k">def</span> <span class="nf">get_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the `.Figure` instance the artist belongs to.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span></div>
+
+<div class="viewcode-block" id="Artist.set_figure"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_figure.html#matplotlib.artist.Artist.set_figure">[docs]</a>    <span class="k">def</span> <span class="nf">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the `.Figure` instance the artist belongs to.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fig : `.Figure`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if this is a no-op just return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="ow">is</span> <span class="n">fig</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># if we currently have a figure (the case of both `self.figure`</span>
+        <span class="c1"># and *fig* being none is taken care of above) we then user is</span>
+        <span class="c1"># trying to change the figure an artist is associated with which</span>
+        <span class="c1"># is not allowed for the same reason as adding the same instance</span>
+        <span class="c1"># to more than one Axes</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can not put single artist in &quot;</span>
+                               <span class="s2">&quot;more than one figure&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.set_clip_box"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_clip_box.html#matplotlib.artist.Artist.set_clip_box">[docs]</a>    <span class="k">def</span> <span class="nf">set_clip_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clipbox</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the artist&#39;s clip `.Bbox`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        clipbox : `.Bbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span> <span class="o">=</span> <span class="n">clipbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.set_clip_path"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_clip_path.html#matplotlib.artist.Artist.set_clip_path">[docs]</a>    <span class="k">def</span> <span class="nf">set_clip_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the artist&#39;s clip path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : `.Patch` or `.Path` or `.TransformedPath` or None</span>
+<span class="sd">            The clip path. If given a `.Path`, *transform* must be provided as</span>
+<span class="sd">            well. If *None*, a previously set clip path is removed.</span>
+<span class="sd">        transform : `~matplotlib.transforms.Transform`, optional</span>
+<span class="sd">            Only used if *path* is a `.Path`, in which case the given `.Path`</span>
+<span class="sd">            is converted to a `.TransformedPath` using *transform*.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        For efficiency, if *path* is a `.Rectangle` this method will set the</span>
+<span class="sd">        clipping box to the corresponding rectangle and set the clipping path</span>
+<span class="sd">        to ``None``.</span>
+
+<span class="sd">        For technical reasons (support of `~.Artist.set`), a tuple</span>
+<span class="sd">        (*path*, *transform*) is also accepted as a single positional</span>
+<span class="sd">        parameter.</span>
+
+<span class="sd">        .. ACCEPTS: Patch or (Path, Transform) or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Patch</span><span class="p">,</span> <span class="n">Rectangle</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Rectangle</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span> <span class="o">=</span> <span class="n">TransformedBbox</span><span class="p">(</span><span class="n">Bbox</span><span class="o">.</span><span class="n">unit</span><span class="p">(),</span>
+                                               <span class="n">path</span><span class="o">.</span><span class="n">get_transform</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Patch</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="n">TransformedPatchPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">transform</span> <span class="o">=</span> <span class="n">path</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="n">TransformedPath</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">transform</span><span class="p">)</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">TransformedPatchPath</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">TransformedPath</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid arguments to set_clip_path, of type </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="c1"># This may result in the callbacks being hit twice, but guarantees they</span>
+        <span class="c1"># will be hit at least once.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.get_alpha"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_alpha.html#matplotlib.artist.Artist.get_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">get_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the alpha value used for blending - not supported on all</span>
+<span class="sd">        backends.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span></div>
+
+<div class="viewcode-block" id="Artist.get_visible"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_visible.html#matplotlib.artist.Artist.get_visible">[docs]</a>    <span class="k">def</span> <span class="nf">get_visible</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the visibility.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span></div>
+
+<div class="viewcode-block" id="Artist.get_animated"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_animated.html#matplotlib.artist.Artist.get_animated">[docs]</a>    <span class="k">def</span> <span class="nf">get_animated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the artist is animated.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_animated</span></div>
+
+<div class="viewcode-block" id="Artist.get_in_layout"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_in_layout.html#matplotlib.artist.Artist.get_in_layout">[docs]</a>    <span class="k">def</span> <span class="nf">get_in_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return boolean flag, ``True`` if artist is included in layout</span>
+<span class="sd">        calculations.</span>
+
+<span class="sd">        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,</span>
+<span class="sd">        `.Figure.tight_layout()`, and</span>
+<span class="sd">        ``fig.savefig(fname, bbox_inches=&#39;tight&#39;)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_layout</span></div>
+
+<div class="viewcode-block" id="Artist.get_clip_on"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_clip_on.html#matplotlib.artist.Artist.get_clip_on">[docs]</a>    <span class="k">def</span> <span class="nf">get_clip_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the artist uses clipping.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipon</span></div>
+
+<div class="viewcode-block" id="Artist.get_clip_box"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_clip_box.html#matplotlib.artist.Artist.get_clip_box">[docs]</a>    <span class="k">def</span> <span class="nf">get_clip_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the clipbox.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span></div>
+
+<div class="viewcode-block" id="Artist.get_clip_path"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_clip_path.html#matplotlib.artist.Artist.get_clip_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_clip_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the clip path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span></div>
+
+<div class="viewcode-block" id="Artist.get_transformed_clip_path_and_affine"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_transformed_clip_path_and_affine.html#matplotlib.artist.Artist.get_transformed_clip_path_and_affine">[docs]</a>    <span class="k">def</span> <span class="nf">get_transformed_clip_path_and_affine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the clip path with the non-affine part of its</span>
+<span class="sd">        transformation applied, and the remaining affine part of its</span>
+<span class="sd">        transformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span><span class="o">.</span><span class="n">get_transformed_path_and_affine</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Artist.set_clip_on"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_clip_on.html#matplotlib.artist.Artist.set_clip_on">[docs]</a>    <span class="k">def</span> <span class="nf">set_clip_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set whether the artist uses clipping.</span>
+
+<span class="sd">        When False artists will be visible outside of the axes which</span>
+<span class="sd">        can lead to unexpected results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipon</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="c1"># This may result in the callbacks being hit twice, but ensures they</span>
+        <span class="c1"># are hit at least once</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_gc_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the clip properly for the gc.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipon</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gc</span><span class="o">.</span><span class="n">set_clip_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span><span class="p">)</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">set_clip_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">set_clip_rectangle</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">set_clip_path</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Artist.get_rasterized"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_rasterized.html#matplotlib.artist.Artist.get_rasterized">[docs]</a>    <span class="k">def</span> <span class="nf">get_rasterized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the artist is to be rasterized.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rasterized</span></div>
+
+<div class="viewcode-block" id="Artist.set_rasterized"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_rasterized.html#matplotlib.artist.Artist.set_rasterized">[docs]</a>    <span class="k">def</span> <span class="nf">set_rasterized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rasterized</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Force rasterized (bitmap) drawing in vector backend output.</span>
+
+<span class="sd">        Defaults to None, which implies the backend&#39;s default behavior.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rasterized : bool or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rasterized</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">,</span> <span class="s2">&quot;_supports_rasterization&quot;</span><span class="p">):</span>
+            <span class="n">cbook</span><span class="o">.</span><span class="n">_warn_external</span><span class="p">(</span>
+                <span class="s2">&quot;Rasterization of &#39;</span><span class="si">%s</span><span class="s2">&#39; will be ignored&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rasterized</span> <span class="o">=</span> <span class="n">rasterized</span></div>
+
+<div class="viewcode-block" id="Artist.get_agg_filter"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_agg_filter.html#matplotlib.artist.Artist.get_agg_filter">[docs]</a>    <span class="k">def</span> <span class="nf">get_agg_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return filter function to be used for agg filter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agg_filter</span></div>
+
+<div class="viewcode-block" id="Artist.set_agg_filter"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_agg_filter.html#matplotlib.artist.Artist.set_agg_filter">[docs]</a>    <span class="k">def</span> <span class="nf">set_agg_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the agg filter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filter_func : callable</span>
+<span class="sd">            A filter function, which takes a (m, n, 3) float array and a dpi</span>
+<span class="sd">            value, and returns a (m, n, 3) array.</span>
+
+<span class="sd">            .. ACCEPTS: a filter function, which takes a (m, n, 3) float array</span>
+<span class="sd">                and a dpi value, and returns a (m, n, 3) array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agg_filter</span> <span class="o">=</span> <span class="n">filter_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.draw"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.draw.html#matplotlib.artist.Artist.draw">[docs]</a>    <span class="nd">@cbook</span><span class="o">.</span><span class="n">_delete_parameter</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">)</span>
+    <span class="nd">@cbook</span><span class="o">.</span><span class="n">_delete_parameter</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw the Artist (and its children) using the given renderer.</span>
+
+<span class="sd">        This has no effect if the artist is not visible (`.Artist.get_visible`</span>
+<span class="sd">        returns False).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        renderer : `.RendererBase` subclass.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method is overridden in the Artist subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Artist.set_alpha"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_alpha.html#matplotlib.artist.Artist.set_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">set_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the alpha value used for blending - not supported on all backends.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alpha : float or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;alpha must be a float or None&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.set_visible"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_visible.html#matplotlib.artist.Artist.set_visible">[docs]</a>    <span class="k">def</span> <span class="nf">set_visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the artist&#39;s visibility.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.set_animated"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_animated.html#matplotlib.artist.Artist.set_animated">[docs]</a>    <span class="k">def</span> <span class="nf">set_animated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the artist&#39;s animation state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_animated</span> <span class="o">!=</span> <span class="n">b</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_animated</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Artist.set_in_layout"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_in_layout.html#matplotlib.artist.Artist.set_in_layout">[docs]</a>    <span class="k">def</span> <span class="nf">set_in_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_layout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set if artist is to be included in layout calculations,</span>
+<span class="sd">        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,</span>
+<span class="sd">        `.Figure.tight_layout()`, and</span>
+<span class="sd">        ``fig.savefig(fname, bbox_inches=&#39;tight&#39;)``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        in_layout : bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_layout</span> <span class="o">=</span> <span class="n">in_layout</span></div>
+
+<div class="viewcode-block" id="Artist.update"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.update.html#matplotlib.artist.Artist.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update this artist&#39;s properties from the dict *props*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        props : dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">cbook</span><span class="o">.</span><span class="n">_setattr_cm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eventson</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">cbook</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span>
+                        <span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Case-insensitive properties were &quot;</span>
+                        <span class="s2">&quot;deprecated in </span><span class="si">%(since)s</span><span class="s2"> and support will be removed &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">%(removal)s</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="c1"># White list attributes we want to be able to update through</span>
+                <span class="c1"># art.update, art.set, setp.</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;axes&quot;</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;set_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> object &quot;</span>
+                                             <span class="sa">f</span><span class="s2">&quot;has no property </span><span class="si">{</span><span class="n">k</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="Artist.get_label"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_label.html#matplotlib.artist.Artist.get_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the label used for this artist in the legend.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span></div>
+
+<div class="viewcode-block" id="Artist.set_label"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_label.html#matplotlib.artist.Artist.set_label">[docs]</a>    <span class="k">def</span> <span class="nf">set_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a label that will be displayed in the legend.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : object</span>
+<span class="sd">            *s* will be converted to a string by calling `str`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.get_zorder"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_zorder.html#matplotlib.artist.Artist.get_zorder">[docs]</a>    <span class="k">def</span> <span class="nf">get_zorder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the artist&#39;s zorder.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zorder</span></div>
+
+<div class="viewcode-block" id="Artist.set_zorder"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set_zorder.html#matplotlib.artist.Artist.set_zorder">[docs]</a>    <span class="k">def</span> <span class="nf">set_zorder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the zorder for the artist.  Artists with lower zorder</span>
+<span class="sd">        values are drawn first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        level : float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">zorder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zorder</span> <span class="o">=</span> <span class="n">level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sticky_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ``x`` and ``y`` sticky edge lists for autoscaling.</span>
+
+<span class="sd">        When performing autoscaling, if a data limit coincides with a value in</span>
+<span class="sd">        the corresponding sticky_edges list, then no margin will be added--the</span>
+<span class="sd">        view limit &quot;sticks&quot; to the edge. A typical use case is histograms,</span>
+<span class="sd">        where one usually expects no margin on the bottom edge (0) of the</span>
+<span class="sd">        histogram.</span>
+
+<span class="sd">        This attribute cannot be assigned to; however, the ``x`` and ``y``</span>
+<span class="sd">        lists can be modified in place as needed.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; artist.sticky_edges.x[:] = (xmin, xmax)</span>
+<span class="sd">        &gt;&gt;&gt; artist.sticky_edges.y[:] = (ymin, ymax)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sticky_edges</span>
+
+<div class="viewcode-block" id="Artist.update_from"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.update_from.html#matplotlib.artist.Artist.update_from">[docs]</a>    <span class="k">def</span> <span class="nf">update_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy properties from *other* to *self*.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transformSet</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_transformSet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_visible</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clipbox</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">clipbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipon</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_clipon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clippath</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_clippath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sketch</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_sketch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_effects</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_path_effects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sticky_edges</span><span class="o">.</span><span class="n">x</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">sticky_edges</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sticky_edges</span><span class="o">.</span><span class="n">y</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">sticky_edges</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pchanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Artist.properties"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.properties.html#matplotlib.artist.Artist.properties">[docs]</a>    <span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary of all the properties of the artist.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ArtistInspector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Artist.set"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.set.html#matplotlib.artist.Artist.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A property batch setter.  Pass *kwargs* to set properties.&quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">normalize_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">move_color_to_start</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;color&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">kwargs</span><span class="p">]</span>
+            <span class="n">i_color</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">)</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">,</span> <span class="s2">&quot;facecolor&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="s2">&quot;matplotlib.collections&quot;</span>
+                   <span class="ow">and</span> <span class="n">tp</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;Collection&quot;</span>
+                   <span class="k">for</span> <span class="n">tp</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">):</span>
+                <span class="n">props</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">other</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">i_other</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i_other</span> <span class="o">&lt;</span> <span class="n">i_color</span><span class="p">:</span>
+                    <span class="n">move_color_to_start</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">cbook</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span>
+                        <span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;You have passed the </span><span class="si">{</span><span class="n">other</span><span class="si">!r}</span><span class="s2"> kwarg &quot;</span>
+                        <span class="s2">&quot;before the &#39;color&#39; kwarg.  Artist.set() currently &quot;</span>
+                        <span class="s2">&quot;reorders the properties to apply &#39;color&#39; first, but &quot;</span>
+                        <span class="s2">&quot;this is deprecated since </span><span class="si">%(since)s</span><span class="s2"> and will be &quot;</span>
+                        <span class="s2">&quot;removed </span><span class="si">%(removal)s</span><span class="s2">; please pass &#39;color&#39; first &quot;</span>
+                        <span class="s2">&quot;instead.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">move_color_to_start</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Artist.findobj"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.findobj.html#matplotlib.artist.Artist.findobj">[docs]</a>    <span class="k">def</span> <span class="nf">findobj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find artist objects.</span>
+
+<span class="sd">        Recursively find all `.Artist` instances contained in the artist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        match</span>
+<span class="sd">            A filter criterion for the matches. This can be</span>
+
+<span class="sd">            - *None*: Return all objects contained in artist.</span>
+<span class="sd">            - A function with signature ``def match(artist: Artist) -&gt; bool``.</span>
+<span class="sd">              The result will only contain artists for which the function</span>
+<span class="sd">              returns *True*.</span>
+<span class="sd">            - A class instance: e.g., `.Line2D`. The result will only contain</span>
+<span class="sd">              artists of this class or its subclasses (``isinstance`` check).</span>
+
+<span class="sd">        include_self : bool</span>
+<span class="sd">            Include *self* in the list to be checked for a match.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of `.Artist`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># always return True</span>
+            <span class="k">def</span> <span class="nf">matchfunc</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">Artist</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">matchfunc</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="n">matchfunc</span> <span class="o">=</span> <span class="n">match</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;match must be None, a matplotlib.artist.Artist &#39;</span>
+                             <span class="s1">&#39;subclass, or a callable&#39;</span><span class="p">)</span>
+
+        <span class="n">artists</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">findobj</span><span class="p">(</span><span class="n">matchfunc</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_children</span><span class="p">()],</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">include_self</span> <span class="ow">and</span> <span class="n">matchfunc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">artists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">artists</span></div>
+
+<div class="viewcode-block" id="Artist.get_cursor_data"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.get_cursor_data.html#matplotlib.artist.Artist.get_cursor_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_cursor_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the cursor data for a given event.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method is intended to be overridden by artist subclasses.</span>
+<span class="sd">            As an end-user of Matplotlib you will most likely not call this</span>
+<span class="sd">            method yourself.</span>
+
+<span class="sd">        Cursor data can be used by Artists to provide additional context</span>
+<span class="sd">        information for a given event. The default implementation just returns</span>
+<span class="sd">        *None*.</span>
+
+<span class="sd">        Subclasses can override the method and return arbitrary data. However,</span>
+<span class="sd">        when doing so, they must ensure that `.format_cursor_data` can convert</span>
+<span class="sd">        the data to a string representation.</span>
+
+<span class="sd">        The only current use case is displaying the z-value of an `.AxesImage`</span>
+<span class="sd">        in the status bar of a plot window, while moving the mouse.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : `matplotlib.backend_bases.MouseEvent`</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        format_cursor_data</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Artist.format_cursor_data"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.Artist.format_cursor_data.html#matplotlib.artist.Artist.format_cursor_data">[docs]</a>    <span class="k">def</span> <span class="nf">format_cursor_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a string representation of *data*.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method is intended to be overridden by artist subclasses.</span>
+<span class="sd">            As an end-user of Matplotlib you will most likely not call this</span>
+<span class="sd">            method yourself.</span>
+
+<span class="sd">        The default implementation converts ints and floats and arrays of ints</span>
+<span class="sd">        and floats into a comma-separated string enclosed in square brackets.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_cursor_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
+        <span class="n">data_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:0.3g}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span>
+                             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Number</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">data_str</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mouseover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If this property is set to *True*, the artist will be queried for</span>
+<span class="sd">        custom context information when the mouse cursor moves over it.</span>
+
+<span class="sd">        See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and</span>
+<span class="sd">        :class:`.NavigationToolbar2`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouseover</span>
+
+    <span class="nd">@mouseover</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mouseover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouseover</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
+        <span class="k">if</span> <span class="n">ax</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">_mouseover_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">_mouseover_set</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArtistInspector"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector">[docs]</a><span class="k">class</span> <span class="nc">ArtistInspector</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper class to inspect an `~matplotlib.artist.Artist` and return</span>
+<span class="sd">    information about its settable properties and their current values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ArtistInspector.__init__"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the artist inspector with an `Artist` or an iterable of</span>
+<span class="sd">        `Artist`\s.  If an iterable is used, we assume it is a homogeneous</span>
+<span class="sd">        sequence (all `Artist`\s are of the same type) and it is your</span>
+<span class="sd">        responsibility to make sure this is so.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Artist</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iterable</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+                    <span class="n">o</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oorig</span> <span class="o">=</span> <span class="n">o</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o</span> <span class="o">=</span> <span class="n">o</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">aliasd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.get_aliases"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.get_aliases">[docs]</a>    <span class="k">def</span> <span class="nf">get_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a dict mapping property fullnames to sets of aliases for each alias</span>
+<span class="sd">        in the :class:`~matplotlib.artist.ArtistInspector`.</span>
+
+<span class="sd">        e.g., for lines::</span>
+
+<span class="sd">          {&#39;markerfacecolor&#39;: {&#39;mfc&#39;},</span>
+<span class="sd">           &#39;linewidth&#39;      : {&#39;lw&#39;},</span>
+<span class="sd">          }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">)</span>
+                 <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;set_&#39;</span><span class="p">,</span> <span class="s1">&#39;get_&#39;</span><span class="p">))</span>
+                    <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">))]</span>
+        <span class="n">aliases</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alias</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">propname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;`(</span><span class="si">{}</span><span class="s2">.*)`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">[:</span><span class="mi">4</span><span class="p">]),</span>  <span class="c1"># get_.*/set_.*</span>
+                                 <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">func</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">aliases</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">propname</span><span class="p">[</span><span class="mi">4</span><span class="p">:],</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">4</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">aliases</span></div>
+
+    <span class="n">_get_valid_values_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;\n\s*(?:\.\.\s+)?ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))&quot;</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="ArtistInspector.get_valid_values"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.get_valid_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the legal arguments for the setter associated with *attr*.</span>
+
+<span class="sd">        This is done by querying the docstring of the setter for a line that</span>
+<span class="sd">        begins with &quot;ACCEPTS:&quot; or &quot;.. ACCEPTS:&quot;, and then by looking for a</span>
+<span class="sd">        numpydoc-style documentation for the setter&#39;s first argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;set_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">attr</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> has no function </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="n">docstring</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">docstring</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;unknown&#39;</span>
+
+        <span class="k">if</span> <span class="n">docstring</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Alias for &#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_values_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">docstring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> *&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Much faster than list(inspect.signature(func).parameters)[1],</span>
+        <span class="c1"># although barely relevant wrt. matplotlib&#39;s total import time.</span>
+        <span class="n">param_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># We could set the presence * based on whether the parameter is a</span>
+        <span class="c1"># varargs (it can&#39;t be a varkwargs) but it&#39;s not really worth the it.</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?m)^ *\*?</span><span class="si">{}</span><span class="s2"> : (.+)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param_name</span><span class="p">),</span> <span class="n">docstring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;unknown&#39;</span></div>
+
+    <span class="k">def</span> <span class="nf">_replace_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Changes the full path to the public API path that is used</span>
+<span class="sd">        in sphinx. This is needed for links to work.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">replace_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;_base._AxesBase&#39;</span><span class="p">:</span> <span class="s1">&#39;Axes&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;_axes.Axes&#39;</span><span class="p">:</span> <span class="s1">&#39;Axes&#39;</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">replace_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">source_class</span> <span class="o">=</span> <span class="n">source_class</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">source_class</span>
+
+<div class="viewcode-block" id="ArtistInspector.get_setters"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.get_setters">[docs]</a>    <span class="k">def</span> <span class="nf">get_setters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the attribute strings with setters for object.</span>
+
+<span class="sd">        For example, for a line, return ``[&#39;markerfacecolor&#39;, &#39;linewidth&#39;,</span>
+<span class="sd">        ....]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">setters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;set_&#39;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span>
+                    <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alias</span><span class="p">(</span><span class="n">func</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="n">setters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">4</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">setters</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.is_alias"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.is_alias">[docs]</a>    <span class="k">def</span> <span class="nf">is_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether method object *o* is an alias for another method.&quot;&quot;&quot;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Alias for &#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.aliased_name"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.aliased_name">[docs]</a>    <span class="k">def</span> <span class="nf">aliased_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return &#39;PROPNAME or alias&#39; if *s* has an alias, else return &#39;PROPNAME&#39;.</span>
+
+<span class="sd">        e.g., for the line markerfacecolor property, which has an</span>
+<span class="sd">        alias, return &#39;markerfacecolor or mfc&#39; and for the transform</span>
+<span class="sd">        property, which does not, return &#39;transform&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">aliases</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; or </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aliasd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">[])))</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">+</span> <span class="n">aliases</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.aliased_name_rest"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.aliased_name_rest">[docs]</a>    <span class="k">def</span> <span class="nf">aliased_name_rest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return &#39;PROPNAME or alias&#39; if *s* has an alias, else return &#39;PROPNAME&#39;,</span>
+<span class="sd">        formatted for reST.</span>
+
+<span class="sd">        e.g., for the line markerfacecolor property, which has an</span>
+<span class="sd">        alias, return &#39;markerfacecolor or mfc&#39; and for the transform</span>
+<span class="sd">        property, which does not, return &#39;transform&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">aliases</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; or </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aliasd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">[])))</span>
+        <span class="k">return</span> <span class="s1">&#39;:meth:`</span><span class="si">%s</span><span class="s1"> &lt;</span><span class="si">%s</span><span class="s1">&gt;`</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">aliases</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.pprint_setters"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.pprint_setters">[docs]</a>    <span class="k">def</span> <span class="nf">pprint_setters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">leadingspace</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If *prop* is *None*, return a list of strings of all settable</span>
+<span class="sd">        properties and their valid values.</span>
+
+<span class="sd">        If *prop* is not *None*, it is a valid property name and that</span>
+<span class="sd">        property will be returned as a string of property : valid</span>
+<span class="sd">        values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">leadingspace</span><span class="p">:</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">leadingspace</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">accepts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_values</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">accepts</span><span class="p">)</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_setters</span><span class="p">()):</span>
+            <span class="n">accepts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_values</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aliased_name</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">accepts</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">lines</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.pprint_setters_rest"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.pprint_setters_rest">[docs]</a>    <span class="k">def</span> <span class="nf">pprint_setters_rest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">leadingspace</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If *prop* is *None*, return a list of reST-formatted strings of all</span>
+<span class="sd">        settable properties and their valid values.</span>
+
+<span class="sd">        If *prop* is not *None*, it is a valid property name and that</span>
+<span class="sd">        property will be returned as a string of &quot;property : valid&quot;</span>
+<span class="sd">        values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">leadingspace</span><span class="p">:</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">leadingspace</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">accepts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valid_values</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">accepts</span><span class="p">)</span>
+
+        <span class="n">prop_and_qualnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_setters</span><span class="p">()):</span>
+            <span class="c1"># Find the parent method which actually provides the docstring.</span>
+            <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;set_</span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">method</span> <span class="ow">and</span> <span class="n">method</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># No docstring available.</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;set_</span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">prop_and_qualnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aliased_name_rest</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+                 <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_base._AxesBase&#39;</span><span class="p">,</span> <span class="s1">&#39;Axes&#39;</span><span class="p">)</span>
+                 <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_axes.Axes&#39;</span><span class="p">,</span> <span class="s1">&#39;Axes&#39;</span><span class="p">)</span>
+                 <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">prop_and_qualnames</span><span class="p">]</span>
+        <span class="n">accepts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_valid_values</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">prop_and_qualnames</span><span class="p">]</span>
+
+        <span class="n">col0_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">)</span>
+        <span class="n">col1_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">accepts</span><span class="p">)</span>
+        <span class="n">table_formatstr</span> <span class="o">=</span> <span class="n">pad</span> <span class="o">+</span> <span class="s1">&#39;   &#39;</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">*</span> <span class="n">col0_len</span> <span class="o">+</span> <span class="s1">&#39;   &#39;</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">*</span> <span class="n">col1_len</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">pad</span> <span class="o">+</span> <span class="s1">&#39;.. table::&#39;</span><span class="p">,</span>
+            <span class="n">pad</span> <span class="o">+</span> <span class="s1">&#39;   :class: property-table&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">table_formatstr</span><span class="p">,</span>
+            <span class="n">pad</span> <span class="o">+</span> <span class="s1">&#39;   &#39;</span> <span class="o">+</span> <span class="s1">&#39;Property&#39;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">col0_len</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s1">&#39;   &#39;</span> <span class="o">+</span> <span class="s1">&#39;Description&#39;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">col1_len</span><span class="p">),</span>
+            <span class="n">table_formatstr</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">[</span><span class="n">pad</span> <span class="o">+</span> <span class="s1">&#39;   &#39;</span> <span class="o">+</span> <span class="n">n</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">col0_len</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;   &#39;</span> <span class="o">+</span> <span class="n">a</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">col1_len</span><span class="p">)</span>
+              <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">accepts</span><span class="p">)],</span>
+            <span class="n">table_formatstr</span><span class="p">,</span>
+            <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.properties"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.properties">[docs]</a>    <span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary mapping property name -&gt; value.&quot;&quot;&quot;</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oorig</span>
+        <span class="n">getters</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+                   <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;get_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">))]</span>
+        <span class="n">getters</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">getters</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alias</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">func</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">4</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="ArtistInspector.pprint_getters"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.ArtistInspector.html#matplotlib.artist.ArtistInspector.pprint_getters">[docs]</a>    <span class="k">def</span> <span class="nf">pprint_getters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the getters and actual values as list of strings.&quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">,</span> <span class="p">())</span> <span class="o">!=</span> <span class="p">()</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;...&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;...&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aliased_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">%s</span><span class="s1"> = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">lines</span></div></div>
+
+
+<div class="viewcode-block" id="getp"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.getp.html#matplotlib.artist.getp">[docs]</a><span class="k">def</span> <span class="nf">getp</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the value of an object&#39;s *property*, or print all of them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : `.Artist`</span>
+<span class="sd">        The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.</span>
+
+<span class="sd">    property : str or None, default: None</span>
+<span class="sd">        If *property* is &#39;somename&#39;, this function returns</span>
+<span class="sd">        ``obj.get_somename()``.</span>
+
+<span class="sd">        If is is None (or unset), it *prints* all gettable properties from</span>
+<span class="sd">        *obj*.  Many properties have aliases for shorter typing, e.g. &#39;lw&#39; is</span>
+<span class="sd">        an alias for &#39;linewidth&#39;.  In the output, aliases and full property</span>
+<span class="sd">        names will be listed as:</span>
+
+<span class="sd">          property or alias = value</span>
+
+<span class="sd">        e.g.:</span>
+
+<span class="sd">          linewidth or lw = 2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">property</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">insp</span> <span class="o">=</span> <span class="n">ArtistInspector</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">insp</span><span class="o">.</span><span class="n">pprint_getters</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span>
+        <span class="k">return</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;get_&#39;</span> <span class="o">+</span> <span class="nb">property</span><span class="p">)()</span></div>
+
+<span class="c1"># alias</span>
+<span class="n">get</span> <span class="o">=</span> <span class="n">getp</span>
+
+
+<div class="viewcode-block" id="setp"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.setp.html#matplotlib.artist.setp">[docs]</a><span class="k">def</span> <span class="nf">setp</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set a property on an artist object.</span>
+
+<span class="sd">    matplotlib supports the use of :func:`setp` (&quot;set property&quot;) and</span>
+<span class="sd">    :func:`getp` to set and get object properties, as well as to do</span>
+<span class="sd">    introspection on the object.  For example, to set the linestyle of a</span>
+<span class="sd">    line to be dashed, you can do::</span>
+
+<span class="sd">      &gt;&gt;&gt; line, = plot([1, 2, 3])</span>
+<span class="sd">      &gt;&gt;&gt; setp(line, linestyle=&#39;--&#39;)</span>
+
+<span class="sd">    If you want to know the valid types of arguments, you can provide</span>
+<span class="sd">    the name of the property you want to set without a value::</span>
+
+<span class="sd">      &gt;&gt;&gt; setp(line, &#39;linestyle&#39;)</span>
+<span class="sd">          linestyle: {&#39;-&#39;, &#39;--&#39;, &#39;-.&#39;, &#39;:&#39;, &#39;&#39;, (offset, on-off-seq), ...}</span>
+
+<span class="sd">    If you want to see all the properties that can be set, and their</span>
+<span class="sd">    possible values, you can do::</span>
+
+<span class="sd">      &gt;&gt;&gt; setp(line)</span>
+<span class="sd">          ... long output listing omitted</span>
+
+<span class="sd">    By default `setp` prints to `sys.stdout`, but this can be modified using</span>
+<span class="sd">    the *file* keyword-only argument::</span>
+
+<span class="sd">      &gt;&gt;&gt; with fopen(&#39;output.log&#39;) as f:</span>
+<span class="sd">      &gt;&gt;&gt;     setp(line, file=f)</span>
+
+<span class="sd">    :func:`setp` operates on a single instance or a iterable of</span>
+<span class="sd">    instances. If you are in query mode introspecting the possible</span>
+<span class="sd">    values, only the first instance in the sequence is used. When</span>
+<span class="sd">    actually setting values, all the instances will be set.  e.g.,</span>
+<span class="sd">    suppose you have a list of two lines, the following will make both</span>
+<span class="sd">    lines thicker and red::</span>
+
+<span class="sd">      &gt;&gt;&gt; x = arange(0, 1, 0.01)</span>
+<span class="sd">      &gt;&gt;&gt; y1 = sin(2*pi*x)</span>
+<span class="sd">      &gt;&gt;&gt; y2 = sin(4*pi*x)</span>
+<span class="sd">      &gt;&gt;&gt; lines = plot(x, y1, x, y2)</span>
+<span class="sd">      &gt;&gt;&gt; setp(lines, linewidth=2, color=&#39;r&#39;)</span>
+
+<span class="sd">    :func:`setp` works with the MATLAB style string/value pairs or</span>
+<span class="sd">    with python kwargs.  For example, the following are equivalent::</span>
+
+<span class="sd">      &gt;&gt;&gt; setp(lines, &#39;linewidth&#39;, 2, &#39;color&#39;, &#39;r&#39;)  # MATLAB style</span>
+<span class="sd">      &gt;&gt;&gt; setp(lines, linewidth=2, color=&#39;r&#39;)        # python style</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Artist</span><span class="p">):</span>
+        <span class="n">objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">objs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cbook</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">objs</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">insp</span> <span class="o">=</span> <span class="n">ArtistInspector</span><span class="p">(</span><span class="n">objs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">insp</span><span class="o">.</span><span class="n">pprint_setters</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">insp</span><span class="o">.</span><span class="n">pprint_setters</span><span class="p">()),</span> <span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The set args must be string, value pairs&#39;</span><span class="p">)</span>
+
+    <span class="c1"># put args into ordereddict to maintain order</span>
+    <span class="n">funcvals</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">funcvals</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">cbook</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="kwdoc"><a class="viewcode-back" href="../../api/_as_gen/matplotlib.artist.kwdoc.html#matplotlib.artist.kwdoc">[docs]</a><span class="k">def</span> <span class="nf">kwdoc</span><span class="p">(</span><span class="n">artist</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inspect an `~matplotlib.artist.Artist` class (using `.ArtistInspector`) and</span>
+<span class="sd">    return information about its settable properties and their current values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    artist : `~matplotlib.artist.Artist` or an iterable of `Artist`\s</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The settable properties of *artist*, as plain text if</span>
+<span class="sd">        :rc:`docstring.hardcopy` is False and as a rst table (intended for</span>
+<span class="sd">        use in Sphinx) if it is True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ai</span> <span class="o">=</span> <span class="n">ArtistInspector</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ai</span><span class="o">.</span><span class="n">pprint_setters_rest</span><span class="p">(</span><span class="n">leadingspace</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;docstring.hardcopy&#39;</span><span class="p">]</span> <span class="k">else</span>
+            <span class="s1">&#39;Properties:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ai</span><span class="o">.</span><span class="n">pprint_setters</span><span class="p">(</span><span class="n">leadingspace</span><span class="o">=</span><span class="mi">4</span><span class="p">)))</span></div>
+
+
+<span class="n">docstring</span><span class="o">.</span><span class="n">interpd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Artist</span><span class="o">=</span><span class="n">kwdoc</span><span class="p">(</span><span class="n">Artist</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer>
+    <div class="footer">
+    &copy; Copyright 2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012 - 2020 The Matplotlib development team.
+<br />
+    Last updated on Aug 24, 2020.
+Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.
+Doc version v3.3.1-dirty.
+    </div>
+</footer>
+<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55954603-1', 'auto');
+        ga('send', 'pageview');
+
+</script>
+  </body>
+</html>

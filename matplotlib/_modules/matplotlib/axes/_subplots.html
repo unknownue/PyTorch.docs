@@ -1,0 +1,384 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>matplotlib.axes._subplots &#8212; Matplotlib 3.3.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/mpl.css?v3.3.1-dirty" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.3.1 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="top" title="Matplotlib 3.3.1 documentation" href="#" />
+    <link rel="canonical" href="https://matplotlib.org/3.3.1/_modules/matplotlib/axes/_subplots.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
+    <a href="../../../index.html">
+        <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version 3.3.1</span></div>
+        <img src="../../../_static/logo2_compressed.svg" height="125px" border="0" alt="matplotlib"/></a>
+
+    <!-- The "Fork me on github" ribbon -->
+    <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="../../../users/installing.html">Installation</a></li>
+            <li><a href="../../../contents.html">Documentation</a></li>
+            <li><a href="../../../gallery/index.html">Examples</a></li>
+            <li><a href="../../../tutorials/index.html">Tutorials</a></li>
+            <li><a href="../../../devel/index.html">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="../../../search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">home</a>|&nbsp;</li>
+        <li><a href="../../../contents.html">contents</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../matplotlib.html" accesskey="U">matplotlib</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">matplotlib.axes._subplots</a></li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../contents.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../matplotlib.html">matplotlib</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for matplotlib.axes._subplots</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cbook</span><span class="p">,</span> <span class="n">docstring</span>
+<span class="kn">import</span> <span class="nn">matplotlib.artist</span> <span class="k">as</span> <span class="nn">martist</span>
+<span class="kn">from</span> <span class="nn">matplotlib.axes._axes</span> <span class="kn">import</span> <span class="n">Axes</span>
+<span class="kn">from</span> <span class="nn">matplotlib.gridspec</span> <span class="kn">import</span> <span class="n">GridSpec</span><span class="p">,</span> <span class="n">SubplotSpec</span>
+<span class="kn">import</span> <span class="nn">matplotlib._layoutbox</span> <span class="k">as</span> <span class="nn">layoutbox</span>
+
+
+<div class="viewcode-block" id="SubplotBase"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase">[docs]</a><span class="k">class</span> <span class="nc">SubplotBase</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for subplots, which are :class:`Axes` instances with</span>
+<span class="sd">    additional methods to facilitate generating and manipulating a set</span>
+<span class="sd">    of :class:`Axes` within a figure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SubplotBase.__init__"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fig : `matplotlib.figure.Figure`</span>
+
+<span class="sd">        *args : tuple (*nrows*, *ncols*, *index*) or int</span>
+<span class="sd">            The array of subplots in the figure has dimensions ``(nrows,</span>
+<span class="sd">            ncols)``, and *index* is the index of the subplot being created.</span>
+<span class="sd">            *index* starts at 1 in the upper left corner and increases to the</span>
+<span class="sd">            right.</span>
+
+<span class="sd">            If *nrows*, *ncols*, and *index* are all single digit numbers, then</span>
+<span class="sd">            *args* can be passed as a single 3-digit number (e.g. 234 for</span>
+<span class="sd">            (2, 3, 4)).</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments are passed to the Axes (sub)class constructor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">SubplotSpec</span><span class="o">.</span><span class="n">_from_subplot_args</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_params</span><span class="p">()</span>
+        <span class="c1"># _axes_class is set in the subplot_class_factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axes_class</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figbox</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># add a layout box to this, for both the full axis, and the poss</span>
+        <span class="c1"># of the axis.  We need both because the axes may become smaller</span>
+        <span class="c1"># due to parasitic axes and hence no longer fill the subplotspec.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">_layoutbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layoutbox</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_poslayoutbox</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">_layoutbox</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.ax&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="n">layoutbox</span><span class="o">.</span><span class="n">seq_id</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layoutbox</span> <span class="o">=</span> <span class="n">layoutbox</span><span class="o">.</span><span class="n">LayoutBox</span><span class="p">(</span>
+                    <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">_layoutbox</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">artist</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_poslayoutbox</span> <span class="o">=</span> <span class="n">layoutbox</span><span class="o">.</span><span class="n">LayoutBox</span><span class="p">(</span>
+                    <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_layoutbox</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_layoutbox</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;.pos&#39;</span><span class="p">,</span>
+                    <span class="n">pos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subplot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">artist</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SubplotBase.__reduce__"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.__reduce__">[docs]</a>    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># get the first axes class which does not inherit from a subplotbase</span>
+        <span class="n">axes_class</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__mro__</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Axes</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">SubplotBase</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_picklable_subplot_class_constructor</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">axes_class</span><span class="p">,),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="SubplotBase.get_geometry"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.get_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">get_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the subplot geometry, e.g., (2, 2, 3).&quot;&quot;&quot;</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">get_geometry</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">num1</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># for compatibility</span></div>
+
+    <span class="c1"># COVERAGE NOTE: Never used internally or from examples</span>
+<div class="viewcode-block" id="SubplotBase.change_geometry"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.change_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">change_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numrows</span><span class="p">,</span> <span class="n">numcols</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="n">numrows</span><span class="p">,</span> <span class="n">numcols</span><span class="p">,</span>
+                                     <span class="n">figure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)[</span><span class="n">num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_params</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figbox</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SubplotBase.get_subplotspec"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.get_subplotspec">[docs]</a>    <span class="k">def</span> <span class="nf">get_subplotspec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the `.SubplotSpec` instance associated with the subplot.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span></div>
+
+<div class="viewcode-block" id="SubplotBase.set_subplotspec"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.set_subplotspec">[docs]</a>    <span class="k">def</span> <span class="nf">set_subplotspec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplotspec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the `.SubplotSpec`. instance associated with the subplot.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">subplotspec</span></div>
+
+<div class="viewcode-block" id="SubplotBase.get_gridspec"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.get_gridspec">[docs]</a>    <span class="k">def</span> <span class="nf">get_gridspec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the `.GridSpec` instance associated with the subplot.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">get_gridspec</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SubplotBase.update_params"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.update_params">[docs]</a>    <span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the subplot position from ``self.figure.subplotpars``.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figbox</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numRows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numCols</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span>
+                                                <span class="n">return_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.2&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;ax.get_subplotspec().rowspan.start&quot;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rowNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">rowspan</span><span class="o">.</span><span class="n">start</span>
+
+    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.2&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;ax.get_subplotspec().colspan.start&quot;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">colNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">colspan</span><span class="o">.</span><span class="n">start</span>
+
+<div class="viewcode-block" id="SubplotBase.is_first_row"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.is_first_row">[docs]</a>    <span class="k">def</span> <span class="nf">is_first_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">rowspan</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="SubplotBase.is_last_row"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.is_last_row">[docs]</a>    <span class="k">def</span> <span class="nf">is_last_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">rowspan</span><span class="o">.</span><span class="n">stop</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_gridspec</span><span class="p">()</span><span class="o">.</span><span class="n">nrows</span></div>
+
+<div class="viewcode-block" id="SubplotBase.is_first_col"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.is_first_col">[docs]</a>    <span class="k">def</span> <span class="nf">is_first_col</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">colspan</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="SubplotBase.is_last_col"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.is_last_col">[docs]</a>    <span class="k">def</span> <span class="nf">is_last_col</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">colspan</span><span class="o">.</span><span class="n">stop</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_gridspec</span><span class="p">()</span><span class="o">.</span><span class="n">ncols</span></div>
+
+<div class="viewcode-block" id="SubplotBase.label_outer"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.label_outer">[docs]</a>    <span class="k">def</span> <span class="nf">label_outer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Only show &quot;outer&quot; labels and tick labels.</span>
+
+<span class="sd">        x-labels are only kept for subplots on the last row; y-labels only for</span>
+<span class="sd">        subplots on the first column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lastrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_last_row</span><span class="p">()</span>
+        <span class="n">firstcol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_first_col</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lastrow</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">):</span>
+                <span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">get_offset_text</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">firstcol</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">):</span>
+                <span class="n">label</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">get_offset_text</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_make_twin_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a twinx axes of self. This is used for twinx and twiny.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;sharex&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s1">&#39;sharey&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="c1"># The following line is added in v2.2 to avoid breaking Seaborn,</span>
+            <span class="c1"># which currently uses this internal API.</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sharex&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sharey&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Twinned Axes may share only one axis&quot;</span><span class="p">)</span>
+        <span class="c1"># The dance here with label is to force add_subplot() to create a new</span>
+        <span class="c1"># Axes (by passing in a label never seen before).  Note that this does</span>
+        <span class="c1"># not affect plot reactivation by subplot() as twin axes can never be</span>
+        <span class="c1"># reactivated by subplot().</span>
+        <span class="n">sentinel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">real_label</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">sentinel</span><span class="p">)</span>
+        <span class="n">twin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">(),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">sentinel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">real_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sentinel</span><span class="p">:</span>
+            <span class="n">twin</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">real_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_adjustable</span><span class="p">(</span><span class="s1">&#39;datalim&#39;</span><span class="p">)</span>
+        <span class="n">twin</span><span class="o">.</span><span class="n">set_adjustable</span><span class="p">(</span><span class="s1">&#39;datalim&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layoutbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">twin</span><span class="o">.</span><span class="n">_layoutbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># make the layout boxes be explicitly the same</span>
+            <span class="n">twin</span><span class="o">.</span><span class="n">_layoutbox</span><span class="o">.</span><span class="n">constrain_same</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_layoutbox</span><span class="p">)</span>
+            <span class="n">twin</span><span class="o">.</span><span class="n">_poslayoutbox</span><span class="o">.</span><span class="n">constrain_same</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_poslayoutbox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_twinned_axes</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">twin</span>
+
+<div class="viewcode-block" id="SubplotBase.__repr__"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.SubplotBase.html#matplotlib.axes.SubplotBase.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">():</span>
+            <span class="n">fields</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;label=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="n">titles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">]:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_title</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+                <span class="n">titles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">!r}</span><span class="s2">:</span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">titles</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;title={&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">titles</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">():</span>
+            <span class="n">fields</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;xlabel=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">()</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">():</span>
+            <span class="n">fields</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ylabel=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">:&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&gt;&quot;</span></div></div>
+
+
+<span class="c1"># this here to support cartopy which was using a private part of the</span>
+<span class="c1"># API to register their Axes subclasses.</span>
+
+<span class="c1"># In 3.1 this should be changed to a dict subclass that warns on use</span>
+<span class="c1"># In 3.3 to a dict subclass that raises a useful exception on use</span>
+<span class="c1"># In 3.4 should be removed</span>
+
+<span class="c1"># The slow timeline is to give cartopy enough time to get several</span>
+<span class="c1"># release out before we break them.</span>
+<span class="n">_subplot_classes</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="subplot_class_factory"><a class="viewcode-back" href="../../../api/_as_gen/matplotlib.axes.subplot_class_factory.html#matplotlib.axes.subplot_class_factory">[docs]</a><span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">subplot_class_factory</span><span class="p">(</span><span class="n">axes_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a new class that inherits from `.SubplotBase` and the</span>
+<span class="sd">    given axes_class (which is assumed to be a subclass of `.axes.Axes`).</span>
+<span class="sd">    This is perhaps a little bit roundabout to make a new class on</span>
+<span class="sd">    the fly like this, but it means that a new Subplot class does</span>
+<span class="sd">    not have to be created for every type of Axes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">axes_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cbook</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span>
+            <span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Support for passing None to subplot_class_factory &quot;</span>
+            <span class="s2">&quot;is deprecated since </span><span class="si">%(since)s</span><span class="s2">; explicitly pass the default Axes &quot;</span>
+            <span class="s2">&quot;class instead. This will become an error </span><span class="si">%(removal)s</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">axes_class</span> <span class="o">=</span> <span class="n">Axes</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Avoid creating two different instances of GeoAxesSubplot...</span>
+        <span class="c1"># Only a temporary backcompat fix.  This should be removed in</span>
+        <span class="c1"># 3.4</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">cls</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">SubplotBase</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__bases__</span> <span class="o">==</span> <span class="p">(</span><span class="n">SubplotBase</span><span class="p">,</span> <span class="n">axes_class</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Subplot&quot;</span> <span class="o">%</span> <span class="n">axes_class</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">SubplotBase</span><span class="p">,</span> <span class="n">axes_class</span><span class="p">),</span>
+                    <span class="p">{</span><span class="s1">&#39;_axes_class&#39;</span><span class="p">:</span> <span class="n">axes_class</span><span class="p">})</span></div>
+
+
+<span class="n">Subplot</span> <span class="o">=</span> <span class="n">subplot_class_factory</span><span class="p">(</span><span class="n">Axes</span><span class="p">)</span>  <span class="c1"># Provided for backward compatibility.</span>
+
+
+<span class="k">def</span> <span class="nf">_picklable_subplot_class_constructor</span><span class="p">(</span><span class="n">axes_class</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stub factory that returns an empty instance of the appropriate subplot</span>
+<span class="sd">    class when called with an axes class. This is purely to allow pickling of</span>
+<span class="sd">    Axes and Subplots.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">subplot_class</span> <span class="o">=</span> <span class="n">subplot_class_factory</span><span class="p">(</span><span class="n">axes_class</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subplot_class</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">subplot_class</span><span class="p">)</span>
+
+
+<span class="n">docstring</span><span class="o">.</span><span class="n">interpd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Axes</span><span class="o">=</span><span class="n">martist</span><span class="o">.</span><span class="n">kwdoc</span><span class="p">(</span><span class="n">Axes</span><span class="p">))</span>
+<span class="n">docstring</span><span class="o">.</span><span class="n">dedent_interpd</span><span class="p">(</span><span class="n">Axes</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
+
+<span class="n">docstring</span><span class="o">.</span><span class="n">interpd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Subplot</span><span class="o">=</span><span class="n">martist</span><span class="o">.</span><span class="n">kwdoc</span><span class="p">(</span><span class="n">Axes</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer>
+    <div class="footer">
+    &copy; Copyright 2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012 - 2020 The Matplotlib development team.
+<br />
+    Last updated on Aug 24, 2020.
+Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.
+Doc version v3.3.1-dirty.
+    </div>
+</footer>
+<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55954603-1', 'auto');
+        ga('send', 'pageview');
+
+</script>
+  </body>
+</html>

@@ -1,0 +1,896 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mpl_toolkits.axes_grid1.axes_divider &#8212; Matplotlib 3.3.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/mpl.css?v3.3.1-dirty" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.3.1 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="top" title="Matplotlib 3.3.1 documentation" href="#" />
+    <link rel="canonical" href="https://matplotlib.org/3.3.1/_modules/mpl_toolkits/axes_grid1/axes_divider.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
+    <a href="../../../index.html">
+        <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version 3.3.1</span></div>
+        <img src="../../../_static/logo2_compressed.svg" height="125px" border="0" alt="matplotlib"/></a>
+
+    <!-- The "Fork me on github" ribbon -->
+    <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="../../../users/installing.html">Installation</a></li>
+            <li><a href="../../../contents.html">Documentation</a></li>
+            <li><a href="../../../gallery/index.html">Examples</a></li>
+            <li><a href="../../../tutorials/index.html">Tutorials</a></li>
+            <li><a href="../../../devel/index.html">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="../../../search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">home</a>|&nbsp;</li>
+        <li><a href="../../../contents.html">contents</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">mpl_toolkits.axes_grid1.axes_divider</a></li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../contents.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mpl_toolkits.axes_grid1.axes_divider</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Helper classes to adjust the positions of multiple axes at drawing time.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cbook</span>
+<span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">SubplotBase</span>
+<span class="kn">from</span> <span class="nn">matplotlib.gridspec</span> <span class="kn">import</span> <span class="n">SubplotSpec</span><span class="p">,</span> <span class="n">GridSpec</span>
+<span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">axes_size</span> <span class="k">as</span> <span class="n">Size</span>
+
+
+<div class="viewcode-block" id="Divider"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider">[docs]</a><span class="k">class</span> <span class="nc">Divider</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An Axes positioning class.</span>
+
+<span class="sd">    The divider is initialized with lists of horizontal and vertical sizes</span>
+<span class="sd">    (:mod:`mpl_toolkits.axes_grid1.axes_size`) based on which a given</span>
+<span class="sd">    rectangular area will be divided.</span>
+
+<span class="sd">    The `new_locator` method then creates a callable object</span>
+<span class="sd">    that can be used as the *axes_locator* of the axes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Divider.__init__"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">horizontal</span><span class="p">,</span> <span class="n">vertical</span><span class="p">,</span>
+                 <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fig : Figure</span>
+<span class="sd">        pos : tuple of 4 floats</span>
+<span class="sd">            Position of the rectangle that will be divided.</span>
+<span class="sd">        horizontal : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`</span>
+<span class="sd">            Sizes for horizontal division.</span>
+<span class="sd">        vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`</span>
+<span class="sd">            Sizes for vertical division.</span>
+<span class="sd">        aspect : bool</span>
+<span class="sd">            Whether overall rectangular area is reduced so that the relative</span>
+<span class="sd">            part of the horizontal and vertical scales have the same scale.</span>
+<span class="sd">        anchor : {&#39;C&#39;, &#39;SW&#39;, &#39;S&#39;, &#39;SE&#39;, &#39;E&#39;, &#39;NE&#39;, &#39;N&#39;, &#39;NW&#39;, &#39;W&#39;}</span>
+<span class="sd">            Placement of the reduced rectangle, when *aspect* is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fig</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="o">=</span> <span class="n">horizontal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span> <span class="o">=</span> <span class="n">vertical</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aspect</span> <span class="o">=</span> <span class="n">aspect</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xrefindex</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yrefindex</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locator</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Divider.get_horizontal_sizes"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_horizontal_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">get_horizontal_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horizontal</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="Divider.get_vertical_sizes"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_vertical_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">get_vertical_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertical</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="Divider.get_vsize_hsize"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_vsize_hsize">[docs]</a>    <span class="k">def</span> <span class="nf">get_vsize_hsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">vsize</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">AddList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_vertical</span><span class="p">())</span>
+        <span class="n">hsize</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">AddList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_horizontal</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">vsize</span><span class="p">,</span> <span class="n">hsize</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_calc_k</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">total_size</span><span class="p">):</span>
+
+        <span class="n">rs_sum</span><span class="p">,</span> <span class="n">as_sum</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+
+        <span class="k">for</span> <span class="n">_rs</span><span class="p">,</span> <span class="n">_as</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+            <span class="n">rs_sum</span> <span class="o">+=</span> <span class="n">_rs</span>
+            <span class="n">as_sum</span> <span class="o">+=</span> <span class="n">_as</span>
+
+        <span class="k">if</span> <span class="n">rs_sum</span> <span class="o">!=</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_size</span> <span class="o">-</span> <span class="n">as_sum</span><span class="p">)</span> <span class="o">/</span> <span class="n">rs_sum</span>
+            <span class="k">return</span> <span class="n">k</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_calc_offsets</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">_rs</span><span class="p">,</span> <span class="n">_as</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+            <span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">_rs</span><span class="o">*</span><span class="n">k</span> <span class="o">+</span> <span class="n">_as</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">offsets</span>
+
+<div class="viewcode-block" id="Divider.set_position"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.set_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the position of the rectangle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pos : tuple of 4 floats</span>
+<span class="sd">            position of the rectangle that will be divided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">pos</span></div>
+
+<div class="viewcode-block" id="Divider.get_position"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the position of the rectangle.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span></div>
+
+<div class="viewcode-block" id="Divider.set_anchor"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.set_anchor">[docs]</a>    <span class="k">def</span> <span class="nf">set_anchor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anchor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        anchor : {&#39;C&#39;, &#39;SW&#39;, &#39;S&#39;, &#39;SE&#39;, &#39;E&#39;, &#39;NE&#39;, &#39;N&#39;, &#39;NW&#39;, &#39;W&#39;}</span>
+<span class="sd">            anchor position</span>
+
+<span class="sd">          =====  ============</span>
+<span class="sd">          value  description</span>
+<span class="sd">          =====  ============</span>
+<span class="sd">          &#39;C&#39;    Center</span>
+<span class="sd">          &#39;SW&#39;   bottom left</span>
+<span class="sd">          &#39;S&#39;    bottom</span>
+<span class="sd">          &#39;SE&#39;   bottom right</span>
+<span class="sd">          &#39;E&#39;    right</span>
+<span class="sd">          &#39;NE&#39;   top right</span>
+<span class="sd">          &#39;N&#39;    top</span>
+<span class="sd">          &#39;NW&#39;   top left</span>
+<span class="sd">          &#39;W&#39;    left</span>
+<span class="sd">          =====  ============</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">cbook</span><span class="o">.</span><span class="n">_check_in_list</span><span class="p">(</span><span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">coefs</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anchor</span> <span class="o">=</span> <span class="n">anchor</span></div>
+
+<div class="viewcode-block" id="Divider.get_anchor"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_anchor">[docs]</a>    <span class="k">def</span> <span class="nf">get_anchor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the anchor.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anchor</span></div>
+
+<div class="viewcode-block" id="Divider.set_horizontal"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.set_horizontal">[docs]</a>    <span class="k">def</span> <span class="nf">set_horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`</span>
+<span class="sd">            sizes for horizontal division</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="o">=</span> <span class="n">h</span></div>
+
+<div class="viewcode-block" id="Divider.get_horizontal"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_horizontal">[docs]</a>    <span class="k">def</span> <span class="nf">get_horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return horizontal sizes.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span></div>
+
+<div class="viewcode-block" id="Divider.set_vertical"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.set_vertical">[docs]</a>    <span class="k">def</span> <span class="nf">set_vertical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`</span>
+<span class="sd">            sizes for vertical division</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span> <span class="o">=</span> <span class="n">v</span></div>
+
+<div class="viewcode-block" id="Divider.get_vertical"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_vertical">[docs]</a>    <span class="k">def</span> <span class="nf">get_vertical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return vertical sizes.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span></div>
+
+<div class="viewcode-block" id="Divider.set_aspect"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.set_aspect">[docs]</a>    <span class="k">def</span> <span class="nf">set_aspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aspect : bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aspect</span> <span class="o">=</span> <span class="n">aspect</span></div>
+
+<div class="viewcode-block" id="Divider.get_aspect"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_aspect">[docs]</a>    <span class="k">def</span> <span class="nf">get_aspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return aspect.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aspect</span></div>
+
+<div class="viewcode-block" id="Divider.set_locator"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.set_locator">[docs]</a>    <span class="k">def</span> <span class="nf">set_locator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_locator</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locator</span> <span class="o">=</span> <span class="n">_locator</span></div>
+
+<div class="viewcode-block" id="Divider.get_locator"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_locator">[docs]</a>    <span class="k">def</span> <span class="nf">get_locator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locator</span></div>
+
+<div class="viewcode-block" id="Divider.get_position_runtime"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.get_position_runtime">[docs]</a>    <span class="k">def</span> <span class="nf">get_position_runtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locator</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span><span class="o">.</span><span class="n">bounds</span></div>
+
+<div class="viewcode-block" id="Divider.locate"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.locate">[docs]</a>    <span class="k">def</span> <span class="nf">locate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ny1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nx, nx1 : int</span>
+<span class="sd">            Integers specifying the column-position of the</span>
+<span class="sd">            cell. When *nx1* is None, a single *nx*-th column is</span>
+<span class="sd">            specified. Otherwise location of columns spanning between *nx*</span>
+<span class="sd">            to *nx1* (but excluding *nx1*-th column) is specified.</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Same as *nx* and *nx1*, but for row positions.</span>
+<span class="sd">        axes</span>
+<span class="sd">        renderer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">figW</span><span class="p">,</span> <span class="n">figH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position_runtime</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span>
+
+        <span class="n">hsizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horizontal_sizes</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">vsizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertical_sizes</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">k_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_k</span><span class="p">(</span><span class="n">hsizes</span><span class="p">,</span> <span class="n">figW</span><span class="o">*</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">k_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_k</span><span class="p">(</span><span class="n">vsizes</span><span class="p">,</span> <span class="n">figH</span><span class="o">*</span><span class="n">h</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_aspect</span><span class="p">():</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">k_h</span><span class="p">,</span> <span class="n">k_v</span><span class="p">)</span>
+            <span class="n">ox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_offsets</span><span class="p">(</span><span class="n">hsizes</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">oy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_offsets</span><span class="p">(</span><span class="n">vsizes</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+            <span class="n">ww</span> <span class="o">=</span> <span class="p">(</span><span class="n">ox</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">figW</span>
+            <span class="n">hh</span> <span class="o">=</span> <span class="p">(</span><span class="n">oy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">oy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">figH</span>
+            <span class="n">pb</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+            <span class="n">pb1</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">ww</span><span class="p">,</span> <span class="n">hh</span><span class="p">)</span>
+            <span class="n">pb1_anchored</span> <span class="o">=</span> <span class="n">pb1</span><span class="o">.</span><span class="n">anchored</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_anchor</span><span class="p">(),</span> <span class="n">pb</span><span class="p">)</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">pb1_anchored</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">pb1_anchored</span><span class="o">.</span><span class="n">y0</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_offsets</span><span class="p">(</span><span class="n">hsizes</span><span class="p">,</span> <span class="n">k_h</span><span class="p">)</span>
+            <span class="n">oy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_offsets</span><span class="p">(</span><span class="n">vsizes</span><span class="p">,</span> <span class="n">k_v</span><span class="p">)</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
+        <span class="k">if</span> <span class="n">nx1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nx1</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">ny1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ny1</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">x1</span><span class="p">,</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">ox</span><span class="p">[</span><span class="n">nx</span><span class="p">]</span> <span class="o">/</span> <span class="n">figW</span><span class="p">,</span> <span class="p">(</span><span class="n">ox</span><span class="p">[</span><span class="n">nx1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ox</span><span class="p">[</span><span class="n">nx</span><span class="p">])</span> <span class="o">/</span> <span class="n">figW</span>
+        <span class="n">y1</span><span class="p">,</span> <span class="n">h1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">oy</span><span class="p">[</span><span class="n">ny</span><span class="p">]</span> <span class="o">/</span> <span class="n">figH</span><span class="p">,</span> <span class="p">(</span><span class="n">oy</span><span class="p">[</span><span class="n">ny1</span><span class="p">]</span> <span class="o">-</span> <span class="n">oy</span><span class="p">[</span><span class="n">ny</span><span class="p">])</span> <span class="o">/</span> <span class="n">figH</span>
+
+        <span class="k">return</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">h1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Divider.new_locator"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.new_locator">[docs]</a>    <span class="k">def</span> <span class="nf">new_locator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ny1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a new `AxesLocator` for the specified cell.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nx, nx1 : int</span>
+<span class="sd">            Integers specifying the column-position of the</span>
+<span class="sd">            cell. When *nx1* is None, a single *nx*-th column is</span>
+<span class="sd">            specified. Otherwise location of columns spanning between *nx*</span>
+<span class="sd">            to *nx1* (but excluding *nx1*-th column) is specified.</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Same as *nx* and *nx1*, but for row positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AxesLocator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx1</span><span class="p">,</span> <span class="n">ny1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Divider.append_size"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.append_size">[docs]</a>    <span class="k">def</span> <span class="nf">append_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_xrefindex</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yrefindex</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cbook</span><span class="o">.</span><span class="n">_check_in_list</span><span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">],</span>
+                                 <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Divider.add_auto_adjustable_area"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.Divider.html#mpl_toolkits.axes_grid1.axes_divider.Divider.add_auto_adjustable_area">[docs]</a>    <span class="k">def</span> <span class="nf">add_auto_adjustable_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_axes</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">adjust_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">adjust_dirs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">adjust_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">]</span>
+        <span class="kn">from</span> <span class="nn">.axes_size</span> <span class="kn">import</span> <span class="n">Padded</span><span class="p">,</span> <span class="n">SizeFromFunc</span><span class="p">,</span> <span class="n">GetExtentHelper</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">adjust_dirs</span><span class="p">:</span>
+            <span class="n">helper</span> <span class="o">=</span> <span class="n">GetExtentHelper</span><span class="p">(</span><span class="n">use_axes</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">SizeFromFunc</span><span class="p">(</span><span class="n">helper</span><span class="p">)</span>
+            <span class="n">padded_size</span> <span class="o">=</span> <span class="n">Padded</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="p">)</span>  <span class="c1"># pad in inch</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_size</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">padded_size</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AxesLocator"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesLocator.html#mpl_toolkits.axes_grid1.axes_divider.AxesLocator">[docs]</a><span class="k">class</span> <span class="nc">AxesLocator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple callable object, initialized with AxesDivider class,</span>
+<span class="sd">    returns the position and size of the given cell.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AxesLocator.__init__"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesLocator.html#mpl_toolkits.axes_grid1.axes_divider.AxesLocator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes_divider</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ny1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axes_divider : AxesDivider</span>
+<span class="sd">        nx, nx1 : int</span>
+<span class="sd">            Integers specifying the column-position of the</span>
+<span class="sd">            cell. When *nx1* is None, a single *nx*-th column is</span>
+<span class="sd">            specified. Otherwise location of columns spanning between *nx*</span>
+<span class="sd">            to *nx1* (but excluding *nx1*-th column) is specified.</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Same as *nx* and *nx1*, but for row positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axes_divider</span> <span class="o">=</span> <span class="n">axes_divider</span>
+
+        <span class="n">_xrefindex</span> <span class="o">=</span> <span class="n">axes_divider</span><span class="o">.</span><span class="n">_xrefindex</span>
+        <span class="n">_yrefindex</span> <span class="o">=</span> <span class="n">axes_divider</span><span class="o">.</span><span class="n">_yrefindex</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">-</span> <span class="n">_xrefindex</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="n">_yrefindex</span>
+
+        <span class="k">if</span> <span class="n">nx1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nx1</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">ny1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ny1</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nx1</span> <span class="o">=</span> <span class="n">nx1</span> <span class="o">-</span> <span class="n">_xrefindex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ny1</span> <span class="o">=</span> <span class="n">ny1</span> <span class="o">-</span> <span class="n">_yrefindex</span></div>
+
+<div class="viewcode-block" id="AxesLocator.__call__"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesLocator.html#mpl_toolkits.axes_grid1.axes_divider.AxesLocator.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+
+        <span class="n">_xrefindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes_divider</span><span class="o">.</span><span class="n">_xrefindex</span>
+        <span class="n">_yrefindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes_divider</span><span class="o">.</span><span class="n">_yrefindex</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes_divider</span><span class="o">.</span><span class="n">locate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span> <span class="o">+</span> <span class="n">_xrefindex</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span> <span class="o">+</span> <span class="n">_yrefindex</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">_nx1</span> <span class="o">+</span> <span class="n">_xrefindex</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">_ny1</span> <span class="o">+</span> <span class="n">_yrefindex</span><span class="p">,</span>
+                                         <span class="n">axes</span><span class="p">,</span>
+                                         <span class="n">renderer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AxesLocator.get_subplotspec"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesLocator.html#mpl_toolkits.axes_grid1.axes_divider.AxesLocator.get_subplotspec">[docs]</a>    <span class="k">def</span> <span class="nf">get_subplotspec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_axes_divider</span><span class="p">,</span> <span class="s2">&quot;get_subplotspec&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes_divider</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="SubplotDivider"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider">[docs]</a><span class="k">class</span> <span class="nc">SubplotDivider</span><span class="p">(</span><span class="n">Divider</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Divider class whose rectangle area is specified as a subplot geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SubplotDivider.__init__"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">horizontal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vertical</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fig : `matplotlib.figure.Figure`</span>
+
+<span class="sd">        *args : tuple (*nrows*, *ncols*, *index*) or int</span>
+<span class="sd">            The array of subplots in the figure has dimensions ``(nrows,</span>
+<span class="sd">            ncols)``, and *index* is the index of the subplot being created.</span>
+<span class="sd">            *index* starts at 1 in the upper left corner and increases to the</span>
+<span class="sd">            right.</span>
+
+<span class="sd">            If *nrows*, *ncols*, and *index* are all single digit numbers, then</span>
+<span class="sd">            *args* can be passed as a single 3-digit number (e.g. 234 for</span>
+<span class="sd">            (2, 3, 4)).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">SubplotSpec</span><span class="o">.</span><span class="n">_from_subplot_args</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_params</span><span class="p">()</span>  <span class="c1"># sets self.figbox</span>
+        <span class="n">Divider</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">figbox</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+                         <span class="n">horizontal</span><span class="o">=</span><span class="n">horizontal</span> <span class="ow">or</span> <span class="p">[],</span> <span class="n">vertical</span><span class="o">=</span><span class="n">vertical</span> <span class="ow">or</span> <span class="p">[],</span>
+                         <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SubplotDivider.get_position"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the bounds of the subplot box.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_params</span><span class="p">()</span>  <span class="c1"># update self.figbox</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figbox</span><span class="o">.</span><span class="n">bounds</span></div>
+
+<div class="viewcode-block" id="SubplotDivider.update_params"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.update_params">[docs]</a>    <span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the subplot position from fig.subplotpars.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SubplotDivider.get_geometry"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.get_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">get_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the subplot geometry, e.g., (2, 2, 3).&quot;&quot;&quot;</span>
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span><span class="o">.</span><span class="n">get_geometry</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">num1</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># for compatibility</span></div>
+
+    <span class="c1"># COVERAGE NOTE: Never used internally or from examples</span>
+<div class="viewcode-block" id="SubplotDivider.change_geometry"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.change_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">change_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numrows</span><span class="p">,</span> <span class="n">numcols</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="n">numrows</span><span class="p">,</span> <span class="n">numcols</span><span class="p">)[</span><span class="n">num</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_params</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figbox</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SubplotDivider.get_subplotspec"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.get_subplotspec">[docs]</a>    <span class="k">def</span> <span class="nf">get_subplotspec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the SubplotSpec instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span></div>
+
+<div class="viewcode-block" id="SubplotDivider.set_subplotspec"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.html#mpl_toolkits.axes_grid1.axes_divider.SubplotDivider.set_subplotspec">[docs]</a>    <span class="k">def</span> <span class="nf">set_subplotspec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplotspec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the SubplotSpec instance.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">subplotspec</span></div></div>
+
+
+<div class="viewcode-block" id="AxesDivider"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider">[docs]</a><span class="k">class</span> <span class="nc">AxesDivider</span><span class="p">(</span><span class="n">Divider</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Divider based on the pre-existing axes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AxesDivider.__init__"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">xref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yref</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axes : :class:`~matplotlib.axes.Axes`</span>
+<span class="sd">        xref</span>
+<span class="sd">        yref</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span> <span class="o">=</span> <span class="n">axes</span>
+        <span class="k">if</span> <span class="n">xref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_xref</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">AxesX</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_xref</span> <span class="o">=</span> <span class="n">xref</span>
+        <span class="k">if</span> <span class="n">yref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yref</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">AxesY</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yref</span> <span class="o">=</span> <span class="n">yref</span>
+
+        <span class="n">Divider</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">axes</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(),</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">horizontal</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_xref</span><span class="p">],</span> <span class="n">vertical</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_yref</span><span class="p">],</span>
+                         <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_new_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">axes_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span>
+        <span class="k">if</span> <span class="n">axes_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">SubplotBase</span><span class="p">):</span>
+                <span class="n">axes_class</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">_axes_class</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">axes_class</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">axes_class</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(),</span> <span class="n">axes</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AxesDivider.new_horizontal"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.new_horizontal">[docs]</a>    <span class="k">def</span> <span class="nf">new_horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pack_start</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new axes on the right (or left) side of the main axes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str</span>
+<span class="sd">            A width of the axes. If float or string is given, *from_any*</span>
+<span class="sd">            function is used to create the size, with *ref_size* set to AxesX</span>
+<span class="sd">            instance of the current axes.</span>
+<span class="sd">        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str</span>
+<span class="sd">            Pad between the axes. It takes same argument as *size*.</span>
+<span class="sd">        pack_start : bool</span>
+<span class="sd">            If False, the new axes is appended at the end</span>
+<span class="sd">            of the list, i.e., it became the right-most axes. If True, it is</span>
+<span class="sd">            inserted at the start of the list, and becomes the left-most axes.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            All extra keywords arguments are passed to the created axes.</span>
+<span class="sd">            If *axes_class* is given, the new axes will be created as an</span>
+<span class="sd">            instance of the given class. Otherwise, the same class of the</span>
+<span class="sd">            main axes will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbook</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span>
+                <span class="s2">&quot;3.2&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;In a future version, &#39;pad&#39; will default to &quot;</span>
+                <span class="s2">&quot;rcParams[&#39;figure.subplot.wspace&#39;].  Set pad=0 to keep the &quot;</span>
+                <span class="s2">&quot;old behavior.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pad</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">Size</span><span class="o">.</span><span class="n">_Base</span><span class="p">):</span>
+                <span class="n">pad</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">from_any</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">fraction_ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_xref</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pack_start</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_xrefindex</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">Size</span><span class="o">.</span><span class="n">_Base</span><span class="p">):</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">from_any</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">fraction_ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_xref</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pack_start</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_xrefindex</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">locator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_locator</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_yrefindex</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">locator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_locator</span><span class="p">(</span>
+                <span class="n">nx</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_yrefindex</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_new_axes</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axes_locator</span><span class="p">(</span><span class="n">locator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="AxesDivider.new_vertical"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.new_vertical">[docs]</a>    <span class="k">def</span> <span class="nf">new_vertical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pack_start</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new axes on the top (or bottom) side of the main axes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str</span>
+<span class="sd">            A height of the axes. If float or string is given, *from_any*</span>
+<span class="sd">            function is used to create the size, with *ref_size* set to AxesX</span>
+<span class="sd">            instance of the current axes.</span>
+<span class="sd">        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str</span>
+<span class="sd">            Pad between the axes. It takes same argument as *size*.</span>
+<span class="sd">        pack_start : bool</span>
+<span class="sd">            If False, the new axes is appended at the end</span>
+<span class="sd">            of the list, i.e., it became the right-most axes. If True, it is</span>
+<span class="sd">            inserted at the start of the list, and becomes the left-most axes.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            All extra keywords arguments are passed to the created axes.</span>
+<span class="sd">            If *axes_class* is given, the new axes will be created as an</span>
+<span class="sd">            instance of the given class. Otherwise, the same class of the</span>
+<span class="sd">            main axes will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbook</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span>
+                <span class="s2">&quot;3.2&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;In a future version, &#39;pad&#39; will default to &quot;</span>
+                <span class="s2">&quot;rcParams[&#39;figure.subplot.hspace&#39;].  Set pad=0 to keep the &quot;</span>
+                <span class="s2">&quot;old behavior.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pad</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">Size</span><span class="o">.</span><span class="n">_Base</span><span class="p">):</span>
+                <span class="n">pad</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">from_any</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span> <span class="n">fraction_ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_yref</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pack_start</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_yrefindex</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">Size</span><span class="o">.</span><span class="n">_Base</span><span class="p">):</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">Size</span><span class="o">.</span><span class="n">from_any</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">fraction_ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_yref</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pack_start</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yrefindex</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">locator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_locator</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_xrefindex</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">locator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_locator</span><span class="p">(</span>
+                <span class="n">nx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_xrefindex</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_new_axes</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axes_locator</span><span class="p">(</span><span class="n">locator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="AxesDivider.append_axes"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.append_axes">[docs]</a>    <span class="k">def</span> <span class="nf">append_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_to_figure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an axes at the given *position* with the same height</span>
+<span class="sd">        (or width) of the main axes.</span>
+
+<span class="sd">         *position*</span>
+<span class="sd">           [&quot;left&quot;|&quot;right&quot;|&quot;bottom&quot;|&quot;top&quot;]</span>
+
+<span class="sd">         *size* and *pad* should be axes_grid.axes_size compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_horizontal</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">pack_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_horizontal</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">pack_start</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_vertical</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">pack_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_vertical</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">pack_start</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cbook</span><span class="o">.</span><span class="n">_check_in_list</span><span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">],</span>
+                                 <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_to_figure</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="AxesDivider.get_aspect"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.get_aspect">[docs]</a>    <span class="k">def</span> <span class="nf">get_aspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aspect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">aspect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span><span class="o">.</span><span class="n">get_aspect</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">aspect</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aspect</span></div>
+
+<div class="viewcode-block" id="AxesDivider.get_position"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">bbox</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span></div>
+
+<div class="viewcode-block" id="AxesDivider.get_anchor"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.get_anchor">[docs]</a>    <span class="k">def</span> <span class="nf">get_anchor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span><span class="o">.</span><span class="n">get_anchor</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anchor</span></div>
+
+<div class="viewcode-block" id="AxesDivider.get_subplotspec"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.AxesDivider.html#mpl_toolkits.axes_grid1.axes_divider.AxesDivider.get_subplotspec">[docs]</a>    <span class="k">def</span> <span class="nf">get_subplotspec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_axes</span><span class="p">,</span> <span class="s2">&quot;get_subplotspec&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="HBoxDivider"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.HBoxDivider.html#mpl_toolkits.axes_grid1.axes_divider.HBoxDivider">[docs]</a><span class="k">class</span> <span class="nc">HBoxDivider</span><span class="p">(</span><span class="n">SubplotDivider</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_determine_karray</span><span class="p">(</span><span class="n">equivalent_sizes</span><span class="p">,</span> <span class="n">appended_sizes</span><span class="p">,</span>
+                          <span class="n">max_equivalent_size</span><span class="p">,</span>
+                          <span class="n">total_appended_size</span><span class="p">):</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">equivalent_sizes</span><span class="p">)</span>
+        <span class="n">eq_rs</span><span class="p">,</span> <span class="n">eq_as</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">equivalent_sizes</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">ap_rs</span><span class="p">,</span> <span class="n">ap_as</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">appended_sizes</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">A</span><span class="p">[:</span><span class="n">n</span><span class="p">,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">eq_rs</span><span class="p">)</span>
+        <span class="n">A</span><span class="p">[:</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ap_rs</span>
+        <span class="n">B</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">eq_as</span>
+        <span class="n">B</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_appended_size</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ap_as</span><span class="p">)</span>
+
+        <span class="n">karray_H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>  <span class="c1"># A @ K = B</span>
+        <span class="n">karray</span> <span class="o">=</span> <span class="n">karray_H</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">karray_H</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">H</span> <span class="o">&gt;</span> <span class="n">max_equivalent_size</span><span class="p">:</span>
+            <span class="n">karray</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_equivalent_size</span> <span class="o">-</span> <span class="n">eq_as</span><span class="p">)</span> <span class="o">/</span> <span class="n">eq_rs</span>
+        <span class="k">return</span> <span class="n">karray</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_calc_offsets</span><span class="p">(</span><span class="n">appended_sizes</span><span class="p">,</span> <span class="n">karray</span><span class="p">):</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">appended_sizes</span><span class="p">,</span> <span class="n">karray</span><span class="p">):</span>
+            <span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="o">*</span><span class="n">k</span> <span class="o">+</span> <span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">offsets</span>
+
+<div class="viewcode-block" id="HBoxDivider.new_locator"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.HBoxDivider.html#mpl_toolkits.axes_grid1.axes_divider.HBoxDivider.new_locator">[docs]</a>    <span class="k">def</span> <span class="nf">new_locator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">nx1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for</span>
+<span class="sd">        the specified cell.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nx, nx1 : int</span>
+<span class="sd">            Integers specifying the column-position of the</span>
+<span class="sd">            cell. When *nx1* is None, a single *nx*-th column is</span>
+<span class="sd">            specified. Otherwise location of columns spanning between *nx*</span>
+<span class="sd">            to *nx1* (but excluding *nx1*-th column) is specified.</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Same as *nx* and *nx1*, but for row positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AxesLocator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nx1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_locate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span>
+                <span class="n">y_equivalent_sizes</span><span class="p">,</span> <span class="n">x_appended_sizes</span><span class="p">,</span>
+                <span class="n">figW</span><span class="p">,</span> <span class="n">figH</span><span class="p">):</span>
+        <span class="n">equivalent_sizes</span> <span class="o">=</span> <span class="n">y_equivalent_sizes</span>
+        <span class="n">appended_sizes</span> <span class="o">=</span> <span class="n">x_appended_sizes</span>
+
+        <span class="n">max_equivalent_size</span> <span class="o">=</span> <span class="n">figH</span> <span class="o">*</span> <span class="n">h</span>
+        <span class="n">total_appended_size</span> <span class="o">=</span> <span class="n">figW</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="n">karray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_karray</span><span class="p">(</span><span class="n">equivalent_sizes</span><span class="p">,</span> <span class="n">appended_sizes</span><span class="p">,</span>
+                                        <span class="n">max_equivalent_size</span><span class="p">,</span>
+                                        <span class="n">total_appended_size</span><span class="p">)</span>
+
+        <span class="n">ox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_offsets</span><span class="p">(</span><span class="n">appended_sizes</span><span class="p">,</span> <span class="n">karray</span><span class="p">)</span>
+
+        <span class="n">ww</span> <span class="o">=</span> <span class="p">(</span><span class="n">ox</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">figW</span>
+        <span class="n">ref_h</span> <span class="o">=</span> <span class="n">equivalent_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">hh</span> <span class="o">=</span> <span class="p">(</span><span class="n">karray</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">ref_h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ref_h</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">figH</span>
+        <span class="n">pb</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">pb1</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">ww</span><span class="p">,</span> <span class="n">hh</span><span class="p">)</span>
+        <span class="n">pb1_anchored</span> <span class="o">=</span> <span class="n">pb1</span><span class="o">.</span><span class="n">anchored</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_anchor</span><span class="p">(),</span> <span class="n">pb</span><span class="p">)</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">pb1_anchored</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">pb1_anchored</span><span class="o">.</span><span class="n">y0</span>
+
+        <span class="k">return</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">ox</span><span class="p">,</span> <span class="n">hh</span>
+
+<div class="viewcode-block" id="HBoxDivider.locate"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.HBoxDivider.html#mpl_toolkits.axes_grid1.axes_divider.HBoxDivider.locate">[docs]</a>    <span class="k">def</span> <span class="nf">locate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ny1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axes_divider : AxesDivider</span>
+<span class="sd">        nx, nx1 : int</span>
+<span class="sd">            Integers specifying the column-position of the</span>
+<span class="sd">            cell. When *nx1* is None, a single *nx*-th column is</span>
+<span class="sd">            specified. Otherwise location of columns spanning between *nx*</span>
+<span class="sd">            to *nx1* (but excluding *nx1*-th column) is specified.</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Same as *nx* and *nx1*, but for row positions.</span>
+<span class="sd">        axes</span>
+<span class="sd">        renderer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">figW</span><span class="p">,</span> <span class="n">figH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position_runtime</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span>
+
+        <span class="n">y_equivalent_sizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertical_sizes</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">x_appended_sizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horizontal_sizes</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">ox</span><span class="p">,</span> <span class="n">hh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span>
+                                      <span class="n">y_equivalent_sizes</span><span class="p">,</span> <span class="n">x_appended_sizes</span><span class="p">,</span>
+                                      <span class="n">figW</span><span class="p">,</span> <span class="n">figH</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nx1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nx1</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">x1</span><span class="p">,</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">ox</span><span class="p">[</span><span class="n">nx</span><span class="p">]</span> <span class="o">/</span> <span class="n">figW</span><span class="p">,</span> <span class="p">(</span><span class="n">ox</span><span class="p">[</span><span class="n">nx1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ox</span><span class="p">[</span><span class="n">nx</span><span class="p">])</span> <span class="o">/</span> <span class="n">figW</span>
+        <span class="n">y1</span><span class="p">,</span> <span class="n">h1</span> <span class="o">=</span> <span class="n">y0</span><span class="p">,</span> <span class="n">hh</span>
+
+        <span class="k">return</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">h1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="VBoxDivider"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.VBoxDivider.html#mpl_toolkits.axes_grid1.axes_divider.VBoxDivider">[docs]</a><span class="k">class</span> <span class="nc">VBoxDivider</span><span class="p">(</span><span class="n">HBoxDivider</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Divider class whose rectangle area is specified as a subplot geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VBoxDivider.new_locator"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.VBoxDivider.html#mpl_toolkits.axes_grid1.axes_divider.VBoxDivider.new_locator">[docs]</a>    <span class="k">def</span> <span class="nf">new_locator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">ny1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for</span>
+<span class="sd">        the specified cell.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Integers specifying the row-position of the</span>
+<span class="sd">            cell. When *ny1* is None, a single *ny*-th row is</span>
+<span class="sd">            specified. Otherwise location of rows spanning between *ny*</span>
+<span class="sd">            to *ny1* (but excluding *ny1*-th row) is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AxesLocator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ny1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VBoxDivider.locate"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.VBoxDivider.html#mpl_toolkits.axes_grid1.axes_divider.VBoxDivider.locate">[docs]</a>    <span class="k">def</span> <span class="nf">locate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ny1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axes_divider : AxesDivider</span>
+<span class="sd">        nx, nx1 : int</span>
+<span class="sd">            Integers specifying the column-position of the</span>
+<span class="sd">            cell. When *nx1* is None, a single *nx*-th column is</span>
+<span class="sd">            specified. Otherwise location of columns spanning between *nx*</span>
+<span class="sd">            to *nx1* (but excluding *nx1*-th column) is specified.</span>
+<span class="sd">        ny, ny1 : int</span>
+<span class="sd">            Same as *nx* and *nx1*, but for row positions.</span>
+<span class="sd">        axes</span>
+<span class="sd">        renderer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">figW</span><span class="p">,</span> <span class="n">figH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position_runtime</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span>
+
+        <span class="n">x_equivalent_sizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horizontal_sizes</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="n">y_appended_sizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertical_sizes</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+
+        <span class="n">y0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">oy</span><span class="p">,</span> <span class="n">ww</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locate</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span>
+                                      <span class="n">x_equivalent_sizes</span><span class="p">,</span> <span class="n">y_appended_sizes</span><span class="p">,</span>
+                                      <span class="n">figH</span><span class="p">,</span> <span class="n">figW</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ny1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ny1</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">x1</span><span class="p">,</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">x0</span><span class="p">,</span> <span class="n">ww</span>
+        <span class="n">y1</span><span class="p">,</span> <span class="n">h1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">oy</span><span class="p">[</span><span class="n">ny</span><span class="p">]</span> <span class="o">/</span> <span class="n">figH</span><span class="p">,</span> <span class="p">(</span><span class="n">oy</span><span class="p">[</span><span class="n">ny1</span><span class="p">]</span> <span class="o">-</span> <span class="n">oy</span><span class="p">[</span><span class="n">ny</span><span class="p">])</span> <span class="o">/</span> <span class="n">figH</span>
+
+        <span class="k">return</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">h1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="make_axes_locatable"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.make_axes_locatable.html#mpl_toolkits.axes_grid1.axes_divider.make_axes_locatable">[docs]</a><span class="k">def</span> <span class="nf">make_axes_locatable</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+    <span class="n">divider</span> <span class="o">=</span> <span class="n">AxesDivider</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+    <span class="n">locator</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">new_locator</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">axes</span><span class="o">.</span><span class="n">set_axes_locator</span><span class="p">(</span><span class="n">locator</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">divider</span></div>
+
+
+<div class="viewcode-block" id="make_axes_area_auto_adjustable"><a class="viewcode-back" href="../../../api/_as_gen/mpl_toolkits.axes_grid1.axes_divider.make_axes_area_auto_adjustable.html#mpl_toolkits.axes_grid1.axes_divider.make_axes_area_auto_adjustable">[docs]</a><span class="k">def</span> <span class="nf">make_axes_area_auto_adjustable</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
+                                   <span class="n">use_axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                                   <span class="n">adjust_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">adjust_dirs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">adjust_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">]</span>
+    <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">use_axes</span> <span class="o">=</span> <span class="n">ax</span>
+
+    <span class="n">divider</span><span class="o">.</span><span class="n">add_auto_adjustable_area</span><span class="p">(</span><span class="n">use_axes</span><span class="o">=</span><span class="n">use_axes</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">,</span>
+                                     <span class="n">adjust_dirs</span><span class="o">=</span><span class="n">adjust_dirs</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer>
+    <div class="footer">
+    &copy; Copyright 2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012 - 2020 The Matplotlib development team.
+<br />
+    Last updated on Aug 24, 2020.
+Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.
+Doc version v3.3.1-dirty.
+    </div>
+</footer>
+<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55954603-1', 'auto');
+        ga('send', 'pageview');
+
+</script>
+  </body>
+</html>

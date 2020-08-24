@@ -1,0 +1,609 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Figures and Asynchronous Programming &#8212; Matplotlib 3.3.1 documentation</title>
+    <link rel="stylesheet" href="../_static/mpl.css?v3.3.1-dirty" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.3.1 documentation"
+          href="../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Event handling and picking" href="event_handling.html" />
+    <link rel="prev" title="Interactive Figures" href="interactive.html" />
+<link rel="top" title="Matplotlib 3.3.1 documentation" href="#" />
+    <link rel="canonical" href="https://matplotlib.org/3.3.1/users/interactive_guide.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
+    <a href="../index.html">
+        <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version 3.3.1</span></div>
+        <img src="../_static/logo2_compressed.svg" height="125px" border="0" alt="matplotlib"/></a>
+
+    <!-- The "Fork me on github" ribbon -->
+    <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="installing.html">Installation</a></li>
+            <li><a href="../contents.html">Documentation</a></li>
+            <li><a href="../gallery/index.html">Examples</a></li>
+            <li><a href="../tutorials/index.html">Tutorials</a></li>
+            <li><a href="../devel/index.html">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="event_handling.html" title="Event handling and picking"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="interactive.html" title="Interactive Figures"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">home</a>|&nbsp;</li>
+        <li><a href="../contents.html">contents</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User's Guide</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="interactive.html" accesskey="U">Interactive Figures</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Interactive Figures and Asynchronous Programming</a></li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Interactive Figures and Asynchronous Programming</a><ul>
+<li><a class="reference internal" href="#event-loops">Event Loops</a></li>
+<li><a class="reference internal" href="#command-prompt-integration">Command Prompt Integration</a><ul>
+<li><a class="reference internal" href="#blocking-the-prompt">Blocking the Prompt</a></li>
+<li><a class="reference internal" href="#input-hook-integration">Input Hook integration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#full-embedding">Full embedding</a></li>
+<li><a class="reference internal" href="#scripts-and-functions">Scripts and functions</a><ul>
+<li><a class="reference internal" href="#blocking-functions">Blocking functions</a></li>
+<li><a class="reference internal" href="#explicitly-spinning-the-event-loop">Explicitly spinning the Event Loop</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stale-artists">Stale Artists</a></li>
+<li><a class="reference internal" href="#draw-idle">Draw Idle</a></li>
+<li><a class="reference internal" href="#threading">Threading</a></li>
+<li><a class="reference internal" href="#eventloop-integration-mechanism">Eventloop integration mechanism</a><ul>
+<li><a class="reference internal" href="#cpython-readline">CPython / readline</a></li>
+<li><a class="reference internal" href="#ipython-prompt-toolkit">IPython / prompt toolkit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../contents.html">Documentation overview</a><ul>
+  <li><a href="index.html">User's Guide</a><ul>
+  <li><a href="interactive.html">Interactive Figures</a><ul>
+      <li>Previous: <a href="interactive.html" title="previous chapter">Interactive Figures</a></li>
+      <li>Next: <a href="event_handling.html" title="next chapter">Event handling and picking</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div id="sidebar-pagesource" role="note" aria-label="source link"
+    style="margin-top: 1.5em; padding-top: 0.1em; border-top: 1px solid #86989b">
+  <a href="../_sources/users/interactive_guide.rst.txt"
+     style="color: #c0c0c0" rel="nofollow">Show Page Source</a>
+  </div>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="interactive-figures-and-asynchronous-programming">
+<span id="interactive-figures-and-eventloops"></span><h1>Interactive Figures and Asynchronous Programming<a class="headerlink" href="#interactive-figures-and-asynchronous-programming" title="Permalink to this headline">¶</a></h1>
+<p>Matplotlib supports rich interactive figures by embedding figures into
+a GUI window.  The basic interactions of panning and zooming in an
+Axes to inspect your data is 'baked in' to Matplotlib.  This is
+supported by a full mouse and keyboard event handling system that
+you can use to build sophisticated interactive graphs.</p>
+<p>This guide is meant to be an introduction to the low-level details of
+how Matplotlib integration with a GUI event loop works.  For a more
+practical introduction to the Matplotlib event API see <a class="reference internal" href="event_handling.html#event-handling-tutorial"><span class="std std-ref">event
+handling system</span></a>, <a class="reference external" href="https://github.com/matplotlib/interactive_tutorial">Interactive Tutorial</a>, and
+<a class="reference external" href="http://www.amazon.com/Interactive-Applications-using-Matplotlib-Benjamin/dp/1783988843">Interactive Applications using Matplotlib</a>.</p>
+<div class="section" id="event-loops">
+<h2>Event Loops<a class="headerlink" href="#event-loops" title="Permalink to this headline">¶</a></h2>
+<p>Fundamentally, all user interaction (and networking) is implemented as
+an infinite loop waiting for events from the user (via the OS) and
+then doing something about it.  For example, a minimal Read Evaluate
+Print Loop (REPL) is</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exec_count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">exec_count</span><span class="si">}</span><span class="s2">] &gt; &quot;</span><span class="p">)</span>        <span class="c1"># Read</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>                          <span class="c1"># Evaluate</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>                               <span class="c1"># Print</span>
+    <span class="n">exec_count</span> <span class="o">+=</span> <span class="mi">1</span>                          <span class="c1"># Loop</span>
+</pre></div>
+</div>
+<p>This is missing many niceties (for example, it exits on the first
+exception!), but is representative of the event loops that underlie
+all terminals, GUIs, and servers <a class="footnote-reference" href="#f1" id="id1">[1]</a>.  In general the <em>Read</em> step
+is waiting on some sort of I/O -- be it user input or the network --
+while the <em>Evaluate</em> and <em>Print</em> are responsible for interpreting the
+input and then <strong>doing</strong> something about it.</p>
+<p>In practice we interact with a framework that provides a mechanism to
+register callbacks to be run in response to specific events rather
+than directly implement the I/O loop <a class="footnote-reference" href="#f2" id="id2">[2]</a>.  For example &quot;when the
+user clicks on this button, please run this function&quot; or &quot;when the
+user hits the 'z' key, please run this other function&quot;.  This allows
+users to write reactive, event-driven, programs without having to
+delve into the nitty-gritty <a class="footnote-reference" href="#f3" id="id3">[3]</a> details of I/O.  The core event loop
+is sometimes referred to as &quot;the main loop&quot; and is typically started,
+depending on the library, by methods with names like <code class="docutils literal notranslate"><span class="pre">_exec</span></code>,
+<code class="docutils literal notranslate"><span class="pre">run</span></code>, or <code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
+<p>All GUI frameworks (Qt, Wx, Gtk, tk, OSX, or web) have some method of
+capturing user interactions and passing them back to the application
+(for example <code class="docutils literal notranslate"><span class="pre">Signal</span></code> / <code class="docutils literal notranslate"><span class="pre">Slot</span></code> framework in Qt) but the exact
+details depend on the toolkit.  Matplotlib has a <a class="reference internal" href="../tutorials/introductory/usage.html#what-is-a-backend"><span class="std std-ref">backend</span></a> for each GUI toolkit we support which uses the
+toolkit API to bridge the toolkit UI events into Matplotlib's <a class="reference internal" href="event_handling.html#event-handling-tutorial"><span class="std std-ref">event
+handling system</span></a>.  You can then use
+<a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.mpl_connect" title="matplotlib.backend_bases.FigureCanvasBase.mpl_connect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FigureCanvasBase.mpl_connect</span></code></a> to connect your function to
+Matplotlib's event handling system.  This allows you to directly
+interact with your data and write GUI toolkit agnostic user
+interfaces.</p>
+</div>
+<div class="section" id="command-prompt-integration">
+<span id="cp-integration"></span><h2>Command Prompt Integration<a class="headerlink" href="#command-prompt-integration" title="Permalink to this headline">¶</a></h2>
+<p>So far, so good.  We have the REPL (like the IPython terminal) that
+lets us interactively send code to the interpreter and get results
+back.  We also have the GUI toolkit that runs an event loop waiting
+for user input and lets us register functions to be run when that
+happens.  However, if we want to do both we have a problem: the prompt
+and the GUI event loop are both infinite loops that each think <em>they</em>
+are in charge!  In order for both the prompt and the GUI windows to be
+responsive we need a method to allow the loops to 'timeshare' :</p>
+<ol class="arabic simple">
+<li>let the GUI main loop block the python process when you want
+interactive windows</li>
+<li>let the CLI main loop block the python process and intermittently
+run the GUI loop</li>
+<li>fully embed python in the GUI (but this is basically writing a full
+application)</li>
+</ol>
+<div class="section" id="blocking-the-prompt">
+<span id="cp-block-the-prompt"></span><h3>Blocking the Prompt<a class="headerlink" href="#blocking-the-prompt" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils align-default">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.show</span></code></a></td>
+<td>Display all open figures.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.pause.html#matplotlib.pyplot.pause" title="matplotlib.pyplot.pause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.pause</span></code></a></td>
+<td>Run the GUI event loop for <em>interval</em> seconds.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.start_event_loop" title="matplotlib.backend_bases.FigureCanvasBase.start_event_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.start_event_loop</span></code></a></td>
+<td>Start a blocking event loop.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.stop_event_loop" title="matplotlib.backend_bases.FigureCanvasBase.stop_event_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.stop_event_loop</span></code></a></td>
+<td>Stop the current blocking event loop.</td>
+</tr>
+</tbody>
+</table>
+<p>The simplest &quot;integration&quot; is to start the GUI event loop in
+'blocking' mode and take over the CLI.  While the GUI event loop is
+running you can not enter new commands into the prompt (your terminal
+may echo the characters typed into the terminal, but they will not be
+sent to the Python interpreter because it is busy running the GUI
+event loop), but the figure windows will be responsive.  Once the
+event loop is stopped (leaving any still open figure windows
+non-responsive) you will be able to use the prompt again.  Re-starting
+the event loop will make any open figure responsive again (and will
+process any queued up user interaction).</p>
+<p>To start the event loop until all open figures are closed use
+<a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.show</span></code></a> as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To start the event loop for a fixed amount of time (in seconds) use
+<a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.pause.html#matplotlib.pyplot.pause" title="matplotlib.pyplot.pause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.pause</span></code></a>.</p>
+<p>If you are not using <a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.html#module-matplotlib.pyplot" title="matplotlib.pyplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot</span></code></a> you can start and stop the event loops
+via <a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.start_event_loop" title="matplotlib.backend_bases.FigureCanvasBase.start_event_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FigureCanvasBase.start_event_loop</span></code></a> and
+<a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.stop_event_loop" title="matplotlib.backend_bases.FigureCanvasBase.stop_event_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FigureCanvasBase.stop_event_loop</span></code></a>. However, in most contexts where
+you would not be using <a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.html#module-matplotlib.pyplot" title="matplotlib.pyplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot</span></code></a> you are embedding Matplotlib in a
+large GUI application and the GUI event loop should already be running
+for the application.</p>
+<p>Away from the prompt, this technique can be very useful if you want to
+write a script that pauses for user interaction, or displays a figure
+between polling for additional data.  See <a class="reference internal" href="#interactive-scripts"><span class="std std-ref">Scripts and functions</span></a>
+for more details.</p>
+</div>
+<div class="section" id="input-hook-integration">
+<h3>Input Hook integration<a class="headerlink" href="#input-hook-integration" title="Permalink to this headline">¶</a></h3>
+<p>While running the GUI event loop in a blocking mode or explicitly
+handling UI events is useful, we can do better!  We really want to be
+able to have a usable prompt <strong>and</strong> interactive figure windows.</p>
+<p>We can do this using the 'input hook' feature of the interactive
+prompt.  This hook is called by the prompt as it waits for the user
+to type (even for a fast typist the prompt is mostly waiting for the
+human to think and move their fingers).  Although the details vary
+between prompts the logic is roughly</p>
+<ol class="arabic simple">
+<li>start to wait for keyboard input</li>
+<li>start the GUI event loop</li>
+<li>as soon as the user hits a key, exit the GUI event loop and handle the key</li>
+<li>repeat</li>
+</ol>
+<p>This gives us the illusion of simultaneously having interactive GUI
+windows and an interactive prompt.  Most of the time the GUI event
+loop is running, but as soon as the user starts typing the prompt
+takes over again.</p>
+<p>This time-share technique only allows the event loop to run while
+python is otherwise idle and waiting for user input.  If you want the
+GUI to be responsive during long running code it is necessary to
+periodically flush the GUI event queue as described <a class="reference internal" href="#spin-event-loop"><span class="std std-ref">above</span></a>.  In this case it is your code, not the REPL, which
+is blocking the process so you need to handle the &quot;time-share&quot; manually.
+Conversely, a very slow figure draw will block the prompt until it
+finishes drawing.</p>
+</div>
+</div>
+<div class="section" id="full-embedding">
+<h2>Full embedding<a class="headerlink" href="#full-embedding" title="Permalink to this headline">¶</a></h2>
+<p>It is also possible to go the other direction and fully embed figures
+(and a <a class="reference external" href="https://docs.python.org/3/extending/embedding.html">Python interpreter</a>) in a rich
+native application.  Matplotlib provides classes for each toolkit
+which can be directly embedded in GUI applications (this is how the
+built-in windows are implemented!).  See <a class="reference internal" href="../gallery/index.html#user-interfaces"><span class="std std-ref">Embedding Matplotlib in graphical user interfaces</span></a> for
+more details.</p>
+</div>
+<div class="section" id="scripts-and-functions">
+<span id="interactive-scripts"></span><h2>Scripts and functions<a class="headerlink" href="#scripts-and-functions" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils align-default">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.flush_events" title="matplotlib.backend_bases.FigureCanvasBase.flush_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.flush_events</span></code></a></td>
+<td>Flush the GUI events for the figure.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.draw_idle</span></code></a></td>
+<td>Request a widget redraw once control returns to the GUI event loop.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure.ginput" title="matplotlib.figure.Figure.ginput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">figure.Figure.ginput</span></code></a></td>
+<td>Blocking call to interact with a figure.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.ginput.html#matplotlib.pyplot.ginput" title="matplotlib.pyplot.ginput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.ginput</span></code></a></td>
+<td>Blocking call to interact with a figure.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.show</span></code></a></td>
+<td>Display all open figures.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.pause.html#matplotlib.pyplot.pause" title="matplotlib.pyplot.pause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.pause</span></code></a></td>
+<td>Run the GUI event loop for <em>interval</em> seconds.</td>
+</tr>
+</tbody>
+</table>
+<p>There are several use-cases for using interactive figures in scripts:</p>
+<ul class="simple">
+<li>capture user input to steer the script</li>
+<li>progress updates as a long running script progresses</li>
+<li>streaming updates from a data source</li>
+</ul>
+<div class="section" id="blocking-functions">
+<h3>Blocking functions<a class="headerlink" href="#blocking-functions" title="Permalink to this headline">¶</a></h3>
+<p>If you only need to collect points in an Axes you can use
+<a class="reference internal" href="../api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure.ginput" title="matplotlib.figure.Figure.ginput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">figure.Figure.ginput</span></code></a> or more generally the tools from
+<a class="reference internal" href="../api/blocking_input_api.html#module-matplotlib.blocking_input" title="matplotlib.blocking_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blocking_input</span></code></a> the tools will take care of starting and stopping
+the event loop for you.  However if you have written some custom event
+handling or are using <a class="reference internal" href="../api/widgets_api.html#module-matplotlib.widgets" title="matplotlib.widgets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets</span></code></a> you will need to manually run the GUI
+event loop using the methods described <a class="reference internal" href="#cp-block-the-prompt"><span class="std std-ref">above</span></a>.</p>
+<p>You can also use the methods described in <a class="reference internal" href="#cp-block-the-prompt"><span class="std std-ref">Blocking the Prompt</span></a>
+to suspend run the GUI event loop.  Once the loop exits your code will
+resume.  In general, any place you would use <a class="reference external" href="https://docs.python.org/3/library/time.html#time.sleep" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time.sleep</span></code></a> you can use
+<a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.pause.html#matplotlib.pyplot.pause" title="matplotlib.pyplot.pause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.pause</span></code></a> instead with the added benefit of interactive figures.</p>
+<p>For example, if you want to poll for data you could use something like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ln</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[])</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">get_new_data</span><span class="p">()</span>
+    <span class="n">ln</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which would poll for new data and update the figure at 1Hz.</p>
+</div>
+<div class="section" id="explicitly-spinning-the-event-loop">
+<span id="spin-event-loop"></span><h3>Explicitly spinning the Event Loop<a class="headerlink" href="#explicitly-spinning-the-event-loop" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils align-default">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.flush_events" title="matplotlib.backend_bases.FigureCanvasBase.flush_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.flush_events</span></code></a></td>
+<td>Flush the GUI events for the figure.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.draw_idle</span></code></a></td>
+<td>Request a widget redraw once control returns to the GUI event loop.</td>
+</tr>
+</tbody>
+</table>
+<p>If you have open windows that have pending UI
+events (mouse clicks, button presses, or draws) you can explicitly
+process those events by calling <a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.flush_events" title="matplotlib.backend_bases.FigureCanvasBase.flush_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FigureCanvasBase.flush_events</span></code></a>.
+This will run the GUI event loop until all UI events currently waiting
+have been processed.  The exact behavior is backend-dependent but
+typically events on all figure are processed and only events waiting
+to be processed (not those added during processing) will be handled.</p>
+<p>For example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">th</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">512</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+
+<span class="n">ln</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">th</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">th</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">slow_loop</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># to simulate some work</span>
+        <span class="n">ln</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush_events</span><span class="p">()</span>
+
+<span class="n">slow_loop</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>While this will feel a bit laggy (as we are only processing user input
+every 100ms whereas 20-30ms is what feels &quot;responsive&quot;) it will
+respond.</p>
+<p>If you make changes to the plot and want it re-rendered you will need
+to call <a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_idle</span></code></a> to request that the canvas be
+re-drawn.  This method can be thought of <em>draw_soon</em> in analogy to
+<a class="reference external" href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.loop.call_soon" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asyncio.loop.call_soon</span></code></a>.</p>
+<p>We can add this our example above as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">slow_loop</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># to simulate some work</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">%</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">ln</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(((</span><span class="n">j</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">th</span><span class="p">)))</span>
+            <span class="n">ln</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+        <span class="n">ln</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush_events</span><span class="p">()</span>
+
+<span class="n">slow_loop</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The more frequently you call <a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.flush_events" title="matplotlib.backend_bases.FigureCanvasBase.flush_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FigureCanvasBase.flush_events</span></code></a> the more
+responsive your figure will feel but at the cost of spending more
+resources on the visualization and less on your computation.</p>
+</div>
+</div>
+<div class="section" id="stale-artists">
+<span id="id4"></span><h2>Stale Artists<a class="headerlink" href="#stale-artists" title="Permalink to this headline">¶</a></h2>
+<p>Artists (as of Matplotlib 1.5) have a <strong>stale</strong> attribute which is
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> if the internal state of the artist has changed since the last
+time it was rendered. By default the stale state is propagated up to
+the Artists parents in the draw tree, e.g., if the color of a <a class="reference internal" href="../api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Line2D</span></code></a>
+instance is changed, the <a class="reference internal" href="../api/axes_api.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">axes.Axes</span></code></a> and <a class="reference internal" href="../api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">figure.Figure</span></code></a> that
+contain it will also be marked as &quot;stale&quot;.  Thus, <code class="docutils literal notranslate"><span class="pre">fig.stale</span></code> will
+report if any artist in the figure has been modified and is out of sync
+with what is displayed on the screen.  This is intended to be used to
+determine if <code class="docutils literal notranslate"><span class="pre">draw_idle</span></code> should be called to schedule a re-rendering
+of the figure.</p>
+<p>Each artist has a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Artist.stale_callback</span></code> attribute which holds a callback
+with the signature</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Artist</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+   <span class="o">...</span>
+</pre></div>
+</div>
+<p>which by default is set to a function that forwards the stale state to
+the artist's parent.   If you wish to suppress a given artist from propagating
+set this attribute to None.</p>
+<p><a class="reference internal" href="../api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">figure.Figure</span></code></a> instances do not have a containing artist and their
+default callback is <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>.  If you call <a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.ion.html#matplotlib.pyplot.ion" title="matplotlib.pyplot.ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot.ion</span></code></a> and are not in
+<code class="docutils literal notranslate"><span class="pre">IPython</span></code> we will install a callback to invoke
+<a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_idle</span></code></a> whenever the
+<a class="reference internal" href="../api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">figure.Figure</span></code></a> becomes stale.  In <code class="docutils literal notranslate"><span class="pre">IPython</span></code> we use the
+<code class="docutils literal notranslate"><span class="pre">'post_execute'</span></code> hook to invoke
+<a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_idle</span></code></a> on any stale figures
+after having executed the user's input, but before returning the prompt
+to the user.  If you are not using <a class="reference internal" href="../api/_as_gen/matplotlib.pyplot.html#module-matplotlib.pyplot" title="matplotlib.pyplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyplot</span></code></a> you can use the callback
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Figure.stale_callback</span></code> attribute to be notified when a figure has
+become stale.</p>
+</div>
+<div class="section" id="draw-idle">
+<span id="id5"></span><h2>Draw Idle<a class="headerlink" href="#draw-idle" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils align-default">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw" title="matplotlib.backend_bases.FigureCanvasBase.draw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.draw</span></code></a></td>
+<td>Render the <a class="reference internal" href="../api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Figure</span></code></a>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.draw_idle</span></code></a></td>
+<td>Request a widget redraw once control returns to the GUI event loop.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.flush_events" title="matplotlib.backend_bases.FigureCanvasBase.flush_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.flush_events</span></code></a></td>
+<td>Flush the GUI events for the figure.</td>
+</tr>
+</tbody>
+</table>
+<p>In almost all cases, we recommend using
+<a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw_idle" title="matplotlib.backend_bases.FigureCanvasBase.draw_idle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.draw_idle</span></code></a> over
+<a class="reference internal" href="../api/backend_bases_api.html#matplotlib.backend_bases.FigureCanvasBase.draw" title="matplotlib.backend_bases.FigureCanvasBase.draw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backend_bases.FigureCanvasBase.draw</span></code></a>.  <code class="docutils literal notranslate"><span class="pre">draw</span></code> forces a rendering of
+the figure whereas <code class="docutils literal notranslate"><span class="pre">draw_idle</span></code> schedules a rendering the next time
+the GUI window is going to re-paint the screen.  This improves
+performance by only rendering pixels that will be shown on the screen.  If
+you want to be sure that the screen is updated as soon as possible do</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">flush_events</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="threading">
+<h2>Threading<a class="headerlink" href="#threading" title="Permalink to this headline">¶</a></h2>
+<p>Most GUI frameworks require that all updates to the screen, and hence
+their main event loop, run on the main thread.  This makes pushing
+periodic updates of a plot to a background thread impossible.
+Although it seems backwards, it is typically easier to push your
+computations to a background thread and periodically update
+the figure on the main thread.</p>
+<p>In general Matplotlib is not thread safe.  If you are going to update
+<a class="reference internal" href="../api/artist_api.html#matplotlib.artist.Artist" title="matplotlib.artist.Artist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Artist</span></code></a> objects in one thread and draw from another you should make
+sure that you are locking in the critical sections.</p>
+</div>
+<div class="section" id="eventloop-integration-mechanism">
+<h2>Eventloop integration mechanism<a class="headerlink" href="#eventloop-integration-mechanism" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cpython-readline">
+<h3>CPython / readline<a class="headerlink" href="#cpython-readline" title="Permalink to this headline">¶</a></h3>
+<p>The Python C API provides a hook, <a class="reference external" href="https://docs.python.org/3/c-api/veryhigh.html#c.PyOS_InputHook" title="(in Python v3.8)"><code class="xref c c-data docutils literal notranslate"><span class="pre">PyOS_InputHook</span></code></a>, to register a
+function to be run &quot;The function will be called when Python's
+interpreter prompt is about to become idle and wait for user input
+from the terminal.&quot;.  This hook can be used to integrate a second
+event loop (the GUI event loop) with the python input prompt loop.
+The hook functions typically exhaust all pending events on the GUI
+event queue, run the main loop for a short fixed amount of time, or
+run the event loop until a key is pressed on stdin.</p>
+<p>Matplotlib does not currently do any management of <a class="reference external" href="https://docs.python.org/3/c-api/veryhigh.html#c.PyOS_InputHook" title="(in Python v3.8)"><code class="xref c c-data docutils literal notranslate"><span class="pre">PyOS_InputHook</span></code></a> due
+to the wide range of ways that Matplotlib is used.  This management is left to
+downstream libraries -- either user code or the shell.  Interactive figures,
+even with matplotlib in 'interactive mode', may not work in the vanilla python
+repl if an appropriate <a class="reference external" href="https://docs.python.org/3/c-api/veryhigh.html#c.PyOS_InputHook" title="(in Python v3.8)"><code class="xref c c-data docutils literal notranslate"><span class="pre">PyOS_InputHook</span></code></a> is not registered.</p>
+<p>Input hooks, and helpers to install them, are usually included with
+the python bindings for GUI toolkits and may be registered on import.
+IPython also ships input hook functions for all of the GUI frameworks
+Matplotlib supports which can be installed via <code class="docutils literal notranslate"><span class="pre">%matplotlib</span></code>.  This
+is the recommended method of integrating Matplotlib and a prompt.</p>
+</div>
+<div class="section" id="ipython-prompt-toolkit">
+<h3>IPython / prompt toolkit<a class="headerlink" href="#ipython-prompt-toolkit" title="Permalink to this headline">¶</a></h3>
+<p>With IPython &gt;= 5.0 IPython has changed from using cpython's readline
+based prompt to a <code class="docutils literal notranslate"><span class="pre">prompt_toolkit</span></code> based prompt.  <code class="docutils literal notranslate"><span class="pre">prompt_toolkit</span></code>
+has the same conceptual input hook, which is fed into <code class="docutils literal notranslate"><span class="pre">prompt_toolkit</span></code> via the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook()</span></code>
+method.  The source for the <code class="docutils literal notranslate"><span class="pre">prompt_toolkit</span></code> input hooks lives at
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">IPython.terminal.pt_inputhooks</span></code></p>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><p class="first">A limitation of this design is that you can only wait for one
+input, if there is a need to multiplex between multiple sources
+then the loop would look something like</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fds</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>                    <span class="c1"># Loop</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">fds</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>   <span class="c1"># Read</span>
+    <span class="nb">eval</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>                  <span class="c1"># Evaluate / Print</span>
+</pre></div>
+</div>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Or you can <a class="reference external" href="https://www.youtube.com/watch?v=ZzfHjytDceU">write your own</a> if you must.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>These examples are aggressively dropping many of the
+complexities that must be dealt with in the real world such as
+keyboard interrupts, timeouts, bad input, resource
+allocation and cleanup, etc.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer>
+    <div class="footer">
+    &copy; Copyright 2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012 - 2020 The Matplotlib development team.
+<br />
+    Last updated on Aug 24, 2020.
+Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.
+Doc version v3.3.1-dirty.
+    </div>
+</footer>
+<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55954603-1', 'auto');
+        ga('send', 'pageview');
+
+</script>
+  </body>
+</html>

@@ -1,0 +1,1244 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>matplotlib.backend_tools &#8212; Matplotlib 3.3.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/mpl.css?v3.3.1-dirty" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.3.1 documentation"
+          href="../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="top" title="Matplotlib 3.3.1 documentation" href="#" />
+    <link rel="canonical" href="https://matplotlib.org/3.3.1/_modules/matplotlib/backend_tools.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
+    <a href="../../index.html">
+        <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version 3.3.1</span></div>
+        <img src="../../_static/logo2_compressed.svg" height="125px" border="0" alt="matplotlib"/></a>
+
+    <!-- The "Fork me on github" ribbon -->
+    <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="../../users/installing.html">Installation</a></li>
+            <li><a href="../../contents.html">Documentation</a></li>
+            <li><a href="../../gallery/index.html">Examples</a></li>
+            <li><a href="../../tutorials/index.html">Tutorials</a></li>
+            <li><a href="../../devel/index.html">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">home</a>|&nbsp;</li>
+        <li><a href="../../contents.html">contents</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../matplotlib.html" accesskey="U">matplotlib</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">matplotlib.backend_tools</a></li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../matplotlib.html">matplotlib</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for matplotlib.backend_tools</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Abstract base classes define the primitives for Tools.</span>
+<span class="sd">These tools are used by `matplotlib.backend_managers.ToolManager`</span>
+
+<span class="sd">:class:`ToolBase`</span>
+<span class="sd">    Simple stateless tool</span>
+
+<span class="sd">:class:`ToolToggleBase`</span>
+<span class="sd">    Tool that has two states, only one Toggle tool can be</span>
+<span class="sd">    active at any given time for the same</span>
+<span class="sd">    `matplotlib.backend_managers.ToolManager`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">WeakKeyDictionary</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">matplotlib._pylab_helpers</span> <span class="kn">import</span> <span class="n">Gcf</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cbook</span> <span class="k">as</span> <span class="nn">cbook</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Cursors"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.Cursors">[docs]</a><span class="k">class</span> <span class="nc">Cursors</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>  <span class="c1"># Must subclass int for the macOS backend.</span>
+    <span class="sd">&quot;&quot;&quot;Backend-independent cursor types.&quot;&quot;&quot;</span>
+    <span class="n">HAND</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">SELECT_REGION</span><span class="p">,</span> <span class="n">MOVE</span><span class="p">,</span> <span class="n">WAIT</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span></div>
+<span class="n">cursors</span> <span class="o">=</span> <span class="n">Cursors</span>  <span class="c1"># Backcompat.</span>
+
+<span class="c1"># Views positions tool</span>
+<span class="n">_views_positions</span> <span class="o">=</span> <span class="s1">&#39;viewpos&#39;</span>
+
+
+<div class="viewcode-block" id="ToolBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolBase">[docs]</a><span class="k">class</span> <span class="nc">ToolBase</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base tool class.</span>
+
+<span class="sd">    A base tool, only implements `trigger` method or not method at all.</span>
+<span class="sd">    The tool is instantiated by `matplotlib.backend_managers.ToolManager`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    toolmanager : `matplotlib.backend_managers.ToolManager`</span>
+<span class="sd">        ToolManager that controls this Tool.</span>
+<span class="sd">    figure : `FigureCanvas`</span>
+<span class="sd">        Figure instance that is affected by this Tool.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Used as **Id** of the tool, has to be unique among tools of the same</span>
+<span class="sd">        ToolManager.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keymap to associate with this tool.</span>
+
+<span class="sd">    **String**: List of comma separated keys that will be used to call this</span>
+<span class="sd">    tool when the keypress event of ``self.figure.canvas`` is emitted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description of the Tool.</span>
+
+<span class="sd">    **String**: If the Tool is included in the Toolbar this text is used</span>
+<span class="sd">    as a Tooltip.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filename of the image.</span>
+
+<span class="sd">    **String**: Filename of the image to use in the toolbar. If None, the</span>
+<span class="sd">    *name* is used as a label in the toolbar button.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toolmanager</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">cbook</span><span class="o">.</span><span class="n">_warn_external</span><span class="p">(</span>
+            <span class="s1">&#39;The new Tool classes introduced in v1.5 are experimental; their &#39;</span>
+            <span class="s1">&#39;API (including names) will likely change in future versions.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_toolmanager</span> <span class="o">=</span> <span class="n">toolmanager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span>
+
+    <span class="nd">@figure</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_figure</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span><span class="o">.</span><span class="n">canvas</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">toolmanager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toolmanager</span>
+
+    <span class="k">def</span> <span class="nf">_make_classic_style_pseudo_toolbar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a placeholder object with a single `canvas` attribute.</span>
+
+<span class="sd">        This is useful to reuse the implementations of tools already provided</span>
+<span class="sd">        by the classic Toolbars.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">canvas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ToolBase.set_figure"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolBase.set_figure">[docs]</a>    <span class="k">def</span> <span class="nf">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign a figure to the tool.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        figure : `.Figure`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure</span> <span class="o">=</span> <span class="n">figure</span></div>
+
+<div class="viewcode-block" id="ToolBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when this tool gets used.</span>
+
+<span class="sd">        This method is called by</span>
+<span class="sd">        `matplotlib.backend_managers.ToolManager.trigger_tool`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : `.Event`</span>
+<span class="sd">            The canvas event that caused this tool to be called.</span>
+<span class="sd">        sender : object</span>
+<span class="sd">            Object that requested the tool to be triggered.</span>
+<span class="sd">        data : object</span>
+<span class="sd">            Extra data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tool Id.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+<div class="viewcode-block" id="ToolBase.destroy"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolBase.destroy">[docs]</a>    <span class="k">def</span> <span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destroy the tool.</span>
+
+<span class="sd">        This method is called when the tool is removed by</span>
+<span class="sd">        `matplotlib.backend_managers.ToolManager.remove_tool`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="ToolToggleBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolToggleBase">[docs]</a><span class="k">class</span> <span class="nc">ToolToggleBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Toggleable tool.</span>
+
+<span class="sd">    Every time it is triggered, it switches between enable and disable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ``*args``</span>
+<span class="sd">        Variable length argument to be used by the Tool.</span>
+<span class="sd">    ``**kwargs``</span>
+<span class="sd">        `toggled` if present and True, sets the initial state of the Tool</span>
+<span class="sd">        Arbitrary keyword arguments to be consumed by the Tool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">radio_group</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Attribute to group &#39;radio&#39; like tools (mutually exclusive).</span>
+
+<span class="sd">    **String** that identifies the group or **None** if not belonging to a</span>
+<span class="sd">    group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Cursor to use when the tool is active.&quot;&quot;&quot;</span>
+
+    <span class="n">default_toggled</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="sd">&quot;&quot;&quot;Default of toggled state.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;toggled&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_toggled</span><span class="p">)</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ToolToggleBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolToggleBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calls `enable` or `disable` based on `toggled` value.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span></div>
+
+<div class="viewcode-block" id="ToolToggleBase.enable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolToggleBase.enable">[docs]</a>    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable the toggle tool.</span>
+
+<span class="sd">        `trigger` calls this method when `toggled` is False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ToolToggleBase.disable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolToggleBase.disable">[docs]</a>    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disable the toggle tool.</span>
+
+<span class="sd">        `trigger` call this method when `toggled` is True.</span>
+
+<span class="sd">        This can happen in different circumstances.</span>
+
+<span class="sd">        * Click on the toolbar tool button.</span>
+<span class="sd">        * Call to `matplotlib.backend_managers.ToolManager.trigger_tool`.</span>
+<span class="sd">        * Another `ToolToggleBase` derived tool is triggered</span>
+<span class="sd">          (from the same `.ToolManager`).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">toggled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;State of the toggled tool.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span>
+
+<div class="viewcode-block" id="ToolToggleBase.set_figure"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolToggleBase.set_figure">[docs]</a>    <span class="k">def</span> <span class="nf">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="n">toggled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toggled</span>
+        <span class="k">if</span> <span class="n">toggled</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># if no figure the internal state is not changed</span>
+                <span class="c1"># we change it here so next call to trigger will change it back</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="n">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">toggled</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># if there is no figure, trigger won&#39;t change the internal</span>
+                <span class="c1"># state we change it back</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_toggled</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="SetCursorBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.SetCursorBase">[docs]</a><span class="k">class</span> <span class="nc">SetCursorBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Change to the current cursor while inaxes.</span>
+
+<span class="sd">    This tool, keeps track of all `ToolToggleBase` derived tools, and calls</span>
+<span class="sd">    `set_cursor` when a tool gets triggered.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_cursor</span> <span class="o">=</span> <span class="n">cursors</span><span class="o">.</span><span class="n">POINTER</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_cursor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">toolmanager_connect</span><span class="p">(</span><span class="s1">&#39;tool_added_event&#39;</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">_add_tool_cbk</span><span class="p">)</span>
+
+        <span class="c1"># process current tools</span>
+        <span class="k">for</span> <span class="n">tool</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_tool</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SetCursorBase.set_figure"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.SetCursorBase.set_figure">[docs]</a>    <span class="k">def</span> <span class="nf">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span><span class="p">)</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="n">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">figure</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+                <span class="s1">&#39;motion_notify_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_cursor_cbk</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_tool_trigger_cbk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">toggled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cursor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_cursor_cbk</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">canvasevent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the cursor when the tool is triggered.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tool</span><span class="p">,</span> <span class="s1">&#39;cursor&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">toolmanager_connect</span><span class="p">(</span><span class="s1">&#39;tool_trigger_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tool</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">_tool_trigger_cbk</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add_tool_cbk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process every newly added tool.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">tool</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_tool</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">tool</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_cursor_cbk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;inaxes&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_cursor</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_cursor</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_cursor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_cursor</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_cursor</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span>
+            <span class="k">if</span> <span class="n">cursor</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_cursor</span> <span class="o">!=</span> <span class="n">cursor</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_cursor</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_cursor</span> <span class="o">=</span> <span class="n">cursor</span>
+
+<div class="viewcode-block" id="SetCursorBase.set_cursor"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.SetCursorBase.set_cursor">[docs]</a>    <span class="k">def</span> <span class="nf">set_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the cursor.</span>
+
+<span class="sd">        This method has to be implemented per backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="ToolCursorPosition"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolCursorPosition">[docs]</a><span class="k">class</span> <span class="nc">ToolCursorPosition</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Send message with the current pointer position.</span>
+
+<span class="sd">    This tool runs in the background reporting the position of the cursor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ToolCursorPosition.set_figure"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolCursorPosition.set_figure">[docs]</a>    <span class="k">def</span> <span class="nf">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span><span class="p">)</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="n">set_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">figure</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+                <span class="s1">&#39;motion_notify_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_message</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ToolCursorPosition.send_message"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolCursorPosition.send_message">[docs]</a>    <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call `matplotlib.backend_managers.ToolManager.message_event`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">messagelock</span><span class="o">.</span><span class="n">locked</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span><span class="o">.</span><span class="n">get_navigate</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span><span class="o">.</span><span class="n">format_coord</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OverflowError</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">artists</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span><span class="o">.</span><span class="n">_mouseover_set</span>
+                           <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()]</span>
+
+                <span class="k">if</span> <span class="n">artists</span><span class="p">:</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">_topmost_artist</span><span class="p">(</span><span class="n">artists</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span><span class="o">.</span><span class="n">patch</span><span class="p">:</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_cursor_data</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">data_str</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">format_cursor_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">data_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">data_str</span>
+
+                <span class="n">message</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">message_event</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RubberbandBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.RubberbandBase">[docs]</a><span class="k">class</span> <span class="nc">RubberbandBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw and remove a rubberband.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="RubberbandBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.RubberbandBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call `draw_rubberband` or `remove_rubberband` based on data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">widgetlock</span><span class="o">.</span><span class="n">available</span><span class="p">(</span><span class="n">sender</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_rubberband</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_rubberband</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RubberbandBase.draw_rubberband"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.RubberbandBase.draw_rubberband">[docs]</a>    <span class="k">def</span> <span class="nf">draw_rubberband</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw rubberband.</span>
+
+<span class="sd">        This method must get implemented per backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="RubberbandBase.remove_rubberband"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.RubberbandBase.remove_rubberband">[docs]</a>    <span class="k">def</span> <span class="nf">remove_rubberband</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove rubberband.</span>
+
+<span class="sd">        This method should get implemented per backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="ToolQuit"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolQuit">[docs]</a><span class="k">class</span> <span class="nc">ToolQuit</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to call the figure manager destroy method.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Quit the figure&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.quit&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolQuit.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolQuit.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">Gcf</span><span class="o">.</span><span class="n">destroy_fig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ToolQuitAll"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolQuitAll">[docs]</a><span class="k">class</span> <span class="nc">ToolQuitAll</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to call the figure manager destroy method.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Quit all figures&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.quit_all&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolQuitAll.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolQuitAll.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">Gcf</span><span class="o">.</span><span class="n">destroy_all</span><span class="p">()</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">_ToolEnableAllNavigation</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to enable all axes for toolmanager interaction.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Enable all axes toolmanager&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.all_axes&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">mpl</span><span class="o">.</span><span class="n">backend_bases</span><span class="o">.</span><span class="n">key_press_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ToolEnableAllNavigation"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolEnableAllNavigation">[docs]</a><span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ToolEnableAllNavigation</span><span class="p">(</span><span class="n">_ToolEnableAllNavigation</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="k">class</span> <span class="nc">_ToolEnableNavigation</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to enable a specific axes for toolmanager interaction.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Enable one axes toolmanager&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">mpl</span><span class="o">.</span><span class="n">backend_bases</span><span class="o">.</span><span class="n">key_press_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ToolEnableNavigation"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolEnableNavigation">[docs]</a><span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ToolEnableNavigation</span><span class="p">(</span><span class="n">_ToolEnableNavigation</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ToolGrid"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolGrid">[docs]</a><span class="k">class</span> <span class="nc">ToolGrid</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to toggle the major grids of the figure.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Toggle major grids&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.grid&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolGrid.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolGrid.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">sentinel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="c1"># Trigger grid switching by temporarily setting :rc:`keymap.grid`</span>
+        <span class="c1"># to a unique key and sending an appropriate event.</span>
+        <span class="k">with</span> <span class="n">cbook</span><span class="o">.</span><span class="n">_setattr_cm</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">sentinel</span><span class="p">),</span> \
+             <span class="n">mpl</span><span class="o">.</span><span class="n">rc_context</span><span class="p">({</span><span class="s1">&#39;keymap.grid&#39;</span><span class="p">:</span> <span class="n">sentinel</span><span class="p">}):</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">backend_bases</span><span class="o">.</span><span class="n">key_press_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ToolMinorGrid"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolMinorGrid">[docs]</a><span class="k">class</span> <span class="nc">ToolMinorGrid</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to toggle the major and minor grids of the figure.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Toggle major and minor grids&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.grid_minor&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolMinorGrid.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolMinorGrid.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">sentinel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="c1"># Trigger grid switching by temporarily setting :rc:`keymap.grid_minor`</span>
+        <span class="c1"># to a unique key and sending an appropriate event.</span>
+        <span class="k">with</span> <span class="n">cbook</span><span class="o">.</span><span class="n">_setattr_cm</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">sentinel</span><span class="p">),</span> \
+             <span class="n">mpl</span><span class="o">.</span><span class="n">rc_context</span><span class="p">({</span><span class="s1">&#39;keymap.grid_minor&#39;</span><span class="p">:</span> <span class="n">sentinel</span><span class="p">}):</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">backend_bases</span><span class="o">.</span><span class="n">key_press_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ToolFullScreen"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolFullScreen">[docs]</a><span class="k">class</span> <span class="nc">ToolFullScreen</span><span class="p">(</span><span class="n">ToolToggleBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to toggle full screen.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Toggle fullscreen mode&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.fullscreen&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolFullScreen.enable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolFullScreen.enable">[docs]</a>    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">full_screen_toggle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ToolFullScreen.disable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolFullScreen.disable">[docs]</a>    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">full_screen_toggle</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="AxisScaleBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.AxisScaleBase">[docs]</a><span class="k">class</span> <span class="nc">AxisScaleBase</span><span class="p">(</span><span class="n">ToolToggleBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base Tool to toggle between linear and logarithmic.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AxisScaleBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.AxisScaleBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">ToolToggleBase</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AxisScaleBase.enable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.AxisScaleBase.enable">[docs]</a>    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_scale</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">inaxes</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AxisScaleBase.disable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.AxisScaleBase.disable">[docs]</a>    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_scale</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">inaxes</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ToolYScale"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolYScale">[docs]</a><span class="k">class</span> <span class="nc">ToolYScale</span><span class="p">(</span><span class="n">AxisScaleBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to toggle between linear and logarithmic scales on the Y axis.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Toggle scale Y axis&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.yscale&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolYScale.set_scale"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolYScale.set_scale">[docs]</a>    <span class="k">def</span> <span class="nf">set_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ToolXScale"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolXScale">[docs]</a><span class="k">class</span> <span class="nc">ToolXScale</span><span class="p">(</span><span class="n">AxisScaleBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to toggle between linear and logarithmic scales on the X axis.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Toggle scale X axis&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.xscale&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolXScale.set_scale"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolXScale.set_scale">[docs]</a>    <span class="k">def</span> <span class="nf">set_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ToolViewsPositions"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions">[docs]</a><span class="k">class</span> <span class="nc">ToolViewsPositions</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Auxiliary Tool to handle changes in views and positions.</span>
+
+<span class="sd">    Runs in the background and should get used by all the tools that</span>
+<span class="sd">    need to access the figure&#39;s history of views and positions, e.g.</span>
+
+<span class="sd">    * `ToolZoom`</span>
+<span class="sd">    * `ToolPan`</span>
+<span class="sd">    * `ToolHome`</span>
+<span class="sd">    * `ToolBack`</span>
+<span class="sd">    * `ToolForward`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home_views</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+        <span class="n">ToolBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ToolViewsPositions.add_figure"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.add_figure">[docs]</a>    <span class="k">def</span> <span class="nf">add_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the current figure to the stack of views and positions.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">figure</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">Stack</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">Stack</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">home_views</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+            <span class="c1"># Define Home</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">push_current</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span>
+            <span class="c1"># Make sure we add a home view for new axes as they&#39;re added</span>
+            <span class="n">figure</span><span class="o">.</span><span class="n">add_axobserver</span><span class="p">(</span><span class="k">lambda</span> <span class="n">fig</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_home_views</span><span class="p">(</span><span class="n">fig</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ToolViewsPositions.clear"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the axes stack.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">figure</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">home_views</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_home_views</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ToolViewsPositions.update_view"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.update_view">[docs]</a>    <span class="k">def</span> <span class="nf">update_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the view limits and position for each axes from the current</span>
+<span class="sd">        stack position. If any axes are present in the figure that aren&#39;t in</span>
+<span class="sd">        the current stack position, use the home view limits for those axes and</span>
+<span class="sd">        don&#39;t update *any* positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">views</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]()</span>
+        <span class="k">if</span> <span class="n">views</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]()</span>
+        <span class="k">if</span> <span class="n">pos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">home_views</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">home_views</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span>
+        <span class="n">all_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_axes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">views</span><span class="p">:</span>
+                <span class="n">cur_view</span> <span class="o">=</span> <span class="n">views</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cur_view</span> <span class="o">=</span> <span class="n">home_views</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">_set_view</span><span class="p">(</span><span class="n">cur_view</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_axes</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_axes</span><span class="p">:</span>
+                <span class="c1"># Restore both the original and modified positions</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">_set_position</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">a</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;original&#39;</span><span class="p">)</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">_set_position</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">a</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;active&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ToolViewsPositions.push_current"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.push_current">[docs]</a>    <span class="k">def</span> <span class="nf">push_current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Push the current view limits and position onto their respective stacks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">figure</span><span class="p">:</span>
+            <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span>
+        <span class="n">views</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="n">views</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">_get_view</span><span class="p">()</span>
+            <span class="n">pos</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes_pos</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">views</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_axes_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the original and modified positions for the specified axes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            The `.Axes` to get the positions for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        original_position, modified_position</span>
+<span class="sd">            A tuple of the original and modified positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">frozen</span><span class="p">(),</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">frozen</span><span class="p">())</span>
+
+<div class="viewcode-block" id="ToolViewsPositions.update_home_views"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.update_home_views">[docs]</a>    <span class="k">def</span> <span class="nf">update_home_views</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make sure that ``self.home_views`` has an entry for all axes present</span>
+<span class="sd">        in the figure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">figure</span><span class="p">:</span>
+            <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">home_views</span><span class="p">[</span><span class="n">figure</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">home_views</span><span class="p">[</span><span class="n">figure</span><span class="p">][</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">_get_view</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ToolViewsPositions.refresh_locators"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.refresh_locators">[docs]</a>    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;self.figure.canvas.draw_idle()&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">refresh_locators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Redraw the canvases, update the locators.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_locators</span><span class="p">()</span></div>
+
+    <span class="c1"># Can be removed once Locator.refresh() is removed, and replaced by an</span>
+    <span class="c1"># inline call to self.figure.canvas.draw_idle().</span>
+    <span class="k">def</span> <span class="nf">_refresh_locators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">():</span>
+            <span class="n">xaxis</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;xaxis&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">yaxis</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;yaxis&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">zaxis</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;zaxis&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">locators</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">xaxis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">locators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_major_locator</span><span class="p">())</span>
+                <span class="n">locators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_minor_locator</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">yaxis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">locators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_major_locator</span><span class="p">())</span>
+                <span class="n">locators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_minor_locator</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">zaxis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">locators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zaxis</span><span class="o">.</span><span class="n">get_major_locator</span><span class="p">())</span>
+                <span class="n">locators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zaxis</span><span class="o">.</span><span class="n">get_minor_locator</span><span class="p">())</span>
+
+            <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">locators</span><span class="p">:</span>
+                <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">_if_refresh_overridden_call_and_emit_deprec</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ToolViewsPositions.home"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recall the first view and position from the stack.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">home</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ToolViewsPositions.back"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.back">[docs]</a>    <span class="k">def</span> <span class="nf">back</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Back one step in the stack of views and positions.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">back</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">back</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ToolViewsPositions.forward"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolViewsPositions.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Forward one step in the stack of views and positions.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">]</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ViewsPositionsBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ViewsPositionsBase">[docs]</a><span class="k">class</span> <span class="nc">ViewsPositionsBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for `ToolHome`, `ToolBack` and `ToolForward`.&quot;&quot;&quot;</span>
+
+    <span class="n">_on_trigger</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ViewsPositionsBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ViewsPositionsBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">add_figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_on_trigger</span><span class="p">)()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">update_view</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ToolHome"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolHome">[docs]</a><span class="k">class</span> <span class="nc">ToolHome</span><span class="p">(</span><span class="n">ViewsPositionsBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Restore the original view limits.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Reset original view&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;home&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.home&#39;</span><span class="p">]</span>
+    <span class="n">_on_trigger</span> <span class="o">=</span> <span class="s1">&#39;home&#39;</span></div>
+
+
+<div class="viewcode-block" id="ToolBack"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolBack">[docs]</a><span class="k">class</span> <span class="nc">ToolBack</span><span class="p">(</span><span class="n">ViewsPositionsBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Move back up the view limits stack.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Back to previous view&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;back&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.back&#39;</span><span class="p">]</span>
+    <span class="n">_on_trigger</span> <span class="o">=</span> <span class="s1">&#39;back&#39;</span></div>
+
+
+<div class="viewcode-block" id="ToolForward"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolForward">[docs]</a><span class="k">class</span> <span class="nc">ToolForward</span><span class="p">(</span><span class="n">ViewsPositionsBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Move forward in the view lim stack.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Forward to next view&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;forward&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.forward&#39;</span><span class="p">]</span>
+    <span class="n">_on_trigger</span> <span class="o">=</span> <span class="s1">&#39;forward&#39;</span></div>
+
+
+<div class="viewcode-block" id="ConfigureSubplotsBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ConfigureSubplotsBase">[docs]</a><span class="k">class</span> <span class="nc">ConfigureSubplotsBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base tool for the configuration of subplots.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Configure subplots&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;subplots&#39;</span></div>
+
+
+<div class="viewcode-block" id="SaveFigureBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.SaveFigureBase">[docs]</a><span class="k">class</span> <span class="nc">SaveFigureBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base tool for figure saving.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Save the figure&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;filesave&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.save&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ZoomPanBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ZoomPanBase">[docs]</a><span class="k">class</span> <span class="nc">ZoomPanBase</span><span class="p">(</span><span class="n">ToolToggleBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for `ToolZoom` and `ToolPan`.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">ToolToggleBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idPress</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idRelease</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idScroll</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_scale</span> <span class="o">=</span> <span class="mf">2.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollthresh</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span>  <span class="c1"># .5 second scroll threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastscroll</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollthresh</span>
+
+<div class="viewcode-block" id="ZoomPanBase.enable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ZoomPanBase.enable">[docs]</a>    <span class="k">def</span> <span class="nf">enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect press/release events and lock the canvas.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">widgetlock</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idPress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+            <span class="s1">&#39;button_press_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_press</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idRelease</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+            <span class="s1">&#39;button_release_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_release</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idScroll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+            <span class="s1">&#39;scroll_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_zoom</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ZoomPanBase.disable"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ZoomPanBase.disable">[docs]</a>    <span class="k">def</span> <span class="nf">disable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Release the canvas and disconnect press/release events.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">widgetlock</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_idPress</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_idRelease</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_idScroll</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ZoomPanBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ZoomPanBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">add_figure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+        <span class="n">ToolToggleBase</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ZoomPanBase.scroll_zoom"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ZoomPanBase.scroll_zoom">[docs]</a>    <span class="k">def</span> <span class="nf">scroll_zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="c1"># https://gist.github.com/tacaswell/3144287</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="s1">&#39;up&#39;</span><span class="p">:</span>
+            <span class="c1"># deal with zoom in</span>
+            <span class="n">scl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_scale</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="s1">&#39;down&#39;</span><span class="p">:</span>
+            <span class="c1"># deal with zoom out</span>
+            <span class="n">scl</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">base_scale</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># deal with something that should never happen</span>
+            <span class="n">scl</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">_set_view_from_bbox</span><span class="p">([</span><span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">scl</span><span class="p">])</span>
+
+        <span class="c1"># If last scroll was done within the timing threshold, delete the</span>
+        <span class="c1"># previous view</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">lastscroll</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollthresh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>  <span class="c1"># force re-draw</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastscroll</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">push_current</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ToolZoom"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolZoom">[docs]</a><span class="k">class</span> <span class="nc">ToolZoom</span><span class="p">(</span><span class="n">ZoomPanBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Tool for zooming using a rectangle selector.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Zoom to rectangle&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;zoom_to_rect&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.zoom&#39;</span><span class="p">]</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">cursors</span><span class="o">.</span><span class="n">SELECT_REGION</span>
+    <span class="n">radio_group</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">ZoomPanBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_cancel_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">zoom_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="n">zoom_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">trigger_tool</span><span class="p">(</span><span class="s1">&#39;rubberband&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">_refresh_locators</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for mouse button presses in zoom-to-rectangle mode.&quot;&quot;&quot;</span>
+
+        <span class="c1"># If we&#39;re already in the middle of a zoom, pressing another</span>
+        <span class="c1"># button works to &quot;cancel&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">in_axes</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">get_navigate</span><span class="p">()</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">can_zoom</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">_get_view</span><span class="p">()))</span>
+
+        <span class="n">id1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+            <span class="s1">&#39;motion_notify_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_move</span><span class="p">)</span>
+        <span class="n">id2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+            <span class="s1">&#39;key_press_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_on_zoom_mode</span><span class="p">)</span>
+        <span class="n">id3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+            <span class="s1">&#39;key_release_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch_off_zoom_mode</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span> <span class="o">=</span> <span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">,</span> <span class="n">id3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span>
+
+    <span class="k">def</span> <span class="nf">_switch_on_zoom_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_move</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_switch_off_zoom_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_move</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for mouse moves in zoom-to-rectangle mode.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">lastx</span><span class="p">,</span> <span class="n">lasty</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
+                <span class="p">[[</span><span class="n">lastx</span><span class="p">,</span> <span class="n">lasty</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]],</span> <span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">intervaly</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+                <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">intervalx</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">trigger_tool</span><span class="p">(</span>
+                <span class="s1">&#39;rubberband&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for mouse button releases in zoom-to-rectangle mode.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">zoom_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="n">zoom_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids_zoom</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">last_a</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">cur_xypress</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">lastx</span><span class="p">,</span> <span class="n">lasty</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">_ind</span><span class="p">,</span> <span class="n">view</span> <span class="o">=</span> <span class="n">cur_xypress</span>
+            <span class="c1"># ignore singular clicks - 5 pixels is a threshold</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">lastx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">lasty</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+                <span class="k">return</span>
+
+            <span class="c1"># detect twinx, twiny axes and avoid double zooming</span>
+            <span class="n">twinx</span><span class="p">,</span> <span class="n">twiny</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">last_a</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">la</span> <span class="ow">in</span> <span class="n">last_a</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get_shared_x_axes</span><span class="p">()</span><span class="o">.</span><span class="n">joined</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">la</span><span class="p">):</span>
+                        <span class="n">twinx</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get_shared_y_axes</span><span class="p">()</span><span class="o">.</span><span class="n">joined</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">la</span><span class="p">):</span>
+                        <span class="n">twiny</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">last_a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;in&#39;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;out&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">a</span><span class="o">.</span><span class="n">_set_view_from_bbox</span><span class="p">((</span><span class="n">lastx</span><span class="p">,</span> <span class="n">lasty</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">direction</span><span class="p">,</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span><span class="p">,</span> <span class="n">twinx</span><span class="p">,</span> <span class="n">twiny</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_mode</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">push_current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ToolPan"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolPan">[docs]</a><span class="k">class</span> <span class="nc">ToolPan</span><span class="p">(</span><span class="n">ZoomPanBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pan axes with left mouse, zoom with right.&quot;&quot;&quot;</span>
+
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.pan&#39;</span><span class="p">]</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Pan axes with left mouse, zoom with right&#39;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;move&#39;</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">cursors</span><span class="o">.</span><span class="n">MOVE</span>
+    <span class="n">radio_group</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">ZoomPanBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_cancel_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">messagelock</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">_refresh_locators</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">in_axes</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">get_navigate</span><span class="p">()</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">can_pan</span><span class="p">()):</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">start_pan</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">messagelock</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span>
+                    <span class="s1">&#39;motion_notify_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mouse_move</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_drag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">messagelock</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">:</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">end_pan</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool</span><span class="p">(</span><span class="n">_views_positions</span><span class="p">)</span><span class="o">.</span><span class="n">push_current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_action</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xypress</span><span class="p">:</span>
+            <span class="c1"># safer to use the recorded button at the _press than current</span>
+            <span class="c1"># button: # multiple button can get pressed during motion...</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">drag_pan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_button_pressed</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ToolHelpBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolHelpBase">[docs]</a><span class="k">class</span> <span class="nc">ToolHelpBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Print tool list, shortcuts and description&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.help&#39;</span><span class="p">]</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s1">&#39;help&#39;</span>
+
+<div class="viewcode-block" id="ToolHelpBase.format_shortcut"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolHelpBase.format_shortcut">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format_shortcut</span><span class="p">(</span><span class="n">key_sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a shortcut string from the notation used in rc config to the</span>
+<span class="sd">        standard notation for displaying shortcuts, e.g. &#39;ctrl+a&#39; -&gt; &#39;Ctrl+A&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">key_sequence</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_sequence</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span>
+                <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\+[A-Z]&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;+Shift\g&lt;0&gt;&quot;</span><span class="p">,</span> <span class="n">key_sequence</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="nf">_format_tool_keymap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">keymaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">get_tool_keymap</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_shortcut</span><span class="p">(</span><span class="n">keymap</span><span class="p">)</span> <span class="k">for</span> <span class="n">keymap</span> <span class="ow">in</span> <span class="n">keymaps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_help_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_tool_keymap</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">tool</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tool</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">tool</span><span class="o">.</span><span class="n">description</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_help_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_help_entries</span><span class="p">()</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n\t</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_help_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&lt;tr&gt;&lt;td&gt;</span><span class="si">{}</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">{}</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">{}</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="s2">&quot;&lt;b&gt;Action&lt;/b&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;b&gt;Shortcuts&lt;/b&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;b&gt;Description&lt;/b&gt;&quot;</span><span class="p">)]</span>
+        <span class="n">rows</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_help_entries</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;&lt;style&gt;td {padding: 0px 4px}&lt;/style&gt;&quot;</span>
+                <span class="s2">&quot;&lt;table&gt;&lt;thead&gt;&quot;</span> <span class="o">+</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&lt;/thead&gt;&quot;</span>
+                <span class="s2">&quot;&lt;tbody&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/tbody&gt;&lt;/table&gt;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolCopyToClipboardBase"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolCopyToClipboardBase">[docs]</a><span class="k">class</span> <span class="nc">ToolCopyToClipboardBase</span><span class="p">(</span><span class="n">ToolBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tool to copy the figure to the clipboard.&quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Copy the canvas figure to clipboard&#39;</span>
+    <span class="n">default_keymap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;keymap.copy&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ToolCopyToClipboardBase.trigger"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.ToolCopyToClipboardBase.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Copy tool is not available&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolmanager</span><span class="o">.</span><span class="n">message_event</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<span class="n">default_tools</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;home&#39;</span><span class="p">:</span> <span class="n">ToolHome</span><span class="p">,</span> <span class="s1">&#39;back&#39;</span><span class="p">:</span> <span class="n">ToolBack</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">:</span> <span class="n">ToolForward</span><span class="p">,</span>
+                 <span class="s1">&#39;zoom&#39;</span><span class="p">:</span> <span class="n">ToolZoom</span><span class="p">,</span> <span class="s1">&#39;pan&#39;</span><span class="p">:</span> <span class="n">ToolPan</span><span class="p">,</span>
+                 <span class="s1">&#39;subplots&#39;</span><span class="p">:</span> <span class="s1">&#39;ToolConfigureSubplots&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;save&#39;</span><span class="p">:</span> <span class="s1">&#39;ToolSaveFigure&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;grid&#39;</span><span class="p">:</span> <span class="n">ToolGrid</span><span class="p">,</span>
+                 <span class="s1">&#39;grid_minor&#39;</span><span class="p">:</span> <span class="n">ToolMinorGrid</span><span class="p">,</span>
+                 <span class="s1">&#39;fullscreen&#39;</span><span class="p">:</span> <span class="n">ToolFullScreen</span><span class="p">,</span>
+                 <span class="s1">&#39;quit&#39;</span><span class="p">:</span> <span class="n">ToolQuit</span><span class="p">,</span>
+                 <span class="s1">&#39;quit_all&#39;</span><span class="p">:</span> <span class="n">ToolQuitAll</span><span class="p">,</span>
+                 <span class="s1">&#39;allnav&#39;</span><span class="p">:</span> <span class="n">_ToolEnableAllNavigation</span><span class="p">,</span>
+                 <span class="s1">&#39;nav&#39;</span><span class="p">:</span> <span class="n">_ToolEnableNavigation</span><span class="p">,</span>
+                 <span class="s1">&#39;xscale&#39;</span><span class="p">:</span> <span class="n">ToolXScale</span><span class="p">,</span>
+                 <span class="s1">&#39;yscale&#39;</span><span class="p">:</span> <span class="n">ToolYScale</span><span class="p">,</span>
+                 <span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="n">ToolCursorPosition</span><span class="p">,</span>
+                 <span class="n">_views_positions</span><span class="p">:</span> <span class="n">ToolViewsPositions</span><span class="p">,</span>
+                 <span class="s1">&#39;cursor&#39;</span><span class="p">:</span> <span class="s1">&#39;ToolSetCursor&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;rubberband&#39;</span><span class="p">:</span> <span class="s1">&#39;ToolRubberband&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;ToolHelp&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;copy&#39;</span><span class="p">:</span> <span class="s1">&#39;ToolCopyToClipboard&#39;</span><span class="p">,</span>
+                 <span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;Default tools&quot;&quot;&quot;</span>
+
+<span class="n">default_toolbar_tools</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;navigation&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;home&#39;</span><span class="p">,</span> <span class="s1">&#39;back&#39;</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">]],</span>
+                         <span class="p">[</span><span class="s1">&#39;zoompan&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;pan&#39;</span><span class="p">,</span> <span class="s1">&#39;zoom&#39;</span><span class="p">,</span> <span class="s1">&#39;subplots&#39;</span><span class="p">]],</span>
+                         <span class="p">[</span><span class="s1">&#39;io&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">]]]</span>
+<span class="sd">&quot;&quot;&quot;Default tools in the toolbar&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="add_tools_to_manager"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.add_tools_to_manager">[docs]</a><span class="k">def</span> <span class="nf">add_tools_to_manager</span><span class="p">(</span><span class="n">toolmanager</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">default_tools</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add multiple tools to a `.ToolManager`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    toolmanager : `.backend_managers.ToolManager`</span>
+<span class="sd">        Manager to which the tools are added.</span>
+<span class="sd">    tools : {str: class_like}, optional</span>
+<span class="sd">        The tools to add in a {name: tool} dict, see `add_tool` for more</span>
+<span class="sd">        info.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tool</span> <span class="ow">in</span> <span class="n">tools</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">toolmanager</span><span class="o">.</span><span class="n">add_tool</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tool</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_tools_to_container"><a class="viewcode-back" href="../../api/backend_tools_api.html#matplotlib.backend_tools.add_tools_to_container">[docs]</a><span class="k">def</span> <span class="nf">add_tools_to_container</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">default_toolbar_tools</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add multiple tools to the container.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    container : Container</span>
+<span class="sd">        `backend_bases.ToolContainerBase` object that will get the tools added.</span>
+<span class="sd">    tools : list, optional</span>
+<span class="sd">        List in the form ``[[group1, [tool1, tool2 ...]], [group2, [...]]]``</span>
+<span class="sd">        where the tools ``[tool1, tool2, ...]`` will display in group1.</span>
+<span class="sd">        See `add_tool` for details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">grouptools</span> <span class="ow">in</span> <span class="n">tools</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">tool</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grouptools</span><span class="p">):</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">add_tool</span><span class="p">(</span><span class="n">tool</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer>
+    <div class="footer">
+    &copy; Copyright 2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012 - 2020 The Matplotlib development team.
+<br />
+    Last updated on Aug 24, 2020.
+Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.
+Doc version v3.3.1-dirty.
+    </div>
+</footer>
+<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55954603-1', 'auto');
+        ga('send', 'pageview');
+
+</script>
+  </body>
+</html>

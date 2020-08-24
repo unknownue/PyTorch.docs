@@ -1,0 +1,681 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>matplotlib.backends.backend_cairo &#8212; Matplotlib 3.3.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/mpl.css?v3.3.1-dirty" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.3.1 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="top" title="Matplotlib 3.3.1 documentation" href="#" />
+    <link rel="canonical" href="https://matplotlib.org/3.3.1/_modules/matplotlib/backends/backend_cairo.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+
+
+<!--
+<div id="annc-banner">
+
+</div>
+-->
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
+    <a href="../../../index.html">
+        <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version 3.3.1</span></div>
+        <img src="../../../_static/logo2_compressed.svg" height="125px" border="0" alt="matplotlib"/></a>
+
+    <!-- The "Fork me on github" ribbon -->
+    <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
+    </div>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="../../../users/installing.html">Installation</a></li>
+            <li><a href="../../../contents.html">Documentation</a></li>
+            <li><a href="../../../gallery/index.html">Examples</a></li>
+            <li><a href="../../../tutorials/index.html">Tutorials</a></li>
+            <li><a href="../../../devel/index.html">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="../../../search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">home</a>|&nbsp;</li>
+        <li><a href="../../../contents.html">contents</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../matplotlib.html" accesskey="U">matplotlib</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">matplotlib.backends.backend_cairo</a></li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../contents.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../../matplotlib.html">matplotlib</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for matplotlib.backends.backend_cairo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A Cairo backend for matplotlib</span>
+<span class="sd">==============================</span>
+<span class="sd">:Author: Steve Chaplin and others</span>
+
+<span class="sd">This backend depends on cairocffi or pycairo.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cairo</span>
+    <span class="k">if</span> <span class="n">cairo</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># Introduced create_for_data for Py3.</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">cairocffi</span> <span class="k">as</span> <span class="nn">cairo</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">&quot;cairo backend requires that pycairo&gt;=1.11.0 or cairocffi&quot;</span>
+            <span class="s2">&quot;is installed&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">cbook</span><span class="p">,</span> <span class="n">font_manager</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backend_bases</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_Backend</span><span class="p">,</span> <span class="n">_check_savefig_extra_args</span><span class="p">,</span> <span class="n">FigureCanvasBase</span><span class="p">,</span> <span class="n">FigureManagerBase</span><span class="p">,</span>
+    <span class="n">GraphicsContextBase</span><span class="p">,</span> <span class="n">RendererBase</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">matplotlib.font_manager</span> <span class="kn">import</span> <span class="n">ttfFontProperty</span>
+<span class="kn">from</span> <span class="nn">matplotlib.mathtext</span> <span class="kn">import</span> <span class="n">MathTextParser</span>
+<span class="kn">from</span> <span class="nn">matplotlib.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">matplotlib.transforms</span> <span class="kn">import</span> <span class="n">Affine2D</span>
+
+
+<span class="n">backend_version</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">version</span>
+
+
+<span class="k">if</span> <span class="n">cairo</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;cairocffi&quot;</span><span class="p">:</span>
+    <span class="c1"># Convert a pycairo context to a cairocffi one.</span>
+    <span class="k">def</span> <span class="nf">_to_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cairo</span><span class="o">.</span><span class="n">Context</span><span class="p">):</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">_from_pointer</span><span class="p">(</span>
+                <span class="n">cairo</span><span class="o">.</span><span class="n">ffi</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+                    <span class="s1">&#39;cairo_t **&#39;</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">+</span> <span class="nb">object</span><span class="o">.</span><span class="n">__basicsize__</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">incref</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ctx</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Pass-through a pycairo context.</span>
+    <span class="k">def</span> <span class="nf">_to_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ctx</span>
+
+
+<span class="k">def</span> <span class="nf">_append_path</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">points</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">iter_segments</span><span class="p">(</span>
+            <span class="n">transform</span><span class="p">,</span> <span class="n">remove_nans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="n">clip</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="n">Path</span><span class="o">.</span><span class="n">MOVETO</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="o">*</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="n">Path</span><span class="o">.</span><span class="n">CLOSEPOLY</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">close_path</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="n">Path</span><span class="o">.</span><span class="n">LINETO</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">line_to</span><span class="p">(</span><span class="o">*</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="n">Path</span><span class="o">.</span><span class="n">CURVE3</span><span class="p">:</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_current_point</span><span class="p">())</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">curve_to</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">cur</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">),</span> <span class="o">*</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">b</span> <span class="o">/</span> <span class="mi">3</span><span class="p">),</span> <span class="o">*</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="n">Path</span><span class="o">.</span><span class="n">CURVE4</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">curve_to</span><span class="p">(</span><span class="o">*</span><span class="n">points</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_cairo_font_args_from_font_prop</span><span class="p">(</span><span class="n">prop</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a `.FontProperties` or a `.FontEntry` to arguments that can be</span>
+<span class="sd">    passed to `.Context.select_font_face`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;get_</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">attr</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+    <span class="n">slant</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cairo</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;FONT_SLANT_</span><span class="si">{</span><span class="n">attr</span><span class="p">(</span><span class="s1">&#39;style&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">attr</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">)</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="p">(</span><span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span>
+              <span class="k">if</span> <span class="n">font_manager</span><span class="o">.</span><span class="n">weight_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">550</span>
+              <span class="k">else</span> <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="n">slant</span><span class="p">,</span> <span class="n">weight</span>
+
+
+<div class="viewcode-block" id="RendererCairo"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo">[docs]</a><span class="k">class</span> <span class="nc">RendererCairo</span><span class="p">(</span><span class="n">RendererBase</span><span class="p">):</span>
+    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fontweights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="mi">100</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="mi">200</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="mi">300</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="mi">400</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="mi">500</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="mi">600</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="mi">700</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="mi">800</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="mi">900</span><span class="p">:</span>          <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="s1">&#39;ultralight&#39;</span><span class="p">:</span> <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="s1">&#39;light&#39;</span><span class="p">:</span>      <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="s1">&#39;normal&#39;</span><span class="p">:</span>     <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="s1">&#39;medium&#39;</span><span class="p">:</span>     <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="s1">&#39;regular&#39;</span><span class="p">:</span>    <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_NORMAL</span><span class="p">,</span>
+            <span class="s1">&#39;semibold&#39;</span><span class="p">:</span>   <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="s1">&#39;bold&#39;</span><span class="p">:</span>       <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="s1">&#39;heavy&#39;</span><span class="p">:</span>      <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="s1">&#39;ultrabold&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+            <span class="s1">&#39;black&#39;</span><span class="p">:</span>      <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_WEIGHT_BOLD</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@cbook</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.3&quot;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fontangles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;italic&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_SLANT_ITALIC</span><span class="p">,</span>
+            <span class="s1">&#39;normal&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_SLANT_NORMAL</span><span class="p">,</span>
+            <span class="s1">&#39;oblique&#39;</span><span class="p">:</span> <span class="n">cairo</span><span class="o">.</span><span class="n">FONT_SLANT_OBLIQUE</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">=</span> <span class="n">dpi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gc</span> <span class="o">=</span> <span class="n">GraphicsContextCairo</span><span class="p">(</span><span class="n">renderer</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_ctx</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span>
+           <span class="n">cairo</span><span class="o">.</span><span class="n">ImageSurface</span><span class="p">(</span><span class="n">cairo</span><span class="o">.</span><span class="n">FORMAT_ARGB32</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mathtext_parser</span> <span class="o">=</span> <span class="n">MathTextParser</span><span class="p">(</span><span class="s1">&#39;Cairo&#39;</span><span class="p">)</span>
+        <span class="n">RendererBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RendererCairo.set_ctx_from_surface"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.set_ctx_from_surface">[docs]</a>    <span class="k">def</span> <span class="nf">set_ctx_from_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span></div>
+        <span class="c1"># Although it may appear natural to automatically call</span>
+        <span class="c1"># `self.set_width_height(surface.get_width(), surface.get_height())`</span>
+        <span class="c1"># here (instead of having the caller do so separately), this would fail</span>
+        <span class="c1"># for PDF/PS/SVG surfaces, which have no way to report their extents.</span>
+
+<div class="viewcode-block" id="RendererCairo.set_width_height"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.set_width_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_width_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span></div>
+
+    <span class="k">def</span> <span class="nf">_fill_and_stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">fill_c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha_overrides</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fill_c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fill_c</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">alpha_overrides</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="n">fill_c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fill_c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fill_c</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">alpha</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="n">fill_c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fill_c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fill_c</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fill_c</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">fill_preserve</span><span class="p">()</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">stroke</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RendererCairo.draw_path"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.draw_path">[docs]</a>    <span class="k">def</span> <span class="nf">draw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">rgbFace</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="c1"># Clip the path to the actual rendering extents if it isn&#39;t filled.</span>
+        <span class="n">clip</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">clip_extents</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">rgbFace</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_hatch</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="p">(</span><span class="n">transform</span>
+                     <span class="o">+</span> <span class="n">Affine2D</span><span class="p">()</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+        <span class="n">_append_path</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">clip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_and_stroke</span><span class="p">(</span>
+            <span class="n">ctx</span><span class="p">,</span> <span class="n">rgbFace</span><span class="p">,</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">(),</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_forced_alpha</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="RendererCairo.draw_markers"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.draw_markers">[docs]</a>    <span class="k">def</span> <span class="nf">draw_markers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gc</span><span class="p">,</span> <span class="n">marker_path</span><span class="p">,</span> <span class="n">marker_trans</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span>
+                     <span class="n">rgbFace</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+        <span class="c1"># Create the path for the marker; it needs to be flipped here already!</span>
+        <span class="n">_append_path</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">marker_path</span><span class="p">,</span> <span class="n">marker_trans</span> <span class="o">+</span> <span class="n">Affine2D</span><span class="p">()</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">marker_path</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">copy_path_flat</span><span class="p">()</span>
+
+        <span class="c1"># Figure out whether the path has a fill</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fill_extents</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">x1</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y1</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">filled</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># No fill, just unset this (so we don&#39;t try to fill it later on)</span>
+            <span class="n">rgbFace</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filled</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">transform</span> <span class="o">=</span> <span class="p">(</span><span class="n">transform</span>
+                     <span class="o">+</span> <span class="n">Affine2D</span><span class="p">()</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+
+        <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">codes</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">iter_segments</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="kc">False</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="c1"># Translate and apply path</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">append_path</span><span class="p">(</span><span class="n">marker_path</span><span class="p">)</span>
+
+                <span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+
+                <span class="c1"># Slower code path if there is a fill; we need to draw</span>
+                <span class="c1"># the fill and stroke for each marker at the same time.</span>
+                <span class="c1"># Also flush out the drawing every once in a while to</span>
+                <span class="c1"># prevent the paths from getting way too long.</span>
+                <span class="k">if</span> <span class="n">filled</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_fill_and_stroke</span><span class="p">(</span>
+                        <span class="n">ctx</span><span class="p">,</span> <span class="n">rgbFace</span><span class="p">,</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">(),</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_forced_alpha</span><span class="p">())</span>
+
+        <span class="c1"># Fast path, if there is no fill, draw everything in one step</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fill_and_stroke</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="p">,</span> <span class="n">rgbFace</span><span class="p">,</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">(),</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_forced_alpha</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="RendererCairo.draw_image"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.draw_image">[docs]</a>    <span class="k">def</span> <span class="nf">draw_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gc</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">im</span><span class="p">):</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">_unmultiplied_rgba8888_to_premultiplied_argb32</span><span class="p">(</span><span class="n">im</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">ImageSurface</span><span class="o">.</span><span class="n">create_for_data</span><span class="p">(</span>
+            <span class="n">im</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cairo</span><span class="o">.</span><span class="n">FORMAT_ARGB32</span><span class="p">,</span>
+            <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">y</span> <span class="o">-</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_source_surface</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RendererCairo.draw_text"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.draw_text">[docs]</a>    <span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gc</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">ismath</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mtext</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+
+        <span class="c1"># Note: (x, y) are device/display coords, not user-coords, unlike other</span>
+        <span class="c1"># draw_* methods</span>
+        <span class="k">if</span> <span class="n">ismath</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_draw_mathtext</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">ctx</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+            <span class="n">ctx</span><span class="o">.</span><span class="n">select_font_face</span><span class="p">(</span><span class="o">*</span><span class="n">_cairo_font_args_from_font_prop</span><span class="p">(</span><span class="n">prop</span><span class="p">))</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">set_font_size</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">get_size_in_points</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">/</span> <span class="mi">72</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">angle</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="n">angle</span><span class="p">))</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">show_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_draw_mathtext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gc</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">descent</span><span class="p">,</span> <span class="n">glyphs</span><span class="p">,</span> <span class="n">rects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mathtext_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
+            <span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">angle</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="n">angle</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ox</span><span class="p">,</span> <span class="n">oy</span> <span class="ow">in</span> <span class="n">glyphs</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="n">ox</span><span class="p">,</span> <span class="n">oy</span><span class="p">)</span>
+
+            <span class="n">ctx</span><span class="o">.</span><span class="n">select_font_face</span><span class="p">(</span>
+                <span class="o">*</span><span class="n">_cairo_font_args_from_font_prop</span><span class="p">(</span><span class="n">ttfFontProperty</span><span class="p">(</span><span class="n">font</span><span class="p">)))</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">set_font_size</span><span class="p">(</span><span class="n">fontsize</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">/</span> <span class="mi">72</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">show_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ox</span><span class="p">,</span> <span class="n">oy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">rects</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">ox</span><span class="p">,</span> <span class="n">oy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">fill_preserve</span><span class="p">()</span>
+
+        <span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RendererCairo.get_canvas_width_height"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.get_canvas_width_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_canvas_width_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span></div>
+
+<div class="viewcode-block" id="RendererCairo.get_text_width_height_descent"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.get_text_width_height_descent">[docs]</a>    <span class="k">def</span> <span class="nf">get_text_width_height_descent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">ismath</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+
+        <span class="k">if</span> <span class="n">ismath</span><span class="p">:</span>
+            <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">descent</span><span class="p">,</span> <span class="n">fonts</span><span class="p">,</span> <span class="n">used_characters</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">mathtext_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">descent</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_ctx</span>
+        <span class="c1"># problem - scale remembers last setting and font can become</span>
+        <span class="c1"># enormous causing program to crash</span>
+        <span class="c1"># save/restore prevents the problem</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">select_font_face</span><span class="p">(</span><span class="o">*</span><span class="n">_cairo_font_args_from_font_prop</span><span class="p">(</span><span class="n">prop</span><span class="p">))</span>
+        <span class="c1"># Cairo (says it) uses 1/96 inch user space units, ref: cairo_gstate.c</span>
+        <span class="c1"># but if /96.0 is used the font is too small</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_font_size</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">get_size_in_points</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">/</span> <span class="mi">72</span><span class="p">)</span>
+
+        <span class="n">y_bearing</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">text_extents</span><span class="p">(</span><span class="n">s</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="n">y_bearing</span></div>
+
+<div class="viewcode-block" id="RendererCairo.new_gc"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.new_gc">[docs]</a>    <span class="k">def</span> <span class="nf">new_gc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">_alpha</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">_forced_alpha</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># if True, _alpha overrides A from RGBA</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gc</span></div>
+
+<div class="viewcode-block" id="RendererCairo.points_to_pixels"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.RendererCairo.points_to_pixels">[docs]</a>    <span class="k">def</span> <span class="nf">points_to_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="c1"># docstring inherited</span>
+        <span class="k">return</span> <span class="n">points</span> <span class="o">/</span> <span class="mi">72</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span></div></div>
+
+
+<div class="viewcode-block" id="GraphicsContextCairo"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo">[docs]</a><span class="k">class</span> <span class="nc">GraphicsContextCairo</span><span class="p">(</span><span class="n">GraphicsContextBase</span><span class="p">):</span>
+    <span class="n">_joind</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;bevel&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">LINE_JOIN_BEVEL</span><span class="p">,</span>
+        <span class="s1">&#39;miter&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">LINE_JOIN_MITER</span><span class="p">,</span>
+        <span class="s1">&#39;round&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">LINE_JOIN_ROUND</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">_capd</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;butt&#39;</span><span class="p">:</span>        <span class="n">cairo</span><span class="o">.</span><span class="n">LINE_CAP_BUTT</span><span class="p">,</span>
+        <span class="s1">&#39;projecting&#39;</span><span class="p">:</span>  <span class="n">cairo</span><span class="o">.</span><span class="n">LINE_CAP_SQUARE</span><span class="p">,</span>
+        <span class="s1">&#39;round&#39;</span><span class="p">:</span>       <span class="n">cairo</span><span class="o">.</span><span class="n">LINE_CAP_ROUND</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+        <span class="n">GraphicsContextBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">renderer</span>
+
+<div class="viewcode-block" id="GraphicsContextCairo.restore"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.restore">[docs]</a>    <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_alpha"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">set_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="n">GraphicsContextBase</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="n">_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">()</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rgb</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_forced_alpha</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">_alpha</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span></div>
+
+    <span class="c1"># def set_antialiased(self, b):</span>
+        <span class="c1"># cairo has many antialiasing modes, we need to pick one for True and</span>
+        <span class="c1"># one for False.</span>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_capstyle"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_capstyle">[docs]</a>    <span class="k">def</span> <span class="nf">set_capstyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_line_cap</span><span class="p">(</span><span class="n">cbook</span><span class="o">.</span><span class="n">_check_getitem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_capd</span><span class="p">,</span> <span class="n">capstyle</span><span class="o">=</span><span class="n">cs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_capstyle</span> <span class="o">=</span> <span class="n">cs</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_clip_rectangle"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_clip_rectangle">[docs]</a>    <span class="k">def</span> <span class="nf">set_clip_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rectangle</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rectangle</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">rectangle</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">h</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">clip</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_clip_path"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_clip_path">[docs]</a>    <span class="k">def</span> <span class="nf">set_clip_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">tpath</span><span class="p">,</span> <span class="n">affine</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">get_transformed_path_and_affine</span><span class="p">()</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">new_path</span><span class="p">()</span>
+        <span class="n">affine</span> <span class="o">=</span> <span class="p">(</span><span class="n">affine</span>
+                  <span class="o">+</span> <span class="n">Affine2D</span><span class="p">()</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+        <span class="n">_append_path</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">tpath</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">clip</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_dashes"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_dashes">[docs]</a>    <span class="k">def</span> <span class="nf">set_dashes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">dashes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dashes</span> <span class="o">=</span> <span class="n">offset</span><span class="p">,</span> <span class="n">dashes</span>
+        <span class="k">if</span> <span class="n">dashes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_dash</span><span class="p">([],</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># switch dashes off</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_dash</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">points_to_pixels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dashes</span><span class="p">))),</span>
+                <span class="n">offset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_foreground"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_foreground">[docs]</a>    <span class="k">def</span> <span class="nf">set_foreground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fg</span><span class="p">,</span> <span class="n">isRGBA</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">GraphicsContextBase</span><span class="o">.</span><span class="n">set_foreground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fg</span><span class="p">,</span> <span class="n">isRGBA</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rgb</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgb</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_rgb</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_rgb</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.get_rgb"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.get_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">get_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_source</span><span class="p">()</span><span class="o">.</span><span class="n">get_rgba</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_joinstyle"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_joinstyle">[docs]</a>    <span class="k">def</span> <span class="nf">set_joinstyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">js</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_line_join</span><span class="p">(</span><span class="n">cbook</span><span class="o">.</span><span class="n">_check_getitem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_joind</span><span class="p">,</span> <span class="n">joinstyle</span><span class="o">=</span><span class="n">js</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_joinstyle</span> <span class="o">=</span> <span class="n">js</span></div>
+
+<div class="viewcode-block" id="GraphicsContextCairo.set_linewidth"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.GraphicsContextCairo.set_linewidth">[docs]</a>    <span class="k">def</span> <span class="nf">set_linewidth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linewidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">set_line_width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">points_to_pixels</span><span class="p">(</span><span class="n">w</span><span class="p">))</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">_CairoRegion</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slices</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slices</span> <span class="o">=</span> <span class="n">slices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="FigureCanvasCairo"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo">[docs]</a><span class="k">class</span> <span class="nc">FigureCanvasCairo</span><span class="p">(</span><span class="n">FigureCanvasBase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FigureCanvasCairo.copy_from_bbox"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.copy_from_bbox">[docs]</a>    <span class="k">def</span> <span class="nf">copy_from_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bbox</span><span class="p">):</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_renderer</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_target</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="n">cairo</span><span class="o">.</span><span class="n">ImageSurface</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;copy_from_bbox only works when rendering to an ImageSurface&quot;</span><span class="p">)</span>
+        <span class="n">sw</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span>
+        <span class="n">sh</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">x1</span><span class="p">)</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">sh</span> <span class="o">-</span> <span class="n">bbox</span><span class="o">.</span><span class="n">y1</span><span class="p">)</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">sh</span> <span class="o">-</span> <span class="n">bbox</span><span class="o">.</span><span class="n">y0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x0</span> <span class="ow">and</span> <span class="n">x1</span> <span class="o">&lt;=</span> <span class="n">sw</span> <span class="ow">and</span> <span class="n">bbox</span><span class="o">.</span><span class="n">x0</span> <span class="o">&lt;=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">x1</span>
+                <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y0</span> <span class="ow">and</span> <span class="n">y1</span> <span class="o">&lt;=</span> <span class="n">sh</span> <span class="ow">and</span> <span class="n">bbox</span><span class="o">.</span><span class="n">y0</span> <span class="o">&lt;=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">y1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid bbox&quot;</span><span class="p">)</span>
+        <span class="n">sls</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x0</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">get_data</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">sh</span><span class="p">,</span> <span class="n">sw</span><span class="p">))[</span><span class="n">sls</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">_CairoRegion</span><span class="p">(</span><span class="n">sls</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FigureCanvasCairo.restore_region"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.restore_region">[docs]</a>    <span class="k">def</span> <span class="nf">restore_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_renderer</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_target</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="n">cairo</span><span class="o">.</span><span class="n">ImageSurface</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;restore_region only works when rendering to an ImageSurface&quot;</span><span class="p">)</span>
+        <span class="n">surface</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">sw</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span>
+        <span class="n">sh</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+        <span class="n">sly</span><span class="p">,</span> <span class="n">slx</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">_slices</span>
+        <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">surface</span><span class="o">.</span><span class="n">get_data</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+         <span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">sh</span><span class="p">,</span> <span class="n">sw</span><span class="p">))[</span><span class="n">sly</span><span class="p">,</span> <span class="n">slx</span><span class="p">])</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">_data</span>
+        <span class="n">surface</span><span class="o">.</span><span class="n">mark_dirty_rectangle</span><span class="p">(</span>
+            <span class="n">slx</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">sly</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">slx</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">slx</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">sly</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">sly</span><span class="o">.</span><span class="n">start</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FigureCanvasCairo.print_png"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.print_png">[docs]</a>    <span class="nd">@_check_savefig_extra_args</span>
+    <span class="k">def</span> <span class="nf">print_png</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fobj</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_printed_image_surface</span><span class="p">()</span><span class="o">.</span><span class="n">write_to_png</span><span class="p">(</span><span class="n">fobj</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FigureCanvasCairo.print_rgba"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.print_rgba">[docs]</a>    <span class="nd">@_check_savefig_extra_args</span>
+    <span class="k">def</span> <span class="nf">print_rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fobj</span><span class="p">):</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_width_height</span><span class="p">()</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_printed_image_surface</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="n">fobj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cbook</span><span class="o">.</span><span class="n">_premultiplied_argb32_to_unmultiplied_rgba8888</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">4</span><span class="p">))))</span></div>
+
+    <span class="n">print_raw</span> <span class="o">=</span> <span class="n">print_rgba</span>
+
+    <span class="k">def</span> <span class="nf">_get_printed_image_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_width_height</span><span class="p">()</span>
+        <span class="n">renderer</span> <span class="o">=</span> <span class="n">RendererCairo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">set_width_height</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">ImageSurface</span><span class="p">(</span><span class="n">cairo</span><span class="o">.</span><span class="n">FORMAT_ARGB32</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">set_ctx_from_surface</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">surface</span>
+
+<div class="viewcode-block" id="FigureCanvasCairo.print_pdf"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.print_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">print_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fobj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">fobj</span><span class="p">,</span> <span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FigureCanvasCairo.print_ps"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.print_ps">[docs]</a>    <span class="k">def</span> <span class="nf">print_ps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fobj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">fobj</span><span class="p">,</span> <span class="s1">&#39;ps&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FigureCanvasCairo.print_svg"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.print_svg">[docs]</a>    <span class="k">def</span> <span class="nf">print_svg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fobj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">fobj</span><span class="p">,</span> <span class="s1">&#39;svg&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FigureCanvasCairo.print_svgz"><a class="viewcode-back" href="../../../api/backend_cairo_api.html#matplotlib.backends.backend_cairo.FigureCanvasCairo.print_svgz">[docs]</a>    <span class="k">def</span> <span class="nf">print_svgz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fobj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">(</span><span class="n">fobj</span><span class="p">,</span> <span class="s1">&#39;svgz&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@_check_savefig_extra_args</span>
+    <span class="k">def</span> <span class="nf">_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fo</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;portrait&#39;</span><span class="p">):</span>
+        <span class="c1"># save PDF/PS/SVG</span>
+
+        <span class="n">dpi</span> <span class="o">=</span> <span class="mi">72</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">dpi</span> <span class="o">=</span> <span class="n">dpi</span>
+        <span class="n">w_in</span><span class="p">,</span> <span class="n">h_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="n">width_in_points</span><span class="p">,</span> <span class="n">height_in_points</span> <span class="o">=</span> <span class="n">w_in</span> <span class="o">*</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">h_in</span> <span class="o">*</span> <span class="n">dpi</span>
+
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="s1">&#39;landscape&#39;</span><span class="p">:</span>
+            <span class="n">width_in_points</span><span class="p">,</span> <span class="n">height_in_points</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">height_in_points</span><span class="p">,</span> <span class="n">width_in_points</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;ps&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cairo</span><span class="p">,</span> <span class="s1">&#39;PSSurface&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;cairo has not been compiled with PS &#39;</span>
+                                   <span class="s1">&#39;support enabled&#39;</span><span class="p">)</span>
+            <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">PSSurface</span><span class="p">(</span><span class="n">fo</span><span class="p">,</span> <span class="n">width_in_points</span><span class="p">,</span> <span class="n">height_in_points</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;pdf&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cairo</span><span class="p">,</span> <span class="s1">&#39;PDFSurface&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;cairo has not been compiled with PDF &#39;</span>
+                                   <span class="s1">&#39;support enabled&#39;</span><span class="p">)</span>
+            <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">PDFSurface</span><span class="p">(</span><span class="n">fo</span><span class="p">,</span> <span class="n">width_in_points</span><span class="p">,</span> <span class="n">height_in_points</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;svg&#39;</span><span class="p">,</span> <span class="s1">&#39;svgz&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cairo</span><span class="p">,</span> <span class="s1">&#39;SVGSurface&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;cairo has not been compiled with SVG &#39;</span>
+                                   <span class="s1">&#39;support enabled&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;svgz&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fo</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">fo</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="n">fo</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fo</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="n">fileobj</span><span class="o">=</span><span class="n">fo</span><span class="p">)</span>
+            <span class="n">surface</span> <span class="o">=</span> <span class="n">cairo</span><span class="o">.</span><span class="n">SVGSurface</span><span class="p">(</span><span class="n">fo</span><span class="p">,</span> <span class="n">width_in_points</span><span class="p">,</span> <span class="n">height_in_points</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown format: </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+
+        <span class="c1"># surface.set_dpi() can be used</span>
+        <span class="n">renderer</span> <span class="o">=</span> <span class="n">RendererCairo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">set_width_height</span><span class="p">(</span><span class="n">width_in_points</span><span class="p">,</span> <span class="n">height_in_points</span><span class="p">)</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">set_ctx_from_surface</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">renderer</span><span class="o">.</span><span class="n">gc</span><span class="o">.</span><span class="n">ctx</span>
+
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="s1">&#39;landscape&#39;</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">height_in_points</span><span class="p">)</span>
+            <span class="c1"># Perhaps add an &#39;%%Orientation: Landscape&#39; comment?</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+
+        <span class="n">ctx</span><span class="o">.</span><span class="n">show_page</span><span class="p">()</span>
+        <span class="n">surface</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;svgz&#39;</span><span class="p">:</span>
+            <span class="n">fo</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="nd">@_Backend</span><span class="o">.</span><span class="n">export</span>
+<span class="k">class</span> <span class="nc">_BackendCairo</span><span class="p">(</span><span class="n">_Backend</span><span class="p">):</span>
+    <span class="n">FigureCanvas</span> <span class="o">=</span> <span class="n">FigureCanvasCairo</span>
+    <span class="n">FigureManager</span> <span class="o">=</span> <span class="n">FigureManagerBase</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer>
+    <div class="footer">
+    &copy; Copyright 2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012 - 2020 The Matplotlib development team.
+<br />
+    Last updated on Aug 24, 2020.
+Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.
+Doc version v3.3.1-dirty.
+    </div>
+</footer>
+<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55954603-1', 'auto');
+        ga('send', 'pageview');
+
+</script>
+  </body>
+</html>
