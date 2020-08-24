@@ -3,7 +3,7 @@
 
 FROM ubuntu:18.04 AS sklearn
 
-LABEL maintainer="unknownue <usami-ssc@protonmail.com>"
+LABEL maintainer="unknownue <unknownue@outlook.com>"
 LABEL description="An docker environment to build offline Numpy Docs"
 LABEL python-version="3.6.x"
 LABEL license="MIT"

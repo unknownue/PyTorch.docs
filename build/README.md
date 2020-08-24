@@ -71,8 +71,27 @@ $ docker run --rm \
     -v $(pwd)/build:/root/scikit-learn/doc/_build \
     -w /root/scikit-learn/doc/ \
     unknownue/sklearn.docs \
-    make
+    make html
 ```
 
 After the building finish, the documentation can be found in `_build/html/stable` directory.
 
+
+## Matplotlib
+
+Build the docker image:
+
+```shell
+$ docker build -t unknownue/matplotlib.docs -f matplotlib.Dockerfile .
+```
+
+```shell
+$ mkdir build/
+$ docker run --rm \
+    -v $(pwd)/build:/root/matplotlib/doc/build \
+    -w /root/matplotlib/doc/ \
+    unknownue/matplotlib.docs \
+    make html
+```
+
+After the building finish, the documentation can be found in `build` directory.

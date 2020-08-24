@@ -3,7 +3,7 @@
 
 FROM ubuntu:18.04 AS numpy-docs-build
 
-LABEL maintainer="unknownue <usami-ssc@protonmail.com>"
+LABEL maintainer="unknownue <unknownue@outlook.com>"
 LABEL description="An docker environment to build offline Numpy Docs"
 LABEL numpy-version="1.18.1"
 LABEL python-version="3.6.x"
