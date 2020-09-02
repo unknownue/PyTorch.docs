@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>Building from source &mdash; NumPy v1.18 Manual</title>
+    <title>Building from source &mdash; NumPy v1.19 Manual</title>
     
     <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.18.1',
+        VERSION:     '1.19.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
@@ -29,10 +29,10 @@
     <link rel="author" title="About these documents" href="../about.html" >
     <link rel="index" title="Index" href="../genindex.html" >
     <link rel="search" title="Search" href="../search.html" >
-    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
-    <link rel="up" title="NumPy User Guide" href="index.html" >
+    <link rel="top" title="NumPy v1.19 Manual" href="../index.html" >
+    <link rel="up" title="NumPy Tutorials" href="tutorials_index.html" >
     <link rel="next" title="Using NumPy C-API" href="c-info.html" >
-    <link rel="prev" title="NumPy for Matlab users" href="numpy-for-matlab-users.html" > 
+    <link rel="prev" title="Tutorial: Linear algebra on n-dimensional arrays" href="tutorial-svd.html" > 
   </head>
   <body>
 <div class="container">
@@ -55,10 +55,10 @@
         <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
         <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
         
-        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        <li class="active"><a href="../index.html">NumPy v1.19 Manual</a></li>
         
 
-          <li class="active"><a href="index.html" accesskey="U">NumPy User Guide</a></li> 
+          <li class="active"><a href="tutorials_index.html" accesskey="U">NumPy Tutorials</a></li> 
     </ul>
               
               
@@ -72,7 +72,7 @@
            accesskey="N">next</a>
       </li>
       <li class="active">
-        <a href="numpy-for-matlab-users.html" title="NumPy for Matlab users"
+        <a href="tutorial-svd.html" title="Tutorial: Linear algebra on n-dimensional arrays"
            accesskey="P">previous</a>
       </li>
     </ul>
@@ -109,8 +109,8 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="numpy-for-matlab-users.html"
-                        title="previous chapter">NumPy for Matlab users</a></p>
+  <p class="topless"><a href="tutorial-svd.html"
+                        title="previous chapter">Tutorial: Linear algebra on n-dimensional arrays</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="c-info.html"
                         title="next chapter">Using NumPy C-API</a></p>
@@ -141,7 +141,7 @@ instructions for specific platforms given separately.</p>
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>Building NumPy requires the following software installed:</p>
 <ol class="arabic">
-<li><p>Python 3.5.x or newer</p>
+<li><p>Python 3.6.x or newer</p>
 <p>Please note that the Python development headers also need to be installed,
 e.g., on Debian/Ubuntu one needs to install both <em class="xref py py-obj">python3</em> and
 <em class="xref py py-obj">python3-dev</em>. On Windows and macOS this is normally not an issue.</p>
@@ -150,17 +150,23 @@ e.g., on Debian/Ubuntu one needs to install both <em class="xref py py-obj">pyth
 <p>To build any extension modules for Python, you’ll need a C compiler.
 Various NumPy modules use FORTRAN 77 libraries, so you’ll also need a
 FORTRAN 77 compiler installed.</p>
-<p>Note that NumPy is developed mainly using GNU compilers. Compilers from
-other vendors such as Intel, Absoft, Sun, NAG, Compaq, Vast, Portland,
-Lahey, HP, IBM, Microsoft are only supported in the form of community
-feedback, and may not work out of the box. GCC 4.x (and later) compilers
-are recommended.</p>
+<p>Note that NumPy is developed mainly using GNU compilers and tested on
+MSVC and Clang compilers. Compilers from other vendors such as Intel,
+Absoft, Sun, NAG, Compaq, Vast, Portland, Lahey, HP, IBM are only supported
+in the form of community feedback, and may not work out of the box.
+GCC 4.x (and later) compilers are recommended.</p>
 </li>
 <li><p>Linear Algebra libraries</p>
 <p>NumPy does not require any external linear algebra libraries to be
 installed. However, if these are available, NumPy’s setup script can detect
 them and use them for building. A number of different LAPACK library setups
-can be used, including optimized LAPACK libraries such as OpenBLAS or MKL.</p>
+can be used, including optimized LAPACK libraries such as OpenBLAS or MKL.
+The choice and location of these libraries as well as include paths and
+other such build options can be specified in a <code class="docutils literal notranslate"><span class="pre">site.cfg</span></code> file located in
+the NumPy root repository or a <code class="docutils literal notranslate"><span class="pre">.numpy-site.cfg</span></code> file in your home
+directory. See the <code class="docutils literal notranslate"><span class="pre">site.cfg.example</span></code> example file included in the NumPy
+repository or sdist for documentation, and below for specifying search
+priority from environmental variables.</p>
 </li>
 <li><p>Cython</p>
 <p>For building NumPy, you’ll need a recent version of Cython.</p>
@@ -225,7 +231,8 @@ this means both have been used, which is almost always a very bad idea.</p>
 <div class="section" id="accelerated-blas-lapack-libraries">
 <h2>Accelerated BLAS/LAPACK libraries<a class="headerlink" href="#accelerated-blas-lapack-libraries" title="Permalink to this headline">¶</a></h2>
 <p>NumPy searches for optimized linear algebra libraries such as BLAS and LAPACK.
-There are specific orders for searching these libraries, as described below.</p>
+There are specific orders for searching these libraries, as described below and
+in the <code class="docutils literal notranslate"><span class="pre">site.cfg.example</span></code> file.</p>
 <div class="section" id="blas">
 <h3>BLAS<a class="headerlink" href="#blas" title="Permalink to this headline">¶</a></h3>
 <p>The default order for the libraries are:</p>
@@ -340,13 +347,13 @@ that you also set <code class="docutils literal notranslate"><span class="pre">-
     <div class="row-fluid">
     <ul class="inline pull-left">
       <li>
-        &copy; Copyright 2008-2019, The SciPy community.
+        &copy; Copyright 2008-2020, The SciPy community.
       </li>
       <li>
-      Last updated on Feb 20, 2020.
+      Last updated on Jun 29, 2020.
       </li>
       <li>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.4.
       </li>
     </ul>
     </div>

@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>Extending &mdash; NumPy v1.18 Manual</title>
+    <title>Extending &mdash; NumPy v1.19 Manual</title>
     
     <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.18.1',
+        VERSION:     '1.19.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
@@ -29,7 +29,7 @@
     <link rel="author" title="About these documents" href="../../about.html" >
     <link rel="index" title="Index" href="../../genindex.html" >
     <link rel="search" title="Search" href="../../search.html" >
-    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="top" title="NumPy v1.19 Manual" href="../../index.html" >
     <link rel="up" title="Random sampling (numpy.random)" href="index.html" >
     <link rel="next" title="Extending via Numba" href="examples/numba.html" >
     <link rel="prev" title="Cython API for random" href="c-api.html" > 
@@ -55,7 +55,7 @@
         <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
         <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
         
-        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        <li class="active"><a href="../../index.html">NumPy v1.19 Manual</a></li>
         
 
           <li class="active"><a href="../index.html" >NumPy Reference</a></li>
@@ -93,7 +93,7 @@
 <li><a class="reference internal" href="#numba">Numba</a></li>
 <li><a class="reference internal" href="#cython">Cython</a></li>
 <li><a class="reference internal" href="#cffi">CFFI</a></li>
-<li><a class="reference internal" href="#new-basic-rngs">New Basic RNGs</a></li>
+<li><a class="reference internal" href="#new-bit-generators">New Bit Generators</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
@@ -200,7 +200,7 @@ the <em class="xref py py-obj">examples</em> section below.</p>
 This example uses <a class="reference internal" href="bit_generators/pcg64.html#numpy.random.PCG64" title="numpy.random.PCG64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PCG64</span></code></a> and the example from above.  The usual caveats
 for writing high-performance code using Cython – removing bounds checks and
 wrap around, providing array alignment information – still apply.</p>
-<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="c">#!/usr/bin/env python</span>
+<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="c">#!/usr/bin/env python3</span>
 <span class="c">#cython: language_level=3</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file shows how the to use a BitGenerator to create a distribution.</span>
@@ -212,6 +212,8 @@ wrap around, providing array alignment information – still apply.</p>
 <span class="k">from</span> <span class="nn">libc.stdint</span> <span class="k">cimport</span> <span class="n">uint16_t</span><span class="p">,</span> <span class="n">uint64_t</span>
 <span class="k">from</span> <span class="nn">numpy.random</span> <span class="k">cimport</span> <span class="n">bitgen_t</span>
 <span class="k">from</span> <span class="nn">numpy.random</span> <span class="k">import</span> <span class="n">PCG64</span>
+<span class="k">from</span> <span class="nn">numpy.random.c_distributions</span> <span class="k">cimport</span> <span class="p">(</span>
+      <span class="n">random_standard_uniform_fill</span><span class="p">,</span> <span class="n">random_standard_uniform_fill_f</span><span class="p">)</span>
 
 
 <span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
@@ -242,11 +244,10 @@ wrap around, providing array alignment information – still apply.</p>
     <span class="n">randoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">random_values</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">randoms</span>
- 
 </pre></div>
 </div>
-<p>The BitGenerator can also be directly accessed using the members of the basic
-RNG structure.</p>
+<p>The BitGenerator can also be directly accessed using the members of the <code class="docutils literal notranslate"><span class="pre">bitgen_t</span></code>
+struct.</p>
 <div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 <span class="nd">@cython</span><span class="o">.</span><span class="n">wraparound</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">uint10_uniforms</span><span class="p">(</span><span class="n">Py_ssize_t</span> <span class="n">n</span><span class="p">):</span>
@@ -278,8 +279,52 @@ RNG structure.</p>
     <span class="k">return</span> <span class="n">randoms</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="examples/cython/index.html#extending-cython-example"><span class="std std-ref">Extending numpy.random via Cython</span></a> for a complete working example including a
-minimal setup and cython files.</p>
+<p>Cython can be used to directly access the functions in
+<code class="docutils literal notranslate"><span class="pre">numpy/random/c_distributions.pxd</span></code>. This requires linking with the
+<code class="docutils literal notranslate"><span class="pre">npyrandom</span></code> library located in <code class="docutils literal notranslate"><span class="pre">numpy/random/lib</span></code>.</p>
+<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">uniforms_ex</span><span class="p">(</span><span class="n">bit_generator</span><span class="p">,</span> <span class="n">Py_ssize_t</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create an array of `n` uniformly distributed doubles via a &quot;fill&quot; function.</span>
+
+<span class="sd">    A &#39;real&#39; distribution would want to process the values into</span>
+<span class="sd">    some non-uniform distribution</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bit_generator: BitGenerator instance</span>
+<span class="sd">    n: int</span>
+<span class="sd">        Output vector length</span>
+<span class="sd">    dtype: {str, dtype}, optional</span>
+<span class="sd">        Desired dtype, either &#39;d&#39; (or &#39;float64&#39;) or &#39;f&#39; (or &#39;float32&#39;). The</span>
+<span class="sd">        default dtype value is &#39;d&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">cdef</span> <span class="kt">Py_ssize_t</span> <span class="nf">i</span>
+    <span class="k">cdef</span> <span class="kt">bitgen_t</span> *<span class="nf">rng</span>
+    <span class="k">cdef</span> <span class="kt">const</span> <span class="kt">char</span> *<span class="nf">capsule_name</span> <span class="o">=</span> <span class="s">&quot;BitGenerator&quot;</span>
+    <span class="k">cdef</span> <span class="kt">np</span>.<span class="kt">ndarray</span> <span class="nf">randoms</span>
+
+    <span class="n">capsule</span> <span class="o">=</span> <span class="n">bit_generator</span><span class="o">.</span><span class="n">capsule</span>
+    <span class="c"># Optional check that the capsule if from a BitGenerator</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PyCapsule_IsValid</span><span class="p">(</span><span class="n">capsule</span><span class="p">,</span> <span class="n">capsule_name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid pointer to anon_func_state&quot;</span><span class="p">)</span>
+    <span class="c"># Cast the pointer</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">bitgen_t</span> <span class="o">*&gt;</span> <span class="n">PyCapsule_GetPointer</span><span class="p">(</span><span class="n">capsule</span><span class="p">,</span> <span class="n">capsule_name</span><span class="p">)</span>
+
+    <span class="n">_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">randoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">_dtype</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">bit_generator</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">random_standard_uniform_fill_f</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">*&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">PyArray_DATA</span><span class="p">(</span><span class="n">randoms</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">_dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">bit_generator</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">random_standard_uniform_fill</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">double</span><span class="o">*&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">PyArray_DATA</span><span class="p">(</span><span class="n">randoms</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Unsupported dtype </span><span class="si">%r</span><span class="s"> for random&#39;</span> <span class="o">%</span> <span class="n">_dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">randoms</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="examples/cython/index.html#extending-cython-example"><span class="std std-ref">Extending numpy.random via Cython</span></a> for the complete listings of these examples
+and a minimal <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> to build the c-extension modules.</p>
 </div>
 <div class="section" id="cffi">
 <h2>CFFI<a class="headerlink" href="#cffi" title="Permalink to this headline">¶</a></h2>
@@ -332,9 +377,9 @@ directly from the <code class="docutils literal notranslate"><span class="pre">_
 </pre></div>
 </div>
 </div>
-<div class="section" id="new-basic-rngs">
-<h2>New Basic RNGs<a class="headerlink" href="#new-basic-rngs" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="generator.html#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a> can be used with other user-provided BitGenerators. The simplest
+<div class="section" id="new-bit-generators">
+<h2>New Bit Generators<a class="headerlink" href="#new-bit-generators" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="generator.html#numpy.random.Generator" title="numpy.random.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Generator</span></code></a> can be used with user-provided <a class="reference internal" href="bit_generators/generated/numpy.random.BitGenerator.html#numpy.random.BitGenerator" title="numpy.random.BitGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitGenerator</span></code></a>s. The simplest
 way to write a new BitGenerator is to examine the pyx file of one of the
 existing BitGenerators. The key structure that must be provided is the
 <code class="docutils literal notranslate"><span class="pre">capsule</span></code> which contains a <code class="docutils literal notranslate"><span class="pre">PyCapsule</span></code> to a struct pointer of type
@@ -394,13 +439,13 @@ the next 64-bit unsigned integer function if not needed. Functions inside
     <div class="row-fluid">
     <ul class="inline pull-left">
       <li>
-        &copy; Copyright 2008-2019, The SciPy community.
+        &copy; Copyright 2008-2020, The SciPy community.
       </li>
       <li>
-      Last updated on Feb 20, 2020.
+      Last updated on Jun 29, 2020.
       </li>
       <li>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.4.
       </li>
     </ul>
     </div>

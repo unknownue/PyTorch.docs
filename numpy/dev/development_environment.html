@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>Setting up and using your development environment &mdash; NumPy v1.18 Manual</title>
+    <title>Setting up and using your development environment &mdash; NumPy v1.19 Manual</title>
     
     <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.18.1',
+        VERSION:     '1.19.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
@@ -29,7 +29,7 @@
     <link rel="author" title="About these documents" href="../about.html" >
     <link rel="index" title="Index" href="../genindex.html" >
     <link rel="search" title="Search" href="../search.html" >
-    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="top" title="NumPy v1.19 Manual" href="../index.html" >
     <link rel="up" title="Contributing to NumPy" href="index.html" >
     <link rel="next" title="Development workflow" href="development_workflow.html" >
     <link rel="prev" title="Additional Git Resources" href="gitwash/git_resources.html" > 
@@ -55,7 +55,7 @@
         <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
         <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
         
-        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        <li class="active"><a href="../index.html">NumPy v1.19 Manual</a></li>
         
 
           <li class="active"><a href="index.html" accesskey="U">Contributing to NumPy</a></li> 
@@ -160,7 +160,7 @@ any) found on current PYTHONPATH.</p>
 arguments may be forwarded to the target embedded by <code class="docutils literal notranslate"><span class="pre">runtests.py</span></code> by passing
 the extra arguments after a bare <code class="docutils literal notranslate"><span class="pre">--</span></code>. For example, to run a test method with
 the <code class="docutils literal notranslate"><span class="pre">--pdb</span></code> flag forwarded to the target, run the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python runtests.py -t numpy/tests/test_scripts.py:test_f2py -- --pdb
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python runtests.py -t numpy/tests/test_scripts.py::test_f2py -- --pdb
 </pre></div>
 </div>
 <p>When using pytest as a target (the default), you can
@@ -309,9 +309,19 @@ $ git reset --hard
 <div class="section" id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
 <p>Another frequently asked question is “How do I debug C code inside NumPy?”.
-The easiest way to do this is to first write a Python script that invokes the C
-code whose execution you want to debug. For instance <code class="docutils literal notranslate"><span class="pre">mytest.py</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">linspace</span>
+First, ensure that you have gdb installed on your system with the Python
+extensions (often the default on Linux). You can see which version of
+Python is running inside gdb to verify your setup:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">gdb</span><span class="p">)</span> <span class="n">python</span>
+<span class="o">&gt;</span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;</span><span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">)</span>
+<span class="o">&gt;</span><span class="n">end</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">(</span><span class="n">major</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">micro</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">releaselevel</span><span class="o">=</span><span class="s1">&#39;final&#39;</span><span class="p">,</span> <span class="n">serial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next you need to write a Python script that invokes the C code whose execution
+you want to debug. For instance <code class="docutils literal notranslate"><span class="pre">mytest.py</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
@@ -326,10 +336,17 @@ code whose execution you want to debug. For instance <code class="docutils liter
 </pre></div>
 </div>
 <p>The execution will now stop at the corresponding C function and you can step
-through it as usual.  With the Python extensions for gdb installed (often the
-default on Linux), a number of useful Python-specific commands are available.
+through it as usual. A number of useful Python-specific commands are available.
 For example to see where in the Python code you are, use <code class="docutils literal notranslate"><span class="pre">py-list</span></code>.  For more
-details, see <a class="reference external" href="https://wiki.python.org/moin/DebuggingWithGdb">DebuggingWithGdb</a>.</p>
+details, see <a class="reference external" href="https://wiki.python.org/moin/DebuggingWithGdb">DebuggingWithGdb</a>. Here are some commonly used commands:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code>: List specified function or line.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">next</span></code>: Step program, proceeding through subroutine calls.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step</span></code>: Continue program being debugged, after signal or breakpoint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">print</span></code>: Print value of expression EXP.</p></li>
+</ul>
+</div></blockquote>
 <p>Instead of plain <code class="docutils literal notranslate"><span class="pre">gdb</span></code> you can of course use your favourite
 alternative debugger; run it on the python binary with arguments
 <code class="docutils literal notranslate"><span class="pre">runtests.py</span> <span class="pre">-g</span> <span class="pre">--python</span> <span class="pre">mytest.py</span></code>.</p>
@@ -369,13 +386,13 @@ you’ll have a pretty good understanding of the project as a whole. Good Luck!<
     <div class="row-fluid">
     <ul class="inline pull-left">
       <li>
-        &copy; Copyright 2008-2019, The SciPy community.
+        &copy; Copyright 2008-2020, The SciPy community.
       </li>
       <li>
-      Last updated on Feb 20, 2020.
+      Last updated on Jun 29, 2020.
       </li>
       <li>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.4.
       </li>
     </ul>
     </div>

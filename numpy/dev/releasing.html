@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>Releasing a Version &mdash; NumPy v1.18 Manual</title>
+    <title>Releasing a Version &mdash; NumPy v1.19 Manual</title>
     
     <link rel="stylesheet" type="text/css" href="../_static/css/spc-bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../_static/css/spc-extend.css">
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.18.1',
+        VERSION:     '1.19.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
@@ -29,7 +29,7 @@
     <link rel="author" title="About these documents" href="../about.html" >
     <link rel="index" title="Index" href="../genindex.html" >
     <link rel="search" title="Search" href="../search.html" >
-    <link rel="top" title="NumPy v1.18 Manual" href="../index.html" >
+    <link rel="top" title="NumPy v1.19 Manual" href="../index.html" >
     <link rel="up" title="Contributing to NumPy" href="index.html" >
     <link rel="next" title="NumPy governance" href="governance/index.html" >
     <link rel="prev" title="NumPy C Style Guide" href="style_guide.html" > 
@@ -55,7 +55,7 @@
         <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
         <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
         
-        <li class="active"><a href="../index.html">NumPy v1.18 Manual</a></li>
+        <li class="active"><a href="../index.html">NumPy v1.19 Manual</a></li>
         
 
           <li class="active"><a href="index.html" accesskey="U">Contributing to NumPy</a></li> 
@@ -106,6 +106,7 @@
 </li>
 <li><a class="reference internal" href="#tool-chain">Tool chain</a><ul>
 <li><a class="reference internal" href="#compilers">Compilers</a></li>
+<li><a class="reference internal" href="#openblas">OpenBLAS</a></li>
 <li><a class="reference internal" href="#building-source-archives-and-wheels">Building source archives and wheels</a></li>
 <li><a class="reference internal" href="#building-docs">Building docs</a></li>
 <li><a class="reference internal" href="#uploading-to-pypi">Uploading to PyPI</a></li>
@@ -126,9 +127,8 @@
 <li><a class="reference internal" href="#check-the-c-api-version-number">Check the C API version number</a></li>
 <li><a class="reference internal" href="#check-the-release-notes">Check the release notes</a></li>
 <li><a class="reference internal" href="#update-the-release-status-and-create-a-release-tag">Update the release status and create a release “tag”</a></li>
-<li><a class="reference internal" href="#apply-patch-to-fix-bogus-strides">Apply patch to fix bogus strides</a></li>
 <li><a class="reference internal" href="#update-the-version-of-the-master-branch">Update the version of the master branch</a></li>
-<li><a class="reference internal" href="#trigger-the-wheel-builds-on-travis-ci-and-appveyor">Trigger the wheel builds on travis-ci and Appveyor</a></li>
+<li><a class="reference internal" href="#trigger-the-wheel-builds">Trigger the wheel builds</a></li>
 <li><a class="reference internal" href="#make-the-release">Make the release</a></li>
 <li><a class="reference internal" href="#build-and-archive-documentation">Build and archive documentation</a></li>
 <li><a class="reference internal" href="#update-pypi">Update PyPI</a></li>
@@ -241,22 +241,20 @@ useful info can be found.</p>
 </div>
 <div class="section" id="supported-platforms-and-versions">
 <h3>Supported platforms and versions<a class="headerlink" href="#supported-platforms-and-versions" title="Permalink to this headline">¶</a></h3>
-<p>Python 2.7 and &gt;=3.4 are the currently supported versions when building from
-source.  We test NumPy against all these versions every time we merge code to
-master.  Binary installers may be available for a subset of these versions (see
-below).</p>
+<p><a class="reference external" href="https://numpy.org/neps/nep-0029-deprecation_policy.html">NEP 29</a> outlines which Python versions are supported; For the first half of
+2020, this will be Python &gt;= 3.6. We test NumPy against all these versions
+every time we merge code to master.  Binary installers may be available for a
+subset of these versions (see below).</p>
 <div class="section" id="os-x">
 <h4>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h4>
-<p>Python 2.7 and &gt;=3.4 are the versions for which we provide binary installers.
-OS X versions &gt;= 10.6 are supported.  We build binary wheels for OSX that are
-compatible with Python.org Python, system Python, homebrew and macports - see
-this <a class="reference external" href="https://github.com/MacPython/wiki/wiki/Spinning-wheels">OSX wheel building summary</a> for details.</p>
+<p>OS X versions &gt;= 10.9 are supported, for Python version support see <a class="reference external" href="https://numpy.org/neps/nep-0029-deprecation_policy.html">NEP 29</a>.
+We build binary wheels for OSX that are compatible with Python.org Python,
+system Python, homebrew and macports - see this <a class="reference external" href="https://github.com/MacPython/wiki/wiki/Spinning-wheels">OSX wheel building summary</a> for details.</p>
 </div>
 <div class="section" id="windows">
 <h4>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h4>
-<p>We build 32- and 64-bit wheels for Python 2.7, 3.4, 3.5 on Windows. Windows
-XP, Vista, 7, 8 and 10 are supported.  We build NumPy using the MSVC compilers
-on Appveyor, but we are hoping to update to a <a class="reference external" href="https://mingwpy.github.io">mingw-w64 toolchain</a>.  The Windows wheels use ATLAS for BLAS / LAPACK.</p>
+<p>We build 32- and 64-bit wheels on Windows. Windows 7, 8 and 10 are supported.
+We build NumPy using the <a class="reference external" href="https://mingwpy.github.io">mingw-w64 toolchain</a> on Appveyor.</p>
 </div>
 <div class="section" id="linux">
 <h4>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h4>
@@ -284,12 +282,17 @@ each platform. At the moment this means:</p>
 <li><p>OS X builds on travis currently use <em class="xref py py-obj">clang</em>.  It appears that binary wheels
 for OSX &gt;= 10.6 can be safely built from the travis-ci OSX 10.9 VMs
 when building against the Python from the Python.org installers;</p></li>
-<li><p>Windows builds use the MSVC version corresponding to the Python being built
-against;</p></li>
+<li><p>Windows builds use the <a class="reference external" href="https://mingwpy.github.io">mingw-w64 toolchain</a>;</p></li>
 <li><p>Manylinux1 wheels use the gcc provided on the Manylinux docker images.</p></li>
 </ul>
 <p>You will need Cython for building the binaries.  Cython compiles the <code class="docutils literal notranslate"><span class="pre">.pyx</span></code>
 files in the NumPy distribution to <code class="docutils literal notranslate"><span class="pre">.c</span></code> files.</p>
+</div>
+<div class="section" id="openblas">
+<h4>OpenBLAS<a class="headerlink" href="#openblas" title="Permalink to this headline">¶</a></h4>
+<p>All the wheels link to a version of <a class="reference external" href="https://github.com/xianyi/OpenBLAS">OpenBLAS</a> supplied via the <a class="reference external" href="https://github.com/MacPython/openblas-libs">openblas-libs</a> repo.
+The shared object (or DLL) is shipped with in the wheel, renamed to prevent name
+collisions with other OpenBLAS shared objects that may exist in the filesystem.</p>
 </div>
 <div class="section" id="building-source-archives-and-wheels">
 <h4>Building source archives and wheels<a class="headerlink" href="#building-source-archives-and-wheels" title="Permalink to this headline">¶</a></h4>
@@ -345,11 +348,11 @@ It is also used in the Paver script to build the docs.</p>
 <h3>What is released<a class="headerlink" href="#what-is-released" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="wheels">
 <h4>Wheels<a class="headerlink" href="#wheels" title="Permalink to this headline">¶</a></h4>
+<p>We currently support Python 3.6-3.8 on Windows, OSX, and Linux</p>
 <ul class="simple">
-<li><p>Windows wheels for Python 2.7, 3.4, 3.5, for 32- and 64-bit, built using
-Appveyor;</p></li>
-<li><p>Dual architecture OSX wheels built via travis-ci;</p></li>
-<li><p>32- and 64-bit Manylinux1 wheels built via travis-ci.</p></li>
+<li><p>Windows: 32-bit and 64-bit wheels built using Appveyor;</p></li>
+<li><p>OSX: x64_86 OSX wheels built using travis-ci;</p></li>
+<li><p>Linux: 32-bit and 64-bit Manylinux1 wheels built using travis-ci.</p></li>
 </ul>
 <p>See the <a class="reference external" href="https://github.com/MacPython/numpy-wheels">numpy wheels</a> building repository for more detail.</p>
 </div>
@@ -515,13 +518,6 @@ to public keyservers, with a command such as:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="apply-patch-to-fix-bogus-strides">
-<h4>Apply patch to fix bogus strides<a class="headerlink" href="#apply-patch-to-fix-bogus-strides" title="Permalink to this headline">¶</a></h4>
-<p>NPY_RELAXED_STRIDE_CHECKING was made the default in NumPy 1.10.0 and bogus
-strides are used in the development branch to smoke out problems. The
-<a class="reference external" href="https://github.com/numpy/numpy/pull/5996">patch</a> should be updated if
-necessary and applied to the release branch to rationalize the strides.</p>
-</div>
 <div class="section" id="update-the-version-of-the-master-branch">
 <h4>Update the version of the master branch<a class="headerlink" href="#update-the-version-of-the-master-branch" title="Permalink to this headline">¶</a></h4>
 <p>Increment the release number in setup.py. Release candidates should have “rc1”
@@ -529,32 +525,27 @@ necessary and applied to the release branch to rationalize the strides.</p>
 <p>Also create a new version hash in cversions.txt and a corresponding version
 define NPY_x_y_API_VERSION in numpyconfig.h</p>
 </div>
-<div class="section" id="trigger-the-wheel-builds-on-travis-ci-and-appveyor">
-<h4>Trigger the wheel builds on travis-ci and Appveyor<a class="headerlink" href="#trigger-the-wheel-builds-on-travis-ci-and-appveyor" title="Permalink to this headline">¶</a></h4>
-<p>See the <em class="xref py py-obj">numpy wheels</em> repository.</p>
+<div class="section" id="trigger-the-wheel-builds">
+<h4>Trigger the wheel builds<a class="headerlink" href="#trigger-the-wheel-builds" title="Permalink to this headline">¶</a></h4>
+<p>See the <em class="xref py py-obj">MacPython/numpy wheels</em> repository.</p>
 <p>In that repository edit the files:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">.travis.yml</span></code>;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">appveyor.yml</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">azure/posix.yml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">azure/windows.yml</span></code>.</p></li>
 </ul>
 <p>In both cases, set the <code class="docutils literal notranslate"><span class="pre">BUILD_COMMIT</span></code> variable to the current release tag -
-e.g. <code class="docutils literal notranslate"><span class="pre">v1.11.1</span></code>.</p>
-<p>Make sure that the release tag has been pushed.</p>
-<p>Trigger a build by doing a commit of your edits to <code class="docutils literal notranslate"><span class="pre">.travis.yml</span></code> and
-<code class="docutils literal notranslate"><span class="pre">appveyor.yml</span></code> to the repository:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">numpy</span><span class="o">-</span><span class="n">wheels</span>
-<span class="c1"># Edit .travis.yml, appveyor.yml</span>
-<span class="n">git</span> <span class="n">commit</span>
-<span class="n">git</span> <span class="n">push</span>
+e.g. <code class="docutils literal notranslate"><span class="pre">v1.19.0</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gvim azure/posix.yml azure/windows.yml
+$ git commit -a
+$ git push upstream HEAD
 </pre></div>
 </div>
-<p>The wheels, once built, appear at a Rackspace container pointed at by:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="http://wheels.scipy.org">http://wheels.scipy.org</a></p></li>
-<li><p><a class="reference external" href="https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com">https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com</a></p></li>
-</ul>
-<p>The HTTP address may update first, and you should wait 15 minutes after the
-build finishes before fetching the binaries.</p>
+<p>Make sure that the release tag has been pushed.</p>
+<p>Trigger a build by pushing a commit of your edits to the repository. Note that
+you can do this on a branch, but it must be pushed upstream to the
+<code class="docutils literal notranslate"><span class="pre">MacPython/numpy-wheels</span></code> repository to trigger uploads since only
+that repo has the appropriate tokens to allow uploads.</p>
+<p>The wheels, once built, appear at <a class="reference external" href="https://anaconda.org/multibuild-wheels-staging/numpy">https://anaconda.org/multibuild-wheels-staging/numpy</a></p>
 </div>
 <div class="section" id="make-the-release">
 <h4>Make the release<a class="headerlink" href="#make-the-release" title="Permalink to this headline">¶</a></h4>
@@ -577,9 +568,9 @@ create an archive of the documentation in the numpy/doc repo:</p>
 <span class="n">make</span> <span class="n">merge</span><span class="o">-</span><span class="n">doc</span>
 <span class="c1"># Now edit the ``index.html`` file in the repo to reflect the new content,</span>
 <span class="c1"># and commit the changes</span>
-<span class="n">git</span> <span class="o">-</span><span class="n">C</span> <span class="n">dist</span><span class="o">/</span><span class="n">merge</span> <span class="n">commit</span> <span class="o">-</span><span class="n">a</span> <span class="s2">&quot;Add documentation for &lt;version&gt;&quot;</span>
+<span class="n">git</span> <span class="o">-</span><span class="n">C</span> <span class="n">build</span><span class="o">/</span><span class="n">merge</span> <span class="n">commit</span> <span class="o">-</span><span class="n">am</span> <span class="s2">&quot;Add documentation for &lt;version&gt;&quot;</span>
 <span class="c1"># Push to numpy/doc repo</span>
-<span class="n">git</span> <span class="o">-</span><span class="n">C</span> <span class="n">push</span>
+<span class="n">git</span> <span class="o">-</span><span class="n">C</span> <span class="n">build</span><span class="o">/</span><span class="n">merge</span> <span class="n">push</span>
 </pre></div>
 </div>
 </div>
@@ -593,7 +584,7 @@ expecting a binary wheel.</p>
 <a class="reference external" href="https://github.com/MacPython/terryfy">https://github.com/MacPython/terryfy</a>.  Here is the recommended incantation for
 downloading all the Windows, Manylinux, OSX wheels and uploading to PyPI.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>NPY_WHLS=~/wheelhouse   # local directory to cache wheel downloads
-CDN_URL=https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com
+CDN_URL=https://anaconda.org/multibuild-wheels-staging/numpy/files
 wheel-uploader -u $CDN_URL -w $NPY_WHLS -v -s -t win numpy 1.11.1rc1
 wheel-uploader -u $CDN_URL -w warehouse -v -s -t macosx numpy 1.11.1rc1
 wheel-uploader -u $CDN_URL -w warehouse -v -s -t manylinux1 numpy 1.11.1rc1
@@ -663,9 +654,11 @@ scripts, if any, to master branch.</p></li>
 </div>
 <div class="section" id="step-by-step-directions">
 <h2>Step-by-Step Directions<a class="headerlink" href="#step-by-step-directions" title="Permalink to this headline">¶</a></h2>
-<p>This file contains a walkthrough of the NumPy 1.14.5 release on Linux.
+<p>This file contains a walkthrough of the NumPy 1.14.5 release on Linux, modified
+for building on azure and uploading to anaconda.org
 The commands can be copied into the command line, but be sure to
 replace 1.14.5 by the correct version.</p>
+<p>This should be read together with the general directions in <em class="xref py py-obj">releasing</em>.</p>
 <div class="section" id="release-walkthrough">
 <h3>Release  Walkthrough<a class="headerlink" href="#release-walkthrough" title="Permalink to this headline">¶</a></h3>
 <p>Note that in the code snippets below, <code class="docutils literal notranslate"><span class="pre">upstream</span></code> refers to the root repository on
@@ -712,8 +705,7 @@ $ git commit -a -m&quot;REL: NumPy 1.14.5 release.&quot;
 </pre></div>
 </div>
 <p>Sanity check:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python runtests.py -m &quot;full&quot;  # NumPy &lt; 1.17 only
-$ python3 runtests.py -m &quot;full&quot;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 runtests.py -m &quot;full&quot;
 </pre></div>
 </div>
 <p>Push this release directly onto the end of the maintenance branch. This
@@ -736,7 +728,7 @@ $ paver sdist  # sdist will do a git clean -xdf, so we omit that
 <div class="section" id="build-wheels">
 <h4>Build wheels<a class="headerlink" href="#build-wheels" title="Permalink to this headline">¶</a></h4>
 <p>Trigger the wheels build by pointing the numpy-wheels repository at this
-commit. This can take a while. The numpy-wheels repository is cloned from
+commit. This can take up to an hour. The numpy-wheels repository is cloned from
 <a class="reference external" href="https://github.com/MacPython/numpy-wheels">https://github.com/MacPython/numpy-wheels</a>. Start with a pull as the repo
 may have been accessed and changed by someone else and a push will fail:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ../numpy-wheels
@@ -745,22 +737,23 @@ $ git branch &lt;new version&gt;  # only when starting new numpy version
 $ git checkout v1.14.x  # v1.14.x already existed for the 1.14.4 release
 </pre></div>
 </div>
-<p>Edit the <code class="docutils literal notranslate"><span class="pre">.travis.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">.appveyor.yml</span></code> files to make sure they have the
-correct version, and put in the commit hash for the <code class="docutils literal notranslate"><span class="pre">REL</span></code> commit created
-above for <code class="docutils literal notranslate"><span class="pre">BUILD_COMMIT</span></code>, see the _example from <em class="xref py py-obj">v1.14.3</em>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gvim .travis.yml .appveyor.yml
+<p>Edit the <code class="docutils literal notranslate"><span class="pre">azure/posix.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">azure/windows.yml</span></code> files to make sure they
+have the correct version, and put in the commit hash for the <code class="docutils literal notranslate"><span class="pre">REL</span></code> commit
+created above for <code class="docutils literal notranslate"><span class="pre">BUILD_COMMIT</span></code>, see an _example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gvim azure/posix.yml azure/windows.yml
 $ git commit -a
 $ git push upstream HEAD
 </pre></div>
 </div>
 <p>Now wait. If you get nervous at the amount of time taken – the builds can take
-several hours– you can check the build progress by following the links
-provided at <a class="reference external" href="https://github.com/MacPython/numpy-wheels">https://github.com/MacPython/numpy-wheels</a> to check the travis
-and appveyor build status. Check if all the needed wheels have been built and
-uploaded before proceeding. There should currently be 22 of them at
-<a class="reference external" href="https://wheels.scipy.org">https://wheels.scipy.org</a>, 4 for Mac, 8 for Windows, and 10 for Linux.
-Note that sometimes builds, like tests, fail for unrelated reasons and you will
-need to restart them.</p>
+a while – you can check the build progress by following the links
+provided at <a class="reference external" href="https://github.com/MacPython/numpy-wheels">https://github.com/MacPython/numpy-wheels</a> to check the
+build status. Check if all the needed wheels have been built and
+uploaded before proceeding. There should currently be 21 of them at
+<a class="reference external" href="https://anaconda.org/multibuild-wheels-staging/numpy/files">https://anaconda.org/multibuild-wheels-staging/numpy/files</a>, 3 for Mac, 6
+for Windows, and 12 for Linux.</p>
+<p>Note that sometimes builds, like tests, fail for unrelated reasons and
+you will need to restart them.</p>
 </div>
 <div class="section" id="download-wheels">
 <h4>Download wheels<a class="headerlink" href="#download-wheels" title="Permalink to this headline">¶</a></h4>
@@ -772,7 +765,7 @@ download all the wheels to the <code class="docutils literal notranslate"><span 
 upload later using <code class="docutils literal notranslate"><span class="pre">twine</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ../terryfy
 $ git pull upstream master
-$ CDN_URL=https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com
+$ CDN_URL=https://anaconda.org/multibuild-wheels-staging/numpy/files
 $ NPY_WHLS=../numpy/release/installers
 $ ./wheel-uploader -u $CDN_URL -n -v -w $NPY_WHLS -t win numpy 1.14.5
 $ ./wheel-uploader -u $CDN_URL -n -v -w $NPY_WHLS -t manylinux1 numpy 1.14.5
@@ -817,9 +810,9 @@ be changed after it has been pushed.</p>
 </pre></div>
 </div>
 <p>Create release notes for next release and edit them to set the version:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cp doc/release/template.rst doc/release/1.14.6-notes.rst
-$ gvim doc/release/1.14.6-notes.rst
-$ git add doc/release/1.14.6-notes.rst
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cp doc/source/release/template.rst doc/source/release/1.14.6-notes.rst
+$ gvim doc/source/release/1.14.6-notes.rst
+$ git add doc/source/release/1.14.6-notes.rst
 </pre></div>
 </div>
 <p>Add new release notes to the documentation release list:</p>
@@ -921,9 +914,18 @@ python-announce-list is BCC so that replies will not be sent to that list.</p>
 </div>
 <div class="section" id="post-release-tasks">
 <h4>Post-Release Tasks<a class="headerlink" href="#post-release-tasks" title="Permalink to this headline">¶</a></h4>
-<p>Forward port the documentation changes <code class="docutils literal notranslate"><span class="pre">doc/release/1.14.5-notes.rst</span></code>,
-<code class="docutils literal notranslate"><span class="pre">doc/changelog/1.14.5-changelog.rst</span></code> and add the release note to
-<code class="docutils literal notranslate"><span class="pre">doc/source/release.rst</span></code>.</p>
+<p>Checkout master and forward port the documentation changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git checkout -b update-after-1.14.5-release
+$ git checkout maintenance/1.14.x doc/source/release/1.14.5-notes.rst
+$ git checkout maintenance/1.14.x doc/changelog/1.14.5-changelog.rst
+$ gvim doc/source/release.rst  # Add link to new notes
+$ git add doc/changelog/1.14.5-changelog.rst doc/source/release/1.14.5-notes.rst
+$ git status  # check status before commit
+$ git commit -a -m&quot;REL: Update master after 1.14.5 release.&quot;
+$ git push origin HEAD
+</pre></div>
+</div>
+<p>Go to github and make a PR.</p>
 </div>
 </div>
 </div>
@@ -947,13 +949,13 @@ python-announce-list is BCC so that replies will not be sent to that list.</p>
     <div class="row-fluid">
     <ul class="inline pull-left">
       <li>
-        &copy; Copyright 2008-2019, The SciPy community.
+        &copy; Copyright 2008-2020, The SciPy community.
       </li>
       <li>
-      Last updated on Feb 20, 2020.
+      Last updated on Jun 29, 2020.
       </li>
       <li>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.4.
       </li>
     </ul>
     </div>

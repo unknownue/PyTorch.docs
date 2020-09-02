@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>numpy.shares_memory &mdash; NumPy v1.18 Manual</title>
+    <title>numpy.shares_memory &mdash; NumPy v1.19 Manual</title>
     
     <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.18.1',
+        VERSION:     '1.19.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
@@ -29,7 +29,7 @@
     <link rel="author" title="About these documents" href="../../about.html" >
     <link rel="index" title="Index" href="../../genindex.html" >
     <link rel="search" title="Search" href="../../search.html" >
-    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="top" title="NumPy v1.19 Manual" href="../../index.html" >
     <link rel="up" title="Miscellaneous routines" href="../routines.other.html" >
     <link rel="next" title="numpy.may_share_memory" href="numpy.may_share_memory.html" >
     <link rel="prev" title="numpy.getbufsize" href="numpy.getbufsize.html" > 
@@ -55,7 +55,7 @@
         <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
         <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
         
-        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        <li class="active"><a href="../../index.html">NumPy v1.19 Manual</a></li>
         
 
           <li class="active"><a href="../index.html" >NumPy Reference</a></li>
@@ -117,7 +117,13 @@
 <dl class="function">
 <dt id="numpy.shares_memory">
 <code class="sig-prename descclassname">numpy.</code><code class="sig-name descname">shares_memory</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">max_work=None</em><span class="sig-paren">)</span><a class="headerlink" href="#numpy.shares_memory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine if two arrays share memory</p>
+<dd><p>Determine if two arrays share memory.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function can be exponentially slow for some inputs, unless
+<em class="xref py py-obj">max_work</em> is set to a finite number or <code class="docutils literal notranslate"><span class="pre">MAY_SHARE_BOUNDS</span></code>.
+If in doubt, use <a class="reference internal" href="numpy.may_share_memory.html#numpy.may_share_memory" title="numpy.may_share_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.may_share_memory</span></code></a> instead.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -128,7 +134,8 @@ of candidate solutions to consider). The following special
 values are recognized:</p>
 <dl class="simple">
 <dt>max_work=MAY_SHARE_EXACT  (default)</dt><dd><p>The problem is solved exactly. In this case, the function returns
-True only if there is an element shared between the arrays.</p>
+True only if there is an element shared between the arrays. Finding
+the exact solution may take extremely long in some cases.</p>
 </dd>
 <dt>max_work=MAY_SHARE_BOUNDS</dt><dd><p>Only the memory bounds of a and b are checked.</p>
 </dd>
@@ -153,10 +160,33 @@ True only if there is an element shared between the arrays.</p>
 <p><a class="reference internal" href="numpy.may_share_memory.html#numpy.may_share_memory" title="numpy.may_share_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">may_share_memory</span></code></a></p>
 </div>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">]))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">shares_memory</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]))</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">shares_memory</span><span class="p">(</span><span class="n">x</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">shares_memory</span><span class="p">(</span><span class="n">x</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
 <span class="go">False</span>
 </pre></div>
 </div>
+<p>Checking whether two arrays share memory is NP-complete, and
+runtime may increase exponentially in the number of
+dimensions. Hence, <em class="xref py py-obj">max_work</em> should generally be set to a finite
+number, as it is possible to construct examples that take
+extremely long to run:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.lib.stride_tricks</span> <span class="kn">import</span> <span class="n">as_strided</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">192163377</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span> <span class="o">=</span> <span class="n">as_strided</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">36674</span><span class="p">,</span> <span class="mi">61119</span><span class="p">,</span> <span class="mi">85569</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1049</span><span class="p">,</span> <span class="mi">1049</span><span class="p">,</span> <span class="mi">1049</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x2</span> <span class="o">=</span> <span class="n">as_strided</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">64023025</span><span class="p">:],</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">12223</span><span class="p">,</span> <span class="mi">12224</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1049</span><span class="p">,</span> <span class="mi">1049</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">shares_memory</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">max_work</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">numpy.TooHardError</span>: <span class="n">Exceeded max_work</span>
+</pre></div>
+</div>
+<p>Running <code class="docutils literal notranslate"><span class="pre">np.shares_memory(x1,</span> <span class="pre">x2)</span></code> without <em class="xref py py-obj">max_work</em> set takes
+around 1 minute for this case. It is possible to find problems
+that take still significantly longer.</p>
 </dd></dl>
 
 </div>
@@ -179,13 +209,13 @@ True only if there is an element shared between the arrays.</p>
     <div class="row-fluid">
     <ul class="inline pull-left">
       <li>
-        &copy; Copyright 2008-2019, The SciPy community.
+        &copy; Copyright 2008-2020, The SciPy community.
       </li>
       <li>
-      Last updated on Feb 20, 2020.
+      Last updated on Jun 29, 2020.
       </li>
       <li>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.4.
       </li>
     </ul>
     </div>

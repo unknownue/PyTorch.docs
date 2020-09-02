@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>Multithreaded Generation &mdash; NumPy v1.18 Manual</title>
+    <title>Multithreaded Generation &mdash; NumPy v1.19 Manual</title>
     
     <link rel="stylesheet" type="text/css" href="../../_static/css/spc-bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../../_static/css/spc-extend.css">
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.18.1',
+        VERSION:     '1.19.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
@@ -29,7 +29,7 @@
     <link rel="author" title="About these documents" href="../../about.html" >
     <link rel="index" title="Index" href="../../genindex.html" >
     <link rel="search" title="Search" href="../../search.html" >
-    <link rel="top" title="NumPy v1.18 Manual" href="../../index.html" >
+    <link rel="top" title="NumPy v1.19 Manual" href="../../index.html" >
     <link rel="up" title="Random sampling (numpy.random)" href="index.html" >
     <link rel="next" title="What’s New or Different" href="new-or-different.html" >
     <link rel="prev" title="Parallel Random Number Generation" href="parallel.html" > 
@@ -55,7 +55,7 @@
         <li class="active"><a href="https://numpy.org/">NumPy.org</a></li>
         <li class="active"><a href="https://numpy.org/doc">Docs</a></li>
         
-        <li class="active"><a href="../../index.html">NumPy v1.18 Manual</a></li>
+        <li class="active"><a href="../../index.html">NumPy v1.19 Manual</a></li>
         
 
           <li class="active"><a href="../index.html" >NumPy Reference</a></li>
@@ -121,31 +121,26 @@ using the <code class="docutils literal notranslate"><span class="pre">out</span
 well-behaved (writable and aligned). Under normal circumstances, arrays
 created using the common constructors such as <a class="reference internal" href="../generated/numpy.empty.html#numpy.empty" title="numpy.empty"><code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.empty</span></code></a> will satisfy
 these requirements.</p>
-<p>This example makes use of Python 3 <a class="reference external" href="https://docs.python.org/dev/library/concurrent.futures.html#module-concurrent.futures" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">concurrent.futures</span></code></a> to fill an array
+<p>This example makes use of Python 3 <a class="reference external" href="https://docs.python.org/dev/library/concurrent.futures.html#module-concurrent.futures" title="(in Python v3.10)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">concurrent.futures</span></code></a> to fill an array
 using multiple threads.  Threads are long-lived so that repeated calls do not
-require any additional overheads from thread creation. The underlying
-BitGenerator is <em class="xref py py-obj">PCG64</em> which is fast, has a long period and supports
-using <em class="xref py py-obj">PCG64.jumped</em> to return a new generator while advancing the
-state. The random numbers generated are reproducible in the sense that the same
-seed will produce the same outputs.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">PCG64</span>
+require any additional overheads from thread creation.</p>
+<p>The random numbers generated are reproducible in the sense that the same
+seed will produce the same outputs, given that the number of threads does not
+change.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">default_rng</span><span class="p">,</span> <span class="n">SeedSequence</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">concurrent.futures</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="k">class</span> <span class="nc">MultithreadedRNG</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MultithreadedRNG</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">rg</span> <span class="o">=</span> <span class="n">PCG64</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">threads</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="n">threads</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_random_generators</span> <span class="o">=</span> <span class="p">[</span><span class="n">rg</span><span class="p">]</span>
-        <span class="n">last_rg</span> <span class="o">=</span> <span class="n">rg</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">threads</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">new_rg</span> <span class="o">=</span> <span class="n">last_rg</span><span class="o">.</span><span class="n">jumped</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_random_generators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_rg</span><span class="p">)</span>
-            <span class="n">last_rg</span> <span class="o">=</span> <span class="n">new_rg</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">SeedSequence</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_random_generators</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_rng</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                                   <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">seq</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">threads</span><span class="p">)]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
@@ -173,39 +168,47 @@ seed will produce the same outputs.</p>
 <p>The multithreaded random number generator can be used to fill an array.
 The <code class="docutils literal notranslate"><span class="pre">values</span></code> attributes shows the zero-value before the fill and the
 random value after.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [2]: </span><span class="n">mrng</span> <span class="o">=</span> <span class="n">MultithreadedRNG</span><span class="p">(</span><span class="mi">10000000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">...: print(mrng.values[-1])</span>
-<span class="go">0.0</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [2]: </span><span class="n">mrng</span> <span class="o">=</span> <span class="n">MultithreadedRNG</span><span class="p">(</span><span class="mi">10000000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12345</span><span class="p">)</span>
+<span class="gp">   ...: </span><span class="nb">print</span><span class="p">(</span><span class="n">mrng</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[2]: </span><span class="go">0.0</span>
 
 <span class="gp">In [3]: </span><span class="n">mrng</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span>
-<span class="go">    ...: print(mrng.values[-1])</span>
-<span class="go">3.296046120254392</span>
+<span class="gp">   ...: </span><span class="nb">print</span><span class="p">(</span><span class="n">mrng</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[3]: </span><span class="go">2.4545724517479104</span>
 </pre></div>
 </div>
 <p>The time required to produce using multiple threads can be compared to
 the time required to generate using a single thread.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [4]: </span><span class="nb">print</span><span class="p">(</span><span class="n">mrng</span><span class="o">.</span><span class="n">threads</span><span class="p">)</span>
-<span class="go">    ...: %timeit mrng.fill()</span>
+<span class="gp">   ...: </span><span class="o">%</span><span class="k">timeit</span> mrng.fill()
 
-<span class="go">4</span>
-<span class="go">32.8 ms ± 2.71 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)</span>
+<span class="gh">Out[4]: </span><span class="go">4</span>
+<span class="gp">   ...: </span><span class="mf">32.8</span> <span class="n">ms</span> <span class="err">±</span> <span class="mf">2.71</span> <span class="n">ms</span> <span class="n">per</span> <span class="n">loop</span> <span class="p">(</span><span class="n">mean</span> <span class="err">±</span> <span class="n">std</span><span class="o">.</span> <span class="n">dev</span><span class="o">.</span> <span class="n">of</span> <span class="mi">7</span> <span class="n">runs</span><span class="p">,</span> <span class="mi">10</span> <span class="n">loops</span> <span class="n">each</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The single threaded call directly uses the BitGenerator.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [5]: </span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
-<span class="go">    ...: rg = Generator(PCG64())</span>
-<span class="go">    ...: %timeit rg.standard_normal(out=values)</span>
+<span class="gp">   ...: </span><span class="n">rg</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">()</span>
+<span class="gp">   ...: </span><span class="o">%</span><span class="k">timeit</span> rg.standard_normal(out=values)
 
-<span class="go">99.6 ms ± 222 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)</span>
+<span class="gh">Out[5]: </span><span class="go">99.6 ms ± 222 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)</span>
 </pre></div>
 </div>
-<p>The gains are substantial and the scaling is reasonable even for large that
-are only moderately large.  The gains are even larger when compared to a call
+<p>The gains are substantial and the scaling is reasonable even for arrays that
+are only moderately large. The gains are even larger when compared to a call
 that does not use an existing array due to array creation overhead.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="n">rg</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">())</span>
-<span class="go">    ...: %timeit rg.standard_normal(10000000)</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="n">rg</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">()</span>
+<span class="gp">   ...: </span><span class="o">%</span><span class="k">timeit</span> rg.standard_normal(10000000)
 
-<span class="go">125 ms ± 309 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)</span>
+<span class="gh">Out[6]: </span><span class="go">125 ms ± 309 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)</span>
+</pre></div>
+</div>
+<p>Note that if <em class="xref py py-obj">threads</em> is not set by the user, it will be determined by
+<em class="xref py py-obj">multiprocessing.cpu_count()</em>.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="c1"># simulate the behavior for `threads=None`, if the machine had only one thread</span>
+<span class="gp">   ...: </span><span class="n">mrng</span> <span class="o">=</span> <span class="n">MultithreadedRNG</span><span class="p">(</span><span class="mi">10000000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12345</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">   ...: </span><span class="nb">print</span><span class="p">(</span><span class="n">mrng</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[7]: </span><span class="go">1.1800150052158556</span>
 </pre></div>
 </div>
 </div>
@@ -228,13 +231,13 @@ that does not use an existing array due to array creation overhead.</p>
     <div class="row-fluid">
     <ul class="inline pull-left">
       <li>
-        &copy; Copyright 2008-2019, The SciPy community.
+        &copy; Copyright 2008-2020, The SciPy community.
       </li>
       <li>
-      Last updated on Feb 20, 2020.
+      Last updated on Jun 29, 2020.
       </li>
       <li>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.4.
       </li>
     </ul>
     </div>
