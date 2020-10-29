@@ -157,7 +157,7 @@
               
               
                 <div class="version">
-                  master (1.6.0 )
+                  master (1.7.0 )
                 </div>
               
             
@@ -224,11 +224,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../autograd.html">torch.autograd</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cuda.html">torch.cuda</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../amp.html">torch.cuda.amp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../backends.html">torch.backends</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../distributed.html">torch.distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../distributions.html">torch.distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fft.html">torch.fft</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../futures.html">torch.futures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hub.html">torch.hub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../jit.html">torch.jit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linalg.html">torch.linalg</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nn.init.html">torch.nn.init</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../onnx.html">torch.onnx</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../optim.html">torch.optim</a></li>
@@ -255,6 +258,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio">torchaudio</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision">torchvision</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pytorch.org/elastic/">TorchElastic</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
 <li class="toctree-l1"><a class="reference external" href="http://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
@@ -344,21 +348,31 @@
 <span class="sd">circular dependency problems</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">enum</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">weakref</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="c1"># This is needed. `torch._jit_internal` is imported before `torch.distributed.__init__`.</span>
 <span class="c1"># Explicitly ask to import `torch.distributed.__init__` first.</span>
 <span class="c1"># Otherwise, &quot;AttributeError: module &#39;torch&#39; has no attribute &#39;distributed&#39;&quot; is raised.</span>
 <span class="kn">import</span> <span class="nn">torch.distributed.rpc</span>
 <span class="kn">from</span> <span class="nn">torch._six</span> <span class="kn">import</span> <span class="n">builtins</span>
 <span class="kn">from</span> <span class="nn">torch._utils_internal</span> <span class="kn">import</span> <span class="n">get_source_lines_and_file</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Generic</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">torch.futures</span> <span class="kn">import</span> <span class="n">Future</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Callable</span>  <span class="c1"># noqa: F401</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Final</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Final</span>
 
 <span class="c1"># Wrapper functions that can call either of 2 functions depending on a boolean</span>
 <span class="c1"># argument</span>
-<span class="n">boolean_dispatched</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">WeakKeyDictionary</span><span class="p">()</span>  <span class="c1"># noqa: T484</span>
+<span class="n">boolean_dispatched</span><span class="p">:</span> <span class="s1">&#39;weakref.WeakKeyDictionary[Callable, Dict[str, Callable]]&#39;</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">WeakKeyDictionary</span><span class="p">()</span>  <span class="c1"># noqa: T484</span>
 
 
 <span class="k">def</span> <span class="nf">createResolutionCallbackFromEnv</span><span class="p">(</span><span class="n">lookup_base</span><span class="p">):</span>
@@ -386,7 +400,7 @@
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">base</span> <span class="o">=</span> <span class="n">lookupInModule</span><span class="p">(</span><span class="n">expr</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">module</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">base</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unresolvable type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expr</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">base</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unresolvable type </span><span class="si">{</span><span class="n">expr</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="ow">or</span> <span class="n">expr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;[&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">base</span><span class="p">,</span> <span class="n">i</span>
 
@@ -450,9 +464,11 @@
     <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">frames_up</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span>
         <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
+    <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="n">f_locals</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span>
     <span class="n">f_globals</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
 
@@ -462,6 +478,8 @@
                 <span class="k">return</span> <span class="n">f_locals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f_globals</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">f_globals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">builtins</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">builtins</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">createResolutionCallbackFromEnv</span><span class="p">(</span><span class="n">env</span><span class="p">())</span>
 
@@ -565,7 +583,13 @@
     <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
         <span class="n">captures</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_closure</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">key</span><span class="p">:</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">lookup_in_class</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">captures</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">captures</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">builtins</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lookup_in_class</span>
 
 
 <span class="k">def</span> <span class="nf">boolean_dispatch</span><span class="p">(</span><span class="n">arg_name</span><span class="p">,</span> <span class="n">arg_index</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">if_true</span><span class="p">,</span> <span class="n">if_false</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
@@ -627,7 +651,7 @@
         <span class="s2">&quot;if this method is not scripted, copy the python method onto the scripted model&quot;</span>
 
 
-<div class="viewcode-block" id="export"><a class="viewcode-back" href="../../jit.html#torch.jit.export">[docs]</a><span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This decorator indicates that a method on an ``nn.Module`` is used as an entry point into a</span>
 <span class="sd">    :class:`ScriptModule` and should be compiled.</span>
@@ -670,10 +694,10 @@
 <span class="sd">        m = torch.jit.script(MyModule())</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fn</span><span class="o">.</span><span class="n">_torchscript_modifier</span> <span class="o">=</span> <span class="n">FunctionModifiers</span><span class="o">.</span><span class="n">EXPORT</span>
-    <span class="k">return</span> <span class="n">fn</span></div>
+    <span class="k">return</span> <span class="n">fn</span>
 
 
-<span class="k">def</span> <span class="nf">unused</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<div class="viewcode-block" id="unused"><a class="viewcode-back" href="../../generated/torch.jit.unused.html#torch.jit.unused">[docs]</a><span class="k">def</span> <span class="nf">unused</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This decorator indicates to the compiler that a function or method should</span>
 <span class="sd">    be ignored and replaced with the raising of an exception. This allows you</span>
@@ -710,8 +734,17 @@
 <span class="sd">            # exception raised</span>
 <span class="sd">            m(torch.rand(100))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="n">fn</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">fget</span><span class="p">,</span> <span class="s2">&quot;_torchscript_modifier&quot;</span><span class="p">,</span> <span class="n">FunctionModifiers</span><span class="o">.</span><span class="n">UNUSED</span><span class="p">)</span>  <span class="c1"># noqa: B010</span>
+
+        <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">fset</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">fset</span><span class="p">,</span> <span class="s2">&quot;_torchscript_modifier&quot;</span><span class="p">,</span> <span class="n">FunctionModifiers</span><span class="o">.</span><span class="n">UNUSED</span><span class="p">)</span>  <span class="c1"># noqa: B010</span>
+
+        <span class="k">return</span> <span class="n">prop</span>
+
     <span class="n">fn</span><span class="o">.</span><span class="n">_torchscript_modifier</span> <span class="o">=</span> <span class="n">FunctionModifiers</span><span class="o">.</span><span class="n">UNUSED</span>
-    <span class="k">return</span> <span class="n">fn</span>
+    <span class="k">return</span> <span class="n">fn</span></div>
 
 <span class="k">def</span> <span class="nf">ignore</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -785,7 +818,7 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">drop</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Argument to @torch.jit.ignore must be a bool or &quot;</span>
-                           <span class="s2">&quot;a function but got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">drop</span><span class="p">))</span>
+                           <span class="sa">f</span><span class="s2">&quot;a function but got </span><span class="si">{</span><span class="n">drop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># for backwards compat</span>
     <span class="n">drop_on_export</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;drop_on_export&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -832,7 +865,7 @@
 
 
 <span class="k">def</span> <span class="nf">is_static_fn</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getattr_static</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">),</span> <span class="nb">staticmethod</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getattr_static</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span> <span class="nb">staticmethod</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">get_static_fn</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getattr_static</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="vm">__func__</span>
@@ -856,7 +889,7 @@
 <span class="c1"># so that they can be imported in nn/functional.py without an import cycle</span>
 
 <span class="c1"># qualified_name =&gt; list[overload_functions]</span>
-<span class="n">_overloaded_fns</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># noqa: T484</span>
+<span class="n">_overloaded_fns</span> <span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># noqa: T484</span>
 
 <span class="k">def</span> <span class="nf">_overload</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="n">qual_name</span> <span class="o">=</span> <span class="n">_qualified_name</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
@@ -879,7 +912,10 @@
 
     <span class="c1"># one for the get_class_name call, one for _overload_method call</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">current_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># assert current frame is not an Optional[FrameType]</span>
         <span class="n">current_frame</span> <span class="o">=</span> <span class="n">current_frame</span><span class="o">.</span><span class="n">f_back</span>
+
+    <span class="k">assert</span> <span class="n">current_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># same here</span>
     <span class="n">class_name</span> <span class="o">=</span> <span class="n">current_frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
     <span class="n">line_no</span> <span class="o">=</span> <span class="n">current_frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_firstlineno</span>
     <span class="k">return</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">line_no</span>
@@ -894,7 +930,7 @@
 <span class="c1"># when modules of the same name are in the same file</span>
 
 <span class="c1"># qualified_name =&gt; class name =&gt; list[overload_functions]</span>
-<span class="n">_overloaded_methods</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># noqa: T484</span>
+<span class="n">_overloaded_methods</span> <span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># noqa: T484</span>
 
 
 <span class="c1"># (qualified_name, class name) =&gt; class_fileno</span>
@@ -944,6 +980,13 @@
 
 
 <span class="k">def</span> <span class="nf">is_tuple</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="n">Tuple</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Attempted to use Tuple without a &quot;</span>
+            <span class="s2">&quot;contained type. Please add a contained type, e.g. &quot;</span>
+            <span class="s2">&quot;Tuple[int]&quot;</span>
+        <span class="p">)</span>
+
     <span class="c1"># For some reason Python 3.7 violates the Type[A, B].__origin__ == Type rule</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
@@ -952,6 +995,13 @@
             <span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__origin__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">is_list</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="n">List</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Attempted to use List without a &quot;</span>
+            <span class="s2">&quot;contained type. Please add a contained type, e.g. &quot;</span>
+            <span class="s2">&quot;List[int]&quot;</span>
+        <span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="s1">&#39;typing&#39;</span> <span class="ow">and</span> \
@@ -959,6 +1009,13 @@
             <span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__origin__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">is_dict</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Attempted to use Dict without &quot;</span>
+            <span class="s2">&quot;contained types. Please add contained type, e.g. &quot;</span>
+            <span class="s2">&quot;Dict[int, int]&quot;</span>
+        <span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="s1">&#39;typing&#39;</span> <span class="ow">and</span> \
@@ -966,6 +1023,13 @@
             <span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__origin__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">is_optional</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="n">Optional</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Attempted to use Optional without a &quot;</span>
+            <span class="s2">&quot;contained type. Please add a contained type, e.g. &quot;</span>
+            <span class="s2">&quot;Optional[int]&quot;</span>
+        <span class="p">)</span>
+
     <span class="c1"># Optional[T] is just shorthand for Union[T, None], so check for both</span>
     <span class="k">def</span> <span class="nf">safe_is_subclass</span><span class="p">(</span><span class="n">the_type</span><span class="p">,</span> <span class="n">super_type</span><span class="p">):</span>
         <span class="c1"># Don&#39;t throw if `the_type` isn&#39;t a class type (e.g. if it is</span>
@@ -990,51 +1054,30 @@
 
     <span class="k">return</span> <span class="n">optional</span> <span class="ow">or</span> <span class="n">union_optional</span>
 
-<span class="c1"># fake Python container type for Future/RRef</span>
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">Future</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;__args__&#39;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span> <span class="o">=</span> <span class="n">types</span>
-
 <span class="k">def</span> <span class="nf">is_future</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="n">Future</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Attempted to use torch.jit.Future without a &#39;</span>
-                           <span class="s1">&#39;contained type. Please add a contained type, e.g. &#39;</span>
-                           <span class="s1">&#39;torch.jit.Future[int]&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Attempted to use Future without a &quot;</span>
+            <span class="s2">&quot;contained type. Please add a contained type, e.g. &quot;</span>
+            <span class="s2">&quot;Future[int]&quot;</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s2">&quot;__origin__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Future</span>
 
 <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">rpc</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">torch.distributed.rpc</span> <span class="kn">import</span> <span class="n">RRef</span>
 
     <span class="k">def</span> <span class="nf">is_rref</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="n">RRef</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Attempted to use RRef without a &quot;</span>
+                <span class="s2">&quot;contained type. Please add a contained type, e.g. &quot;</span>
+                <span class="s2">&quot;RRef[int]&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s2">&quot;__origin__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="n">RRef</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">typing_extensions</span>
-    <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Final</span>
-
-    <span class="k">def</span> <span class="nf">is_final</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="s1">&#39;typing_extensions&#39;</span> <span class="ow">and</span> \
-            <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__origin__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="n">typing_extensions</span><span class="o">.</span><span class="n">Final</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="c1"># Same as above, this polyfill is only for `typing_extensions`</span>
-    <span class="k">class</span> <span class="nc">FinalInstance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;__args__&#39;</span><span class="p">]</span>
-
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__args__</span> <span class="o">=</span> <span class="n">types</span>
-
-    <span class="k">class</span> <span class="nc">FinalCls</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">FinalInstance</span><span class="p">(</span><span class="n">types</span><span class="p">)</span>
-
-    <span class="n">Final</span> <span class="o">=</span> <span class="n">FinalCls</span><span class="p">()</span>  <span class="c1"># noqa: T484</span>
-
-    <span class="k">def</span> <span class="nf">is_final</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">FinalInstance</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">is_final</span><span class="p">(</span><span class="n">ann</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="vm">__module__</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;typing&#39;</span><span class="p">,</span> <span class="s1">&#39;typing_extensions&#39;</span><span class="p">}</span> <span class="ow">and</span> \
+        <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="s1">&#39;__origin__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Final</span><span class="p">)</span>
 
 <span class="c1"># allows BroadcastingList instance to be subscriptable</span>
 <span class="k">class</span> <span class="nc">BroadcastingListCls</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1045,7 +1088,30 @@
 <span class="c1"># list size</span>
 <span class="n">BroadcastingList1</span> <span class="o">=</span> <span class="n">BroadcastingListCls</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
-    <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;BroadcastingList</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">BroadcastingList1</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="sa">f</span><span class="s2">&quot;BroadcastingList</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BroadcastingList1</span>
+
+
+<span class="k">def</span> <span class="nf">is_scripting</span><span class="p">():</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that returns True when in compilation and False otherwise. This</span>
+<span class="sd">    is useful especially with the @unused decorator to leave code in your</span>
+<span class="sd">    model that is not yet TorchScript compatible.</span>
+<span class="sd">    .. testcode::</span>
+
+<span class="sd">        import torch</span>
+
+<span class="sd">        @torch.jit.unused</span>
+<span class="sd">        def unsupported_linear_op(x):</span>
+<span class="sd">            return x</span>
+
+<span class="sd">        def linear(x):</span>
+<span class="sd">           if not torch.jit.is_scripting():</span>
+<span class="sd">              return torch.linear(x)</span>
+<span class="sd">           else:</span>
+<span class="sd">              return unsupported_linear_op(x)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
 
 <span class="c1"># Retrieves a fully-qualified name (module hierarchy + classname) for a given obj.</span>
 <span class="k">def</span> <span class="nf">_qualified_name</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -1062,7 +1128,15 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">ScriptFunction</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">qualified_name</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="c1"># Enum classes do not have `__name__` attr, instead they have `name`.</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not get name of python class object&quot;</span><span class="p">)</span>
+
+
     <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;&lt;lambda&gt;&#39;</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;_lambda&#39;</span>  <span class="c1"># make name a valid identifier</span>
 
@@ -1075,12 +1149,12 @@
     <span class="c1"># The Python docs are very clear that `__module__` can be None, but I can&#39;t</span>
     <span class="c1"># figure out when it actually would be.</span>
     <span class="k">if</span> <span class="n">module_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not get qualified name for class &#39;</span><span class="si">{}</span><span class="s2">&#39;: &quot;</span>
-                           <span class="s2">&quot;__module__ can&#39;t be None.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get qualified name for class &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: &quot;</span>
+                           <span class="s2">&quot;__module__ can&#39;t be None.&quot;</span><span class="p">)</span>
 
     <span class="c1"># if getattr(sys.modules[module_name], name) is not obj:</span>
-    <span class="c1">#     raise RuntimeError(&quot;Could not get qualified name for class &#39;{}&#39;: &quot;</span>
-    <span class="c1">#                        &quot;the attr {} on module {} is not the the class&quot;.format(name, name, module_name))</span>
+    <span class="c1">#     raise RuntimeError(f&quot;Could not get qualified name for class &#39;{name}&#39;: &quot;</span>
+    <span class="c1">#                        f&quot;the attr {name} on module {module_name} is not the the class&quot;)</span>
 
     <span class="c1"># __main__ is a builtin module, so rewrite it to &quot;__torch__&quot;.</span>
     <span class="k">if</span> <span class="n">module_name</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -1091,8 +1165,8 @@
         <span class="n">module_name</span> <span class="o">=</span> <span class="s2">&quot;__torch__.&quot;</span> <span class="o">+</span> <span class="n">module_name</span>
 
     <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not get qualified name for class &#39;</span><span class="si">{}</span><span class="s2">&#39;: &quot;</span>
-                           <span class="s2">&quot;&#39;</span><span class="si">{}</span><span class="s2">&#39; is not a valid identifier&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get qualified name for class &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: &quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is not a valid identifier&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">module_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">name</span>
 
@@ -1107,6 +1181,54 @@
 
 <span class="k">def</span> <span class="nf">fake_range</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">SourceContext</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">make_raw_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_try_get_dispatched_fn</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">boolean_dispatched</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_named_tuple_properties</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;_fields&#39;</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">_fields</span><span class="p">)</span>
+    <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">has_annotations</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;__annotations__&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">has_annotations</span> <span class="ow">and</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">:</span>
+            <span class="n">the_type</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">ann_to_type</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fake_range</span><span class="p">())</span>
+            <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">the_type</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">TensorType</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">annotations</span>
+
+
+<span class="k">def</span> <span class="nf">_create_named_tuple</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">unqual_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="c1"># mypy: namedtuple() expects a string literal as the first argument</span>
+    <span class="n">TupleType</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="n">unqual_name</span><span class="p">,</span> <span class="n">field_names</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">TupleType</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+
+
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">_disable_emit_hooks</span><span class="p">():</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_get_emit_hooks</span><span class="p">()</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_set_emit_hooks</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">yield</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_set_emit_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hooks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_disable_emit_hooks_decorator</span><span class="p">(</span><span class="n">_DecoratorContextManager</span><span class="p">):</span>  <span class="c1"># noqa: F811</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_get_emit_hooks</span><span class="p">()</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_set_emit_hooks</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_jit_set_emit_hooks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">_is_exception</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">)</span>
 </pre></div>
 
              </article>

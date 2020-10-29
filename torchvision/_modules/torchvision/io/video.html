@@ -20,7 +20,7 @@
     </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchvision.io.video &mdash; Torchvision master documentation</title>
+  <title>torchvision.io.video &mdash; Torchvision 0.8.0 documentation</title>
   
 
   
@@ -162,7 +162,7 @@
               
               
                 <div class="version">
-                  master (0.7.0 )
+                  0.8.0
                 </div>
               
             
@@ -198,6 +198,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../ops.html">torchvision.ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">torchvision.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torchvision.utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PyTorch Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/docs">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/audio">torchaudio</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/text">torchtext</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/vision">torchvision</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/elastic/">TorchElastic</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pytorch.org/serve">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference external" href="http://pytorch.org/xla/">PyTorch on XLA Devices</a></li>
 </ul>
 
             
@@ -242,6 +252,8 @@
         
           <li><a href="../../torchvision.html">torchvision</a> &gt;</li>
         
+          <li><a href="../io.html">torchvision.io</a> &gt;</li>
+        
       <li>torchvision.io.video</li>
     
     
@@ -275,7 +287,7 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -308,12 +320,12 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_check_av_available</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">_check_av_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">av</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">av</span>
 
 
-<span class="k">def</span> <span class="nf">_av_available</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">_av_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">av</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">)</span>
 
 
@@ -322,7 +334,13 @@
 <span class="n">_GC_COLLECTION_INTERVAL</span> <span class="o">=</span> <span class="mi">10</span>
 
 
-<div class="viewcode-block" id="write_video"><a class="viewcode-back" href="../../../io.html#torchvision.io.write_video">[docs]</a><span class="k">def</span> <span class="nf">write_video</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">video_array</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">video_codec</span><span class="o">=</span><span class="s2">&quot;libx264&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="write_video"><a class="viewcode-back" href="../../../io.html#torchvision.io.write_video">[docs]</a><span class="k">def</span> <span class="nf">write_video</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">video_array</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">video_codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;libx264&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Writes a 4d tensor in [T, H, W, C] format in a video file</span>
 
@@ -362,8 +380,13 @@
 
 
 <span class="k">def</span> <span class="nf">_read_from_stream</span><span class="p">(</span>
-    <span class="n">container</span><span class="p">,</span> <span class="n">start_offset</span><span class="p">,</span> <span class="n">end_offset</span><span class="p">,</span> <span class="n">pts_unit</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">stream_name</span>
-<span class="p">):</span>
+    <span class="n">container</span><span class="p">:</span> <span class="s2">&quot;av.container.Container&quot;</span><span class="p">,</span>
+    <span class="n">start_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">end_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pts_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">stream</span><span class="p">:</span> <span class="s2">&quot;av.stream.Stream&quot;</span><span class="p">,</span>
+    <span class="n">stream_name</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;av.frame.Frame&quot;</span><span class="p">]:</span>
     <span class="k">global</span> <span class="n">_CALLED_TIMES</span><span class="p">,</span> <span class="n">_GC_COLLECTION_INTERVAL</span>
     <span class="n">_CALLED_TIMES</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="n">_CALLED_TIMES</span> <span class="o">%</span> <span class="n">_GC_COLLECTION_INTERVAL</span> <span class="o">==</span> <span class="n">_GC_COLLECTION_INTERVAL</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
@@ -439,7 +462,9 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<span class="k">def</span> <span class="nf">_align_audio_frames</span><span class="p">(</span><span class="n">aframes</span><span class="p">,</span> <span class="n">audio_frames</span><span class="p">,</span> <span class="n">ref_start</span><span class="p">,</span> <span class="n">ref_end</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_align_audio_frames</span><span class="p">(</span>
+    <span class="n">aframes</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">audio_frames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;av.frame.Frame&quot;</span><span class="p">],</span> <span class="n">ref_start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ref_end</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">audio_frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pts</span><span class="p">,</span> <span class="n">audio_frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pts</span>
     <span class="n">total_aframes</span> <span class="o">=</span> <span class="n">aframes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">step_per_aframe</span> <span class="o">=</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_aframes</span>
@@ -452,7 +477,9 @@
     <span class="k">return</span> <span class="n">aframes</span><span class="p">[:,</span> <span class="n">s_idx</span><span class="p">:</span><span class="n">e_idx</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="read_video"><a class="viewcode-back" href="../../../io.html#torchvision.io.read_video">[docs]</a><span class="k">def</span> <span class="nf">read_video</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">start_pts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_pts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pts_unit</span><span class="o">=</span><span class="s2">&quot;pts&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="read_video"><a class="viewcode-back" href="../../../io.html#torchvision.io.read_video">[docs]</a><span class="k">def</span> <span class="nf">read_video</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_pts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_pts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pts_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pts&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads a video from a file, returning both the video frames as well as</span>
 <span class="sd">    the audio frames</span>
@@ -533,16 +560,16 @@
         <span class="c1"># TODO raise a warning?</span>
         <span class="k">pass</span>
 
-    <span class="n">vframes</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">()</span><span class="o">.</span><span class="n">to_ndarray</span><span class="p">()</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">video_frames</span><span class="p">]</span>
-    <span class="n">aframes</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">to_ndarray</span><span class="p">()</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">audio_frames</span><span class="p">]</span>
+    <span class="n">vframes_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">()</span><span class="o">.</span><span class="n">to_ndarray</span><span class="p">()</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">video_frames</span><span class="p">]</span>
+    <span class="n">aframes_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">to_ndarray</span><span class="p">()</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">audio_frames</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">vframes</span><span class="p">:</span>
-        <span class="n">vframes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">vframes</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">vframes_list</span><span class="p">:</span>
+        <span class="n">vframes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">vframes_list</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">vframes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">aframes</span><span class="p">:</span>
-        <span class="n">aframes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">aframes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aframes_list</span><span class="p">:</span>
+        <span class="n">aframes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">aframes_list</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">aframes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">aframes</span><span class="p">)</span>
         <span class="n">aframes</span> <span class="o">=</span> <span class="n">_align_audio_frames</span><span class="p">(</span><span class="n">aframes</span><span class="p">,</span> <span class="n">audio_frames</span><span class="p">,</span> <span class="n">start_pts</span><span class="p">,</span> <span class="n">end_pts</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -551,7 +578,7 @@
     <span class="k">return</span> <span class="n">vframes</span><span class="p">,</span> <span class="n">aframes</span><span class="p">,</span> <span class="n">info</span></div>
 
 
-<span class="k">def</span> <span class="nf">_can_read_timestamps_from_packets</span><span class="p">(</span><span class="n">container</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_can_read_timestamps_from_packets</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="s2">&quot;av.container.Container&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">extradata</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">codec_context</span><span class="o">.</span><span class="n">extradata</span>
     <span class="k">if</span> <span class="n">extradata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
@@ -560,7 +587,7 @@
     <span class="k">return</span> <span class="kc">False</span>
 
 
-<span class="k">def</span> <span class="nf">_decode_video_timestamps</span><span class="p">(</span><span class="n">container</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_decode_video_timestamps</span><span class="p">(</span><span class="n">container</span><span class="p">:</span> <span class="s2">&quot;av.container.Container&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">_can_read_timestamps_from_packets</span><span class="p">(</span><span class="n">container</span><span class="p">):</span>
         <span class="c1"># fast path</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">pts</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">demux</span><span class="p">(</span><span class="n">video</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">pts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
@@ -568,7 +595,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">pts</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">video</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">pts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="read_video_timestamps"><a class="viewcode-back" href="../../../io.html#torchvision.io.read_video_timestamps">[docs]</a><span class="k">def</span> <span class="nf">read_video_timestamps</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pts_unit</span><span class="o">=</span><span class="s2">&quot;pts&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="read_video_timestamps"><a class="viewcode-back" href="../../../io.html#torchvision.io.read_video_timestamps">[docs]</a><span class="k">def</span> <span class="nf">read_video_timestamps</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pts_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pts&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    List the video frames timestamps.</span>
 
@@ -586,7 +613,7 @@
 <span class="sd">    pts : List[int] if pts_unit = &#39;pts&#39;</span>
 <span class="sd">        List[Fraction] if pts_unit = &#39;sec&#39;</span>
 <span class="sd">        presentation timestamps for each one of the frames in the video.</span>
-<span class="sd">    video_fps : int</span>
+<span class="sd">    video_fps : float, optional</span>
 <span class="sd">        the frame rate for the video</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -670,7 +697,7 @@
        <script type="text/javascript">
            var DOCUMENTATION_OPTIONS = {
                URL_ROOT:'../../../',
-               VERSION:'master',
+               VERSION:'0.8.0',
                LANGUAGE:'None',
                COLLAPSE_INDEX:false,
                FILE_SUFFIX:'.html',
