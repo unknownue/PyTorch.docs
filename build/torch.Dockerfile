@@ -8,8 +8,8 @@ LABEL license="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG VERSION_PYTORCH=1.6.0
-ARG VERSION_VISION=0.7.0
+ARG VERSION_PYTORCH=1.7.0
+ARG VERSION_VISION=0.8.0
 
 WORKDIR /root/
 # ADD sources.list /etc/apt/sources.list
