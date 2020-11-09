@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>The Johnson-Lindenstrauss bound for embedding with random projections &mdash; scikit-learn 0.23.2 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/miscellaneous/plot_johnson_lindenstrauss_bound.html" />
+
+  
+  <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../../index.html">
+        <img
+          class="sk-brand-img"
+          src="../../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../../index.html">
+            <img
+              class="sk-brand-img"
+              src="../../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="plot_anomaly_comparison.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Comparing anomaly detection algorithms for outlier detection on toy datasets">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="plot_kernel_ridge_regression.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Comparison of kernel ridge regression and SVR">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.23.2</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">The Johnson-Lindenstrauss bound for embedding with random projections</a><ul>
+<li><a class="reference internal" href="#theoretical-bounds">Theoretical bounds</a></li>
+<li><a class="reference internal" href="#empirical-validation">Empirical validation</a></li>
+<li><a class="reference internal" href="#remarks">Remarks</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-miscellaneous-plot-johnson-lindenstrauss-bound-py"><span class="std std-ref">here</span></a>     to download the full example code or to run this example in your browser via Binder</p>
+</div>
+<div class="sphx-glr-example-title section" id="the-johnson-lindenstrauss-bound-for-embedding-with-random-projections">
+<span id="sphx-glr-auto-examples-miscellaneous-plot-johnson-lindenstrauss-bound-py"></span><h1>The Johnson-Lindenstrauss bound for embedding with random projections<a class="headerlink" href="#the-johnson-lindenstrauss-bound-for-embedding-with-random-projections" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/ Johnson%E2%80%93Lindenstrauss_lemma">Johnson-Lindenstrauss lemma</a> states that any high dimensional
+dataset can be randomly projected into a lower dimensional Euclidean
+space while controlling the distortion in the pairwise distances.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.random_projection</span> <span class="kn">import</span> <span class="n">johnson_lindenstrauss_min_dim</span>
+<span class="kn">from</span> <span class="nn">sklearn.random_projection</span> <span class="kn">import</span> <span class="n">SparseRandomProjection</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups_vectorized</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">euclidean_distances</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.fixes</span> <span class="kn">import</span> <span class="n">parse_version</span>
+
+<span class="c1"># `normed` is being deprecated in favor of `density` in histograms</span>
+<span class="k">if</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">parse_version</span><span class="p">(</span><span class="s1">&#39;2.1&#39;</span><span class="p">):</span>
+    <span class="n">density_param</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">density_param</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;normed&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="theoretical-bounds">
+<h2>Theoretical bounds<a class="headerlink" href="#theoretical-bounds" title="Permalink to this headline">¶</a></h2>
+<p>The distortion introduced by a random projection <code class="docutils literal notranslate"><span class="pre">p</span></code> is asserted by
+the fact that <code class="docutils literal notranslate"><span class="pre">p</span></code> is defining an eps-embedding with good probability
+as defined by:</p>
+<div class="math notranslate nohighlight">
+\[(1 - eps) \|u - v\|^2 &lt; \|p(u) - p(v)\|^2 &lt; (1 + eps) \|u - v\|^2\]</div>
+<p>Where u and v are any rows taken from a dataset of shape [n_samples,
+n_features] and p is a projection by a random Gaussian N(0, 1) matrix
+with shape [n_components, n_features] (or a sparse Achlioptas matrix).</p>
+<p>The minimum number of components to guarantees the eps-embedding is
+given by:</p>
+<div class="math notranslate nohighlight">
+\[n\_components &gt;= 4 log(n\_samples) / (eps^2 / 2 - eps^3 / 3)\]</div>
+<p>The first plot shows that with an increasing number of samples <code class="docutils literal notranslate"><span class="pre">n_samples</span></code>,
+the minimal number of dimensions <code class="docutils literal notranslate"><span class="pre">n_components</span></code> increased logarithmically
+in order to guarantee an <code class="docutils literal notranslate"><span class="pre">eps</span></code>-embedding.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># range of admissible distortions</span>
+<span class="n">eps_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">eps_range</span><span class="p">)))</span>
+
+<span class="c1"># range of number of samples (observation) to embed</span>
+<span class="n">n_samples_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">eps</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eps_range</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
+    <span class="n">min_n_components</span> <span class="o">=</span> <span class="n">johnson_lindenstrauss_min_dim</span><span class="p">(</span><span class="n">n_samples_range</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">n_samples_range</span><span class="p">,</span> <span class="n">min_n_components</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;eps = </span><span class="si">%0.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">eps</span> <span class="k">for</span> <span class="n">eps</span> <span class="ow">in</span> <span class="n">eps_range</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Number of observations to eps-embed&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Minimum number of dimensions&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Johnson-Lindenstrauss bounds:</span><span class="se">\n</span><span class="s2">n_samples vs n_components&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="Johnson-Lindenstrauss bounds: n_samples vs n_components" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_001.png" />
+<p>The second plot shows that an increase of the admissible
+distortion <code class="docutils literal notranslate"><span class="pre">eps</span></code> allows to reduce drastically the minimal number of
+dimensions <code class="docutils literal notranslate"><span class="pre">n_components</span></code> for a given number of samples <code class="docutils literal notranslate"><span class="pre">n_samples</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># range of admissible distortions</span>
+<span class="n">eps_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># range of number of samples (observation) to embed</span>
+<span class="n">n_samples_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_samples_range</span><span class="p">)))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">n_samples_range</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
+    <span class="n">min_n_components</span> <span class="o">=</span> <span class="n">johnson_lindenstrauss_min_dim</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps_range</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="n">eps_range</span><span class="p">,</span> <span class="n">min_n_components</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;n_samples = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">n_samples_range</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distortion eps&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Minimum number of dimensions&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Johnson-Lindenstrauss bounds:</span><span class="se">\n</span><span class="s2">n_components vs eps&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="Johnson-Lindenstrauss bounds: n_components vs eps" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_002.png" />
+</div>
+<div class="section" id="empirical-validation">
+<h2>Empirical validation<a class="headerlink" href="#empirical-validation" title="Permalink to this headline">¶</a></h2>
+<p>We validate the above bounds on the 20 newsgroups text document
+(TF-IDF word frequencies) dataset or on the digits dataset:</p>
+<ul class="simple">
+<li><p>for the 20 newsgroups dataset some 500 documents with 100k
+features in total are projected using a sparse random matrix to smaller
+euclidean spaces with various values for the target number of dimensions
+<code class="docutils literal notranslate"><span class="pre">n_components</span></code>.</p></li>
+<li><p>for the digits dataset, some 8x8 gray level pixels data for 500
+handwritten digits pictures are randomly projected to spaces for various
+larger number of dimensions <code class="docutils literal notranslate"><span class="pre">n_components</span></code>.</p></li>
+</ul>
+<p>The default dataset is the 20 newsgroups dataset. To run the example on the
+digits dataset, pass the <code class="docutils literal notranslate"><span class="pre">--use-digits-dataset</span></code> command line argument to
+this script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="s1">&#39;--use-digits-dataset&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_20newsgroups_vectorized</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For each value of <code class="docutils literal notranslate"><span class="pre">n_components</span></code>, we plot:</p>
+<ul class="simple">
+<li><p>2D distribution of sample pairs with pairwise distances in original
+and projected spaces as x and y axis respectively.</p></li>
+<li><p>1D histogram of the ratio of those distances (projected / original).</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embedding </span><span class="si">%d</span><span class="s2"> samples with dim </span><span class="si">%d</span><span class="s2"> using various random projections&quot;</span>
+      <span class="o">%</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">))</span>
+
+<span class="n">n_components_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">])</span>
+<span class="n">dists</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+<span class="c1"># select only non-identical samples pairs</span>
+<span class="n">nonzero</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">!=</span> <span class="mi">0</span>
+<span class="n">dists</span> <span class="o">=</span> <span class="n">dists</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">n_components</span> <span class="ow">in</span> <span class="n">n_components_range</span><span class="p">:</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">rp</span> <span class="o">=</span> <span class="n">SparseRandomProjection</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span>
+    <span class="n">projected_data</span> <span class="o">=</span> <span class="n">rp</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Projected </span><span class="si">%d</span><span class="s2"> samples from </span><span class="si">%d</span><span class="s2"> to </span><span class="si">%d</span><span class="s2"> in </span><span class="si">%0.3f</span><span class="s2">s&quot;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;components_&#39;</span><span class="p">):</span>
+        <span class="n">n_bytes</span> <span class="o">=</span> <span class="n">rp</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">nbytes</span>
+        <span class="n">n_bytes</span> <span class="o">+=</span> <span class="n">rp</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">nbytes</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Random matrix with size: </span><span class="si">%0.3f</span><span class="s2">MB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n_bytes</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">))</span>
+
+    <span class="n">projected_dists</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span>
+        <span class="n">projected_data</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">nonzero</span><span class="p">]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">min_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">projected_dists</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">dists</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">max_dist</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">projected_dists</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">dists</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hexbin</span><span class="p">(</span><span class="n">dists</span><span class="p">,</span> <span class="n">projected_dists</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">PuBu</span><span class="p">,</span>
+               <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">min_dist</span><span class="p">,</span> <span class="n">max_dist</span><span class="p">,</span> <span class="n">min_dist</span><span class="p">,</span> <span class="n">max_dist</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Pairwise squared distances in original space&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Pairwise squared distances in projected space&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Pairwise distances distribution for n_components=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span>
+              <span class="n">n_components</span><span class="p">)</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+    <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Sample pairs counts&#39;</span><span class="p">)</span>
+
+    <span class="n">rates</span> <span class="o">=</span> <span class="n">projected_dists</span> <span class="o">/</span> <span class="n">dists</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean distances rate: </span><span class="si">%0.2f</span><span class="s2"> (</span><span class="si">%0.2f</span><span class="s2">)&quot;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rates</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">rates</span><span class="p">)))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">rates</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">),</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">density_param</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Squared distances rate: projected / original&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Distribution of samples pairs&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Histogram of pairwise distance rates for n_components=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span>
+              <span class="n">n_components</span><span class="p">)</span>
+
+    <span class="c1"># TODO: compute the expected value of eps and add them to the previous plot</span>
+    <span class="c1"># as vertical lines / region</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="Pairwise distances distribution for n_components=300" class="sphx-glr-multi-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_003.png" />
+</li>
+<li><img alt="Histogram of pairwise distance rates for n_components=300" class="sphx-glr-multi-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_004.png" />
+</li>
+<li><img alt="Pairwise distances distribution for n_components=1000" class="sphx-glr-multi-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_005.png" />
+</li>
+<li><img alt="Histogram of pairwise distance rates for n_components=1000" class="sphx-glr-multi-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_006.png" />
+</li>
+<li><img alt="Pairwise distances distribution for n_components=10000" class="sphx-glr-multi-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_007.png" />
+</li>
+<li><img alt="Histogram of pairwise distance rates for n_components=10000" class="sphx-glr-multi-img" src="../../_images/sphx_glr_plot_johnson_lindenstrauss_bound_008.png" />
+</li>
+</ul>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Embedding 500 samples with dim 130107 using various random projections
+Projected 500 samples from 130107 to 300 in 0.251s
+Random matrix with size: 1.303MB
+Mean distances rate: 1.01 (0.16)
+Projected 500 samples from 130107 to 1000 in 0.827s
+Random matrix with size: 4.325MB
+Mean distances rate: 1.04 (0.11)
+Projected 500 samples from 130107 to 10000 in 8.140s
+Random matrix with size: 43.285MB
+Mean distances rate: 0.99 (0.03)
+</pre></div>
+</div>
+<p>We can see that for low values of <code class="docutils literal notranslate"><span class="pre">n_components</span></code> the distribution is wide
+with many distorted pairs and a skewed distribution (due to the hard
+limit of zero ratio on the left as distances are always positives)
+while for larger values of n_components the distortion is controlled
+and the distances are well preserved by the random projection.</p>
+</div>
+<div class="section" id="remarks">
+<h2>Remarks<a class="headerlink" href="#remarks" title="Permalink to this headline">¶</a></h2>
+<p>According to the JL lemma, projecting 500 samples without too much distortion
+will require at least several thousands dimensions, irrespective of the
+number of features of the original dataset.</p>
+<p>Hence using random projections on the digits dataset which only has 64
+features in the input space does not make sense: it does not allow
+for dimensionality reduction in this case.</p>
+<p>On the twenty newsgroups on the other hand the dimensionality can be
+decreased from 56436 down to 10000 while reasonably preserving
+pairwise distances.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  11.697 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-miscellaneous-plot-johnson-lindenstrauss-bound-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.23.X?urlpath=lab/tree/notebooks/auto_examples/miscellaneous/plot_johnson_lindenstrauss_bound.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo16.svg" width="150px" /></a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/cba66f803bb263f8032bc4d46368e20b/plot_johnson_lindenstrauss_bound.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_johnson_lindenstrauss_bound.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/285b194a4740110cb23e241031123972/plot_johnson_lindenstrauss_bound.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_johnson_lindenstrauss_bound.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
+          <a href="../../_sources/auto_examples/miscellaneous/plot_johnson_lindenstrauss_bound.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high performance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

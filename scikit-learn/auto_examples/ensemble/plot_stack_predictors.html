@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>Combine predictors using stacking &mdash; scikit-learn 0.22 documentation</title>
+  <title>Combine predictors using stacking &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/ensemble/plot_stack_predictors.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
@@ -131,12 +137,12 @@
           </a>
         </div>
         <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
-            <a href="plot_adaboost_hastie_10_2.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Discrete versus Real AdaBoost">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
-            <a href="plot_gradient_boosting_early_stopping.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Early stopping of Gradient Boosting">Next</a>
+            <a href="plot_forest_iris.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Plot the decision surfaces of ensembles of trees on the iris dataset">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="../applications/plot_outlier_detection_wine.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Outlier detection on a real data set">Next</a>
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -148,7 +154,10 @@
           <div class="sk-sidebar-toc">
             <ul>
 <li><a class="reference internal" href="#">Combine predictors using stacking</a><ul>
+<li><a class="reference internal" href="#download-the-dataset">Download the dataset</a></li>
+<li><a class="reference internal" href="#make-pipeline-to-preprocess-the-data">Make pipeline to preprocess the data</a></li>
 <li><a class="reference internal" href="#stack-of-predictors-on-a-single-data-set">Stack of predictors on a single data set</a></li>
+<li><a class="reference internal" href="#measure-and-plot-the-results">Measure and plot the results</a></li>
 </ul>
 </li>
 </ul>
@@ -161,7 +170,7 @@
         
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-ensemble-plot-stack-predictors-py"><span class="std std-ref">here</span></a> to download the full example code or to run this example in your browser via Binder</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-ensemble-plot-stack-predictors-py"><span class="std std-ref">here</span></a>     to download the full example code or to run this example in your browser via Binder</p>
 </div>
 <div class="sphx-glr-example-title section" id="combine-predictors-using-stacking">
 <span id="sphx-glr-auto-examples-ensemble-plot-stack-predictors-py"></span><h1>Combine predictors using stacking<a class="headerlink" href="#combine-predictors-using-stacking" title="Permalink to this headline">¶</a></h1>
@@ -175,12 +184,171 @@ stacking strategy. Stacking slightly improves the overall performance.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
 
 <span class="c1"># Authors: Guillaume Lemaitre &lt;g.lemaitre58@gmail.com&gt;</span>
+<span class="c1">#          Maria Telenczuk    &lt;https://github.com/maikia&gt;</span>
 <span class="c1"># License: BSD 3 clause</span>
 </pre></div>
 </div>
+<div class="section" id="download-the-dataset">
+<h2>Download the dataset<a class="headerlink" href="#download-the-dataset" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>We will use <a class="reference external" href="http://jse.amstat.org/v19n3/decock.pdf">Ames Housing</a> dataset which was first compiled by Dean De Cock
+and became better known after it was used in Kaggle challenge. It is a set
+of 1460 residential homes in Ames, Iowa, each described by 80 features. We
+will use it to predict the final logarithmic price of the houses. In this
+example we will use only 20 most interesting features chosen using
+GradientBoostingRegressor() and limit number of entries (here we won’t go
+into the details on how to select the most interesting features).</p>
+<p>The Ames housing dataset is not shipped with scikit-learn and therefore we
+will fetch it from <a class="reference external" href="https://www.openml.org/d/42165">OpenML</a>.</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_openml</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">shuffle</span>
+
+
+<span class="k">def</span> <span class="nf">load_ames_housing</span><span class="p">():</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">fetch_openml</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;house_prices&quot;</span><span class="p">,</span> <span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">target</span>
+
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;YrSold&#39;</span><span class="p">,</span> <span class="s1">&#39;HeatingQC&#39;</span><span class="p">,</span> <span class="s1">&#39;Street&#39;</span><span class="p">,</span> <span class="s1">&#39;YearRemodAdd&#39;</span><span class="p">,</span> <span class="s1">&#39;Heating&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;MasVnrType&#39;</span><span class="p">,</span> <span class="s1">&#39;BsmtUnfSF&#39;</span><span class="p">,</span> <span class="s1">&#39;Foundation&#39;</span><span class="p">,</span> <span class="s1">&#39;MasVnrArea&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;MSSubClass&#39;</span><span class="p">,</span> <span class="s1">&#39;ExterQual&#39;</span><span class="p">,</span> <span class="s1">&#39;Condition2&#39;</span><span class="p">,</span> <span class="s1">&#39;GarageCars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;GarageType&#39;</span><span class="p">,</span> <span class="s1">&#39;OverallQual&#39;</span><span class="p">,</span> <span class="s1">&#39;TotalBsmtSF&#39;</span><span class="p">,</span> <span class="s1">&#39;BsmtFinSF1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;HouseStyle&#39;</span><span class="p">,</span> <span class="s1">&#39;MiscFeature&#39;</span><span class="p">,</span> <span class="s1">&#39;MoSold&#39;</span><span class="p">]</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">features</span><span class="p">]</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="mi">600</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="mi">600</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_ames_housing</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-pipeline-to-preprocess-the-data">
+<h2>Make pipeline to preprocess the data<a class="headerlink" href="#make-pipeline-to-preprocess-the-data" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Before we can use Ames dataset we still need to do some preprocessing.
+First, the dataset has many missing values. To impute them, we will exchange
+categorical missing values with the new category ‘missing’ while the
+numerical missing values with the ‘mean’ of the column. We will also encode
+the categories with either <a class="reference internal" href="../../modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="sklearn.preprocessing.OneHotEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a> or
+<a class="reference internal" href="../../modules/generated/sklearn.preprocessing.OrdinalEncoder.html#sklearn.preprocessing.OrdinalEncoder" title="sklearn.preprocessing.OrdinalEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.OrdinalEncoder</span></code></a> depending for which type of model we
+will use them (linear or non-linear model). To falicitate this preprocessing
+we will make two pipelines.
+You can skip this section if your data is ready to use and does
+not need preprocessing</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">make_column_transformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OrdinalEncoder</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+
+<span class="n">cat_cols</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">]</span>
+<span class="n">num_cols</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">==</span> <span class="s1">&#39;float64&#39;</span><span class="p">]</span>
+
+<span class="n">categories</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">X</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">X</span><span class="p">[</span><span class="n">cat_cols</span><span class="p">]]</span>
+
+<span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+    <span class="n">cat</span><span class="p">[</span><span class="n">cat</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;missing&#39;</span>  <span class="c1"># noqa</span>
+
+<span class="n">cat_proc_nlin</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">missing_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span>
+                  <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;missing&#39;</span><span class="p">),</span>
+    <span class="n">OrdinalEncoder</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="n">num_proc_nlin</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">))</span>
+
+<span class="n">cat_proc_lin</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">missing_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span>
+                  <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;missing&#39;</span><span class="p">),</span>
+    <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">num_proc_lin</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">),</span>
+    <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># transformation to use for non-linear estimators</span>
+<span class="n">processor_nlin</span> <span class="o">=</span> <span class="n">make_column_transformer</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">cat_proc_nlin</span><span class="p">,</span> <span class="n">cat_cols</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">num_proc_nlin</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">),</span>
+    <span class="n">remainder</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span><span class="p">)</span>
+
+<span class="c1"># transformation to use for linear estimators</span>
+<span class="n">processor_lin</span> <span class="o">=</span> <span class="n">make_column_transformer</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">cat_proc_lin</span><span class="p">,</span> <span class="n">cat_cols</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">num_proc_lin</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">),</span>
+    <span class="n">remainder</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="stack-of-predictors-on-a-single-data-set">
+<h2>Stack of predictors on a single data set<a class="headerlink" href="#stack-of-predictors-on-a-single-data-set" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>It is sometimes tedious to find the model which will best perform on a given
+dataset. Stacking provide an alternative by combining the outputs of several
+learners, without the need to choose a model specifically. The performance of
+stacking is usually close to the best model and sometimes it can outperform
+the prediction performance of each individual model.</p>
+<p>Here, we combine 3 learners (linear and non-linear) and use a ridge regressor
+to combine their outputs together.</p>
+<p>Note: although we will make new pipelines with the processors which we wrote
+in the previous section for the 3 learners, the final estimator RidgeCV()
+does not need preprocessing of the data as it will be fed with the already
+preprocessed output from the 3 learners.</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.experimental</span> <span class="kn">import</span> <span class="n">enable_hist_gradient_boosting</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">HistGradientBoostingRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">StackingRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">RidgeCV</span>
+
+
+<span class="n">lasso_pipeline</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">processor_lin</span><span class="p">,</span>
+                               <span class="n">LassoCV</span><span class="p">())</span>
+
+<span class="n">rf_pipeline</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">processor_nlin</span><span class="p">,</span>
+                            <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+
+<span class="n">gradient_pipeline</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">processor_nlin</span><span class="p">,</span>
+    <span class="n">HistGradientBoostingRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">estimators</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Random Forest&#39;</span><span class="p">,</span> <span class="n">rf_pipeline</span><span class="p">),</span>
+              <span class="p">(</span><span class="s1">&#39;Lasso&#39;</span><span class="p">,</span> <span class="n">lasso_pipeline</span><span class="p">),</span>
+              <span class="p">(</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">,</span> <span class="n">gradient_pipeline</span><span class="p">)]</span>
+
+<span class="n">stacking_regressor</span> <span class="o">=</span> <span class="n">StackingRegressor</span><span class="p">(</span><span class="n">estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">,</span>
+                                       <span class="n">final_estimator</span><span class="o">=</span><span class="n">RidgeCV</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="measure-and-plot-the-results">
+<h2>Measure and plot the results<a class="headerlink" href="#measure-and-plot-the-results" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Now we can use Ames Housing dataset to make the predictions. We check the
+performance of each individual predictor as well as of the stack of the
+regressors.</p>
 <p>The function <code class="docutils literal notranslate"><span class="pre">plot_regression_results</span></code> is used to plot the predicted and
 true targets.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_validate</span><span class="p">,</span> <span class="n">cross_val_predict</span>
 
 
 <span class="k">def</span> <span class="nf">plot_regression_results</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">elapsed_time</span><span class="p">):</span>
@@ -205,45 +373,7 @@ true targets.</p>
     <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">extra</span><span class="p">],</span> <span class="p">[</span><span class="n">scores</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">title</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Evaluation in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="section" id="stack-of-predictors-on-a-single-data-set">
-<h2>Stack of predictors on a single data set<a class="headerlink" href="#stack-of-predictors-on-a-single-data-set" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><p>It is sometimes tedious to find the model which will best perform on a given
-dataset. Stacking provide an alternative by combining the outputs of several
-learners, without the need to choose a model specifically. The performance of
-stacking is usually close to the best model and sometimes it can outperform
-the prediction performance of each individual model.</p>
-<p>Here, we combine 3 learners (linear and non-linear) and use a ridge regressor
-to combine their outputs together.</p>
-</div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">StackingRegressor</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
-<span class="kn">from</span> <span class="nn">sklearn.experimental</span> <span class="kn">import</span> <span class="n">enable_hist_gradient_boosting</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">HistGradientBoostingRegressor</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">RidgeCV</span>
 
-<span class="n">estimators</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s1">&#39;Random Forest&#39;</span><span class="p">,</span> <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;Lasso&#39;</span><span class="p">,</span> <span class="n">LassoCV</span><span class="p">()),</span>
-    <span class="p">(</span><span class="s1">&#39;Gradient Boosting&#39;</span><span class="p">,</span> <span class="n">HistGradientBoostingRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-<span class="p">]</span>
-<span class="n">stacking_regressor</span> <span class="o">=</span> <span class="n">StackingRegressor</span><span class="p">(</span>
-    <span class="n">estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">,</span> <span class="n">final_estimator</span><span class="o">=</span><span class="n">RidgeCV</span><span class="p">()</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>We used the Boston data set (prediction of house prices). We check the
-performance of each individual predictor as well as the stack of the
-regressors.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_boston</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_validate</span><span class="p">,</span> <span class="n">cross_val_predict</span>
-
-<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_boston</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
 <span class="n">axs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">axs</span><span class="p">)</span>
@@ -257,6 +387,7 @@ regressors.</p>
     <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
 
     <span class="n">y_pred</span> <span class="o">=</span> <span class="n">cross_val_predict</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
     <span class="n">plot_regression_results</span><span class="p">(</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span>
         <span class="n">name</span><span class="p">,</span>
@@ -273,19 +404,20 @@ regressors.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+<img alt="Single predictors versus stacked predictors, Random Forest  Evaluation in 0.86 seconds, Lasso  Evaluation in 0.40 seconds, Gradient Boosting  Evaluation in 0.26 seconds, Stacking Regressor  Evaluation in 2.30 seconds" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_stack_predictors_001.png" />
 <p>The stacked regressor will combine the strengths of the different regressors.
 However, we also see that training the stacked regressor is much more
 computationally expensive.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  12.919 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-ensemble-plot-stack-predictors-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/ensemble/plot_stack_predictors.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" width="150px" /></a>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.23.X?urlpath=lab/tree/notebooks/auto_examples/ensemble/plot_stack_predictors.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo10.svg" width="150px" /></a>
 </div>
-<div class="sphx-glr-download docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/d1e8e2b45aa2ea0b042d9c00faf39e99/plot_stack_predictors.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_stack_predictors.py</span></code></a></p>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c6ccb1a9c5f82321f082e9767a2706f3/plot_stack_predictors.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_stack_predictors.py</span></code></a></p>
 </div>
-<div class="sphx-glr-download docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/3a34a75fdb41cb295ae67d384f3247a5/plot_stack_predictors.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_stack_predictors.ipynb</span></code></a></p>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/3c9b7bcd0b16f172ac12ffad61f3b5f0/plot_stack_predictors.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_stack_predictors.ipynb</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -296,7 +428,7 @@ computationally expensive.</p>
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../../_sources/auto_examples/ensemble/plot_stack_predictors.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -417,7 +549,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

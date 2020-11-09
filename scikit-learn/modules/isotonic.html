@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>1.15. Isotonic regression &mdash; scikit-learn 0.22 documentation</title>
+  <title>1.15. Isotonic regression &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/modules/isotonic.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
 <script src="../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
@@ -136,7 +142,7 @@
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -157,19 +163,26 @@
       <div class="sk-page-content container-fluid body px-md-3" role="main">
         
   <div class="section" id="isotonic-regression">
-<span id="isotonic"></span><h1>1.15. Isotonic regression<a class="headerlink" href="#isotonic-regression" title="Permalink to this headline">¶</a></h1>
-<p>The class <a class="reference internal" href="generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="sklearn.isotonic.IsotonicRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a> fits a non-decreasing function to data.
-It solves the following problem:</p>
+<span id="isotonic"></span><h1><span class="section-number">1.15. </span>Isotonic regression<a class="headerlink" href="#isotonic-regression" title="Permalink to this headline">¶</a></h1>
+<p>The class <a class="reference internal" href="generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="sklearn.isotonic.IsotonicRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a> fits a non-decreasing real function to
+1-dimensional data. It solves the following problem:</p>
 <blockquote>
 <div><p>minimize <span class="math notranslate nohighlight">\(\sum_i w_i (y_i - \hat{y}_i)^2\)</span></p>
-<p>subject to <span class="math notranslate nohighlight">\(\hat{y}_{min} = \hat{y}_1 \le \hat{y}_2 ... \le \hat{y}_n = \hat{y}_{max}\)</span></p>
+<p>subject to <span class="math notranslate nohighlight">\(\hat{y}_i \le \hat{y}_j\)</span> whenever <span class="math notranslate nohighlight">\(X_i \le X_j\)</span>,</p>
 </div></blockquote>
-<p>where each <span class="math notranslate nohighlight">\(w_i\)</span> is strictly positive and each <span class="math notranslate nohighlight">\(y_i\)</span> is an
-arbitrary real number. It yields the vector which is composed of non-decreasing
-elements the closest in terms of mean squared error. In practice this list
-of elements forms a function that is piecewise linear.</p>
+<p>where the weights <span class="math notranslate nohighlight">\(w_i\)</span> are strictly positive, and both <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> are
+arbitrary real quantities.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">increasing</span></code> parameter changes the constraint to
+<span class="math notranslate nohighlight">\(\hat{y}_i \ge \hat{y}_j\)</span> whenever <span class="math notranslate nohighlight">\(X_i \le X_j\)</span>. Setting it to
+‘auto’ will automatically choose the constraint based on <a class="reference external" href="https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient">Spearman’s rank
+correlation coefficient</a>.</p>
+<p><a class="reference internal" href="generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="sklearn.isotonic.IsotonicRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a> produces a series of predictions
+<span class="math notranslate nohighlight">\(\hat{y}_i\)</span> for the training data which are the closest to the targets
+<span class="math notranslate nohighlight">\(y\)</span> in terms of mean squared error. These predictions are interpolated
+for predicting to unseen data. The predictions of <a class="reference internal" href="generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="sklearn.isotonic.IsotonicRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a>
+thus form a function that is piecewise linear:</p>
 <div class="figure align-center">
-<a class="reference external image-reference" href="../auto_examples/plot_isotonic_regression.html"><img alt="modules/../auto_examples/images/sphx_glr_plot_isotonic_regression_001.png" src="modules/../auto_examples/images/sphx_glr_plot_isotonic_regression_001.png" /></a>
+<a class="reference external image-reference" href="../auto_examples/miscellaneous/plot_isotonic_regression.html"><img alt="../_images/sphx_glr_plot_isotonic_regression_0011.png" src="../_images/sphx_glr_plot_isotonic_regression_0011.png" /></a>
 </div>
 </div>
 
@@ -177,7 +190,7 @@ of elements forms a function that is piecewise linear.</p>
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../_sources/modules/isotonic.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -298,7 +311,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

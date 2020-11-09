@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>Developing scikit-learn estimators &mdash; scikit-learn 0.22 documentation</title>
+  <title>Developing scikit-learn estimators &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/developers/develop.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
 <script src="../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
@@ -136,7 +142,7 @@
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -156,6 +162,7 @@
 <li><a class="reference internal" href="#estimated-attributes">Estimated Attributes</a></li>
 <li><a class="reference internal" href="#optional-arguments">Optional Arguments</a></li>
 <li><a class="reference internal" href="#pairwise-attributes">Pairwise Attributes</a></li>
+<li><a class="reference internal" href="#universal-attributes">Universal attributes</a></li>
 </ul>
 </li>
 </ul>
@@ -249,7 +256,7 @@ measure or a likelihood of unseen data, implements (higher is better):</p>
 </div>
 <div class="section" id="estimators">
 <h3>Estimators<a class="headerlink" href="#estimators" title="Permalink to this headline">¶</a></h3>
-<p>The API has one predominant object: the estimator. A estimator is an
+<p>The API has one predominant object: the estimator. An estimator is an
 object that fits a model based on some training data and is capable of
 inferring some properties on new data. It can be, for instance, a
 classifier or a regressor. All estimators implement the fit method:</p>
@@ -368,7 +375,7 @@ function probably is).</p>
 general, calling <code class="docutils literal notranslate"><span class="pre">estimator.fit(X1)</span></code> and then <code class="docutils literal notranslate"><span class="pre">estimator.fit(X2)</span></code> should
 be the same as only calling <code class="docutils literal notranslate"><span class="pre">estimator.fit(X2)</span></code>. However, this may not be
 true in practice when <code class="docutils literal notranslate"><span class="pre">fit</span></code> depends on some random process, see
-<a class="reference internal" href="../glossary.html#term-random-state"><span class="xref std std-term">random_state</span></a>. Another exception to this rule is when the
+<a class="reference internal" href="../glossary.html#term-random_state"><span class="xref std std-term">random_state</span></a>. Another exception to this rule is when the
 hyper-parameter <code class="docutils literal notranslate"><span class="pre">warm_start</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> for estimators that
 support it. <code class="docutils literal notranslate"><span class="pre">warm_start=True</span></code> means that the previous state of the
 trainable parameters of the estimator are reused instead of using the
@@ -390,11 +397,20 @@ an integer called <code class="docutils literal notranslate"><span class="pre">n
 </div>
 <div class="section" id="pairwise-attributes">
 <h4>Pairwise Attributes<a class="headerlink" href="#pairwise-attributes" title="Permalink to this headline">¶</a></h4>
-<p>An estimator that accept <code class="docutils literal notranslate"><span class="pre">X</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_samples)</span></code> and defines
-a <a class="reference internal" href="../glossary.html#term-pairwise"><span class="xref std std-term">_pairwise</span></a> property equal to <code class="docutils literal notranslate"><span class="pre">True</span></code> allows for cross-validation of
+<p>An estimator that accepts <code class="docutils literal notranslate"><span class="pre">X</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_samples)</span></code> and defines
+a <a class="reference internal" href="../glossary.html#term-_pairwise"><span class="xref std std-term">_pairwise</span></a> property equal to <code class="docutils literal notranslate"><span class="pre">True</span></code> allows for cross-validation of
 the dataset, e.g. when <code class="docutils literal notranslate"><span class="pre">X</span></code> is a precomputed kernel matrix. Specifically,
-the <a class="reference internal" href="../glossary.html#term-pairwise"><span class="xref std std-term">_pairwise</span></a> property is used by <code class="docutils literal notranslate"><span class="pre">utils.metaestimators._safe_split</span></code>
+the <a class="reference internal" href="../glossary.html#term-_pairwise"><span class="xref std std-term">_pairwise</span></a> property is used by <code class="docutils literal notranslate"><span class="pre">utils.metaestimators._safe_split</span></code>
 to slice rows and columns.</p>
+</div>
+<div class="section" id="universal-attributes">
+<h4>Universal attributes<a class="headerlink" href="#universal-attributes" title="Permalink to this headline">¶</a></h4>
+<p>Estimators that expect tabular input should set a <code class="docutils literal notranslate"><span class="pre">n_features_in_</span></code>
+attribute at <code class="docutils literal notranslate"><span class="pre">fit</span></code> time to indicate the number of features that the estimator
+expects for subsequent calls to <code class="docutils literal notranslate"><span class="pre">predict</span></code> or <code class="docutils literal notranslate"><span class="pre">transform</span></code>.
+See
+<a class="reference external" href="https://scikit-learn-enhancement-proposals.readthedocs.io/en/latest/slep010/proposal.html">SLEP010</a>
+for details.</p>
 </div>
 </div>
 </div>
@@ -405,34 +421,19 @@ whether it is just for you or for contributing it to scikit-learn, there are
 several internals of scikit-learn that you should be aware of in addition to
 the scikit-learn API outlined above. You can check whether your estimator
 adheres to the scikit-learn interface and standards by running
-<a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.check_estimator.html#sklearn.utils.estimator_checks.check_estimator" title="sklearn.utils.estimator_checks.check_estimator"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.estimator_checks.check_estimator</span></code></a> on the class:</p>
+<a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.check_estimator.html#sklearn.utils.estimator_checks.check_estimator" title="sklearn.utils.estimator_checks.check_estimator"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_estimator</span></code></a> on an instance. The
+<a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.parametrize_with_checks.html#sklearn.utils.estimator_checks.parametrize_with_checks" title="sklearn.utils.estimator_checks.parametrize_with_checks"><code class="xref py py-func docutils literal notranslate"><span class="pre">parametrize_with_checks</span></code></a> pytest
+decorator can also be used (see its docstring for details and possible
+interactions with <code class="docutils literal notranslate"><span class="pre">pytest</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.utils.estimator_checks</span> <span class="kn">import</span> <span class="n">check_estimator</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">check_estimator</span><span class="p">(</span><span class="n">LinearSVC</span><span class="p">)</span>  <span class="c1"># passes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_estimator</span><span class="p">(</span><span class="n">LinearSVC</span><span class="p">())</span>  <span class="c1"># passes</span>
 </pre></div>
 </div>
 <p>The main motivation to make a class compatible to the scikit-learn estimator
 interface might be that you want to use it together with model evaluation and
 selection tools such as <a class="reference internal" href="../modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="sklearn.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">model_selection.GridSearchCV</span></code></a> and
 <a class="reference internal" href="../modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="sklearn.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">pipeline.Pipeline</span></code></a>.</p>
-<p>Setting <code class="docutils literal notranslate"><span class="pre">generate_only=True</span></code> returns a generator that yields (estimator, check)
-tuples where the check can be called independently from each other, i.e.
-<code class="docutils literal notranslate"><span class="pre">check(estimator)</span></code>. This allows all checks to be run independently and report
-the checks that are failing. scikit-learn provides a pytest specific decorator,
-<code class="xref py py-func docutils literal notranslate"><span class="pre">parametrize_with_checks</span></code>, making it easier to test
-multiple estimators:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.utils.estimator_checks</span> <span class="kn">import</span> <span class="n">parametrize_with_checks</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeRegressor</span>
-
-<span class="nd">@parametrize_with_checks</span><span class="p">([</span><span class="n">LogisticRegression</span><span class="p">,</span> <span class="n">DecisionTreeRegressor</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">test_sklearn_compatible_estimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">check</span><span class="p">):</span>
-    <span class="n">check</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>This decorator sets the <code class="docutils literal notranslate"><span class="pre">id</span></code> keyword in <code class="docutils literal notranslate"><span class="pre">pytest.mark.parameterize</span></code> exposing
-the name of the underlying estimator and check in the test name. This allows
-<code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-k</span></code> to be used to specify which tests to run.</p>
 <p>Before detailing the required interface below, we describe two ways to achieve
 the correct interface more easily.</p>
 <div class="topic">
@@ -462,7 +463,7 @@ and optionally the mixin classes in <code class="docutils literal notranslate"><
 For example, below is a custom classifier, with more examples included
 in the scikit-learn-contrib
 <a class="reference external" href="https://github.com/scikit-learn-contrib/project-template/blob/master/skltemplate/_template.py">project template</a>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="n">check_X_y</span><span class="p">,</span> <span class="n">check_array</span><span class="p">,</span> <span class="n">check_is_fitted</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="kn">import</span> <span class="n">unique_labels</span>
@@ -619,59 +620,79 @@ for working with multiclass and multilabel problems.</p>
 <p class="admonition-title">Warning</p>
 <p>The estimator tags are experimental and the API is subject to change.</p>
 </div>
-<p>Scikit-learn introduced estimator tags in version 0.21.  These are annotations
+<p>Scikit-learn introduced estimator tags in version 0.21. These are annotations
 of estimators that allow programmatic inspection of their capabilities, such as
-sparse matrix support, supported output types and supported methods.  The
-estimator tags are a dictionary returned by the method <code class="docutils literal notranslate"><span class="pre">_get_tags()</span></code>.  These
-tags are used by the common tests and the <a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.check_estimator.html#sklearn.utils.estimator_checks.check_estimator" title="sklearn.utils.estimator_checks.check_estimator"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.utils.estimator_checks.check_estimator</span></code></a> function to
-decide what tests to run and what input data is appropriate. Tags can depend on
-estimator parameters or even system architecture and can in general only be
-determined at runtime.</p>
-<p>The default value of all tags except for <code class="docutils literal notranslate"><span class="pre">X_types</span></code> and <code class="docutils literal notranslate"><span class="pre">requires_fit</span></code> is
-<code class="docutils literal notranslate"><span class="pre">False</span></code>. These are defined in the <code class="docutils literal notranslate"><span class="pre">BaseEstimator</span></code> class.</p>
+sparse matrix support, supported output types and supported methods. The
+estimator tags are a dictionary returned by the method <code class="docutils literal notranslate"><span class="pre">_get_tags()</span></code>. These
+tags are used by the common tests and the
+<a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.check_estimator.html#sklearn.utils.estimator_checks.check_estimator" title="sklearn.utils.estimator_checks.check_estimator"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.utils.estimator_checks.check_estimator</span></code></a> function to decide what
+tests to run and what input data is appropriate. Tags can depend on estimator
+parameters or even system architecture and can in general only be determined at
+runtime. The default values for the estimator tags are defined in the
+<code class="docutils literal notranslate"><span class="pre">BaseEstimator</span></code> class.</p>
 <p>The current set of estimator tags are:</p>
 <dl class="simple">
-<dt>non_deterministic</dt><dd><p>whether the estimator is not deterministic given a fixed <code class="docutils literal notranslate"><span class="pre">random_state</span></code></p>
+<dt>allow_nan (default=False)</dt><dd><p>whether the estimator supports data with missing values encoded as np.NaN</p>
 </dd>
-<dt>requires_positive_X</dt><dd><p>whether the estimator requires positive X.</p>
+<dt>binary_only (default=False)</dt><dd><p>whether estimator supports binary classification but lacks multi-class
+classification support.</p>
 </dd>
-<dt>requires_positive_y</dt><dd><p>whether the estimator requires a positive y (only applicable for regression).</p>
+<dt>multilabel (default=False)</dt><dd><p>whether the estimator supports multilabel output</p>
 </dd>
-<dt>no_validation</dt><dd><p>whether the estimator skips input-validation. This is only meant for stateless and dummy transformers!</p>
+<dt>multioutput (default=False)</dt><dd><p>whether a regressor supports multi-target outputs or a classifier supports
+multi-class multi-output.</p>
 </dd>
-<dt>multioutput - unused for now</dt><dd><p>whether a regressor supports multi-target outputs or a classifier supports multi-class multi-output.</p>
+<dt>multioutput_only (default=False)</dt><dd><p>whether estimator supports only multi-output classification or regression.</p>
 </dd>
-<dt>multilabel</dt><dd><p>whether the estimator supports multilabel output</p>
+<dt>no_validation (default=False)</dt><dd><p>whether the estimator skips input-validation. This is only meant for
+stateless and dummy transformers!</p>
 </dd>
-<dt>stateless</dt><dd><p>whether the estimator needs access to data for fitting. Even though
-an estimator is stateless, it might still need a call to <code class="docutils literal notranslate"><span class="pre">fit</span></code> for initialization.</p>
+<dt>non_deterministic (default=False)</dt><dd><p>whether the estimator is not deterministic given a fixed <code class="docutils literal notranslate"><span class="pre">random_state</span></code></p>
 </dd>
-<dt>requires_fit</dt><dd><p>whether the estimator requires to be fitted before calling one of
-<code class="docutils literal notranslate"><span class="pre">transform</span></code>, <code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>, or <code class="docutils literal notranslate"><span class="pre">decision_function</span></code>.</p>
-</dd>
-<dt>allow_nan</dt><dd><p>whether the estimator supports data with missing values encoded as np.NaN</p>
-</dd>
-<dt>poor_score</dt><dd><p>whether the estimator fails to provide a “reasonable” test-set score, which
+<dt>poor_score (default=False)</dt><dd><p>whether the estimator fails to provide a “reasonable” test-set score, which
 currently for regression is an R2 of 0.5 on a subset of the boston housing
 dataset, and for classification an accuracy of 0.83 on
 <code class="docutils literal notranslate"><span class="pre">make_blobs(n_samples=300,</span> <span class="pre">random_state=0)</span></code>. These datasets and values
 are based on current estimators in sklearn and might be replaced by
 something more systematic.</p>
 </dd>
-<dt>multioutput_only</dt><dd><p>whether estimator supports only multi-output classification or regression.</p>
+<dt>requires_fit (default=True)</dt><dd><p>whether the estimator requires to be fitted before calling one of
+<code class="docutils literal notranslate"><span class="pre">transform</span></code>, <code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>, or <code class="docutils literal notranslate"><span class="pre">decision_function</span></code>.</p>
 </dd>
-<dt>binary_only</dt><dd><p>whether estimator supports binary classification but lacks multi-class
-classification support.</p>
+<dt>requires_positive_X (default=False)</dt><dd><p>whether the estimator requires positive X.</p>
 </dd>
-<dt>_skip_test</dt><dd><p>whether to skip common tests entirely. Don’t use this unless you have a <em>very good</em> reason.</p>
+<dt>requires_y (default=False)</dt><dd><p>whether the estimator requires y to be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>, <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> or
+<code class="docutils literal notranslate"><span class="pre">fit_transform</span></code> methods. The tag is True for estimators inheriting from
+<code class="docutils literal notranslate"><span class="pre">~sklearn.base.RegressorMixin</span></code> and <code class="docutils literal notranslate"><span class="pre">~sklearn.base.ClassifierMixin</span></code>.</p>
 </dd>
-<dt>X_types</dt><dd><p>Supported input types for X as list of strings. Tests are currently only run if ‘2darray’ is contained
-in the list, signifying that the estimator takes continuous 2d numpy arrays as input. The default
-value is [‘2darray’]. Other possible types are <code class="docutils literal notranslate"><span class="pre">'string'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code>,
-<code class="docutils literal notranslate"><span class="pre">'categorical'</span></code>, <code class="docutils literal notranslate"><span class="pre">dict</span></code>, <code class="docutils literal notranslate"><span class="pre">'1dlabels'</span></code> and <code class="docutils literal notranslate"><span class="pre">'2dlabels'</span></code>.
-The goal is that in the future the supported input type will determine the
-data used during testing, in particular for <code class="docutils literal notranslate"><span class="pre">'string'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code> and
-<code class="docutils literal notranslate"><span class="pre">'categorical'</span></code> data.  For now, the test for sparse data do not make use
+<dt>requires_positive_y (default=False)</dt><dd><p>whether the estimator requires a positive y (only applicable for regression).</p>
+</dd>
+<dt>_skip_test (default=False)</dt><dd><p>whether to skip common tests entirely. Don’t use this unless you have a
+<em>very good</em> reason.</p>
+</dd>
+<dt>_xfail_checks (default=False)</dt><dd><p>dictionary <code class="docutils literal notranslate"><span class="pre">{check_name:</span> <span class="pre">reason}</span></code> of common checks that will be marked
+as <code class="docutils literal notranslate"><span class="pre">XFAIL</span></code> for pytest, when using
+<a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.parametrize_with_checks.html#sklearn.utils.estimator_checks.parametrize_with_checks" title="sklearn.utils.estimator_checks.parametrize_with_checks"><code class="xref py py-func docutils literal notranslate"><span class="pre">parametrize_with_checks</span></code></a>. This tag
+currently has no effect on
+<a class="reference internal" href="../modules/generated/sklearn.utils.estimator_checks.check_estimator.html#sklearn.utils.estimator_checks.check_estimator" title="sklearn.utils.estimator_checks.check_estimator"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_estimator</span></code></a>.
+Don’t use this unless there is a <em>very good</em> reason for your estimator
+not to pass the check.
+Also note that the usage of this tag is highly subject to change because
+we are trying to make it more flexible: be prepared for breaking changes
+in the future.</p>
+</dd>
+<dt>stateless (default=False)</dt><dd><p>whether the estimator needs access to data for fitting. Even though an
+estimator is stateless, it might still need a call to <code class="docutils literal notranslate"><span class="pre">fit</span></code> for
+initialization.</p>
+</dd>
+<dt>X_types (default=[‘2darray’])</dt><dd><p>Supported input types for X as list of strings. Tests are currently only
+run if ‘2darray’ is contained in the list, signifying that the estimator
+takes continuous 2d numpy arrays as input. The default value is
+[‘2darray’]. Other possible types are <code class="docutils literal notranslate"><span class="pre">'string'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'categorical'</span></code>, <code class="docutils literal notranslate"><span class="pre">dict</span></code>, <code class="docutils literal notranslate"><span class="pre">'1dlabels'</span></code> and <code class="docutils literal notranslate"><span class="pre">'2dlabels'</span></code>. The goal is
+that in the future the supported input type will determine the data used
+during testing, in particular for <code class="docutils literal notranslate"><span class="pre">'string'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code> and
+<code class="docutils literal notranslate"><span class="pre">'categorical'</span></code> data. For now, the test for sparse data do not make use
 of the <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code> tag.</p>
 </dd>
 </dl>
@@ -724,7 +745,7 @@ It makes the code harder to read as the origin of symbols is no
 longer explicitly referenced, but most important, it prevents
 using a static analysis tool like <a class="reference external" href="https://divmod.readthedocs.io/en/latest/products/pyflakes.html">pyflakes</a> to automatically
 find bugs in scikit-learn.</p></li>
-<li><p>Use the <a class="reference external" href="https://numpy.readthedocs.io/en/latest/format.html">numpy docstring standard</a> in all your docstrings.</p></li>
+<li><p>Use the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html#numpydoc-docstring-guide">numpy docstring standard</a> in all your docstrings.</p></li>
 </ul>
 <p>A good example of code that we like can be found <a class="reference external" href="https://gist.github.com/nateGeorge/5455d2c57fb33c1ae04706f2dc4fee01">here</a>.</p>
 <div class="section" id="input-validation">
@@ -816,7 +837,7 @@ hence the validation in <code class="docutils literal notranslate"><span class="
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../_sources/developers/develop.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -937,7 +958,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

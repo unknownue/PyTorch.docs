@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>Column Transformer with Mixed Types &mdash; scikit-learn 0.22 documentation</title>
+  <title>Column Transformer with Mixed Types &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/compose/plot_column_transformer_mixed_types.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
@@ -131,12 +137,12 @@
           </a>
         </div>
         <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
-            <a href="plot_digits_pipe.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Pipelining: chaining a PCA and a logistic regression">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
-            <a href="plot_compare_reduction.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Selecting dimensionality reduction with Pipeline and GridSearchCV">Next</a>
+            <a href="plot_compare_reduction.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Selecting dimensionality reduction with Pipeline and GridSearchCV">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="plot_column_transformer.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Column Transformer with Heterogeneous Data Sources">Next</a>
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -148,6 +154,9 @@
           <div class="sk-sidebar-toc">
             <ul>
 <li><a class="reference internal" href="#">Column Transformer with Mixed Types</a><ul>
+<li><a class="reference internal" href="#use-columntransformer-by-selecting-column-by-names">Use <code class="docutils literal notranslate"><span class="pre">ColumnTransformer</span></code> by selecting column by names</a></li>
+<li><a class="reference internal" href="#html-representation-of-pipeline">HTML representation of <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code></a></li>
+<li><a class="reference internal" href="#use-columntransformer-by-selecting-column-by-data-types">Use <code class="docutils literal notranslate"><span class="pre">ColumnTransformer</span></code> by selecting column by data types</a></li>
 <li><a class="reference internal" href="#using-the-prediction-pipeline-in-a-grid-search">Using the prediction pipeline in a grid search</a></li>
 </ul>
 </li>
@@ -161,23 +170,23 @@
         
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-compose-plot-column-transformer-mixed-types-py"><span class="std std-ref">here</span></a> to download the full example code or to run this example in your browser via Binder</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-compose-plot-column-transformer-mixed-types-py"><span class="std std-ref">here</span></a>     to download the full example code or to run this example in your browser via Binder</p>
 </div>
 <div class="sphx-glr-example-title section" id="column-transformer-with-mixed-types">
 <span id="sphx-glr-auto-examples-compose-plot-column-transformer-mixed-types-py"></span><h1>Column Transformer with Mixed Types<a class="headerlink" href="#column-transformer-with-mixed-types" title="Permalink to this headline">¶</a></h1>
-<p>This example illustrates how to apply different preprocessing and
-feature extraction pipelines to different subsets of features,
-using <a class="reference internal" href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a>.
-This is particularly handy for the case of datasets that contain
-heterogeneous data types, since we may want to scale the
-numeric features and one-hot encode the categorical ones.</p>
-<p>In this example, the numeric data is standard-scaled after
-mean-imputation, while the categorical data is one-hot
-encoded after imputing missing values with a new category
-(<code class="docutils literal notranslate"><span class="pre">'missing'</span></code>).</p>
-<p>Finally, the preprocessing pipeline is integrated in a
-full prediction pipeline using <a class="reference internal" href="../../modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="sklearn.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>,
-together with a simple classification model.</p>
+<p>This example illustrates how to apply different preprocessing and feature
+extraction pipelines to different subsets of features, using
+<a class="reference internal" href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a>. This is particularly handy for the
+case of datasets that contain heterogeneous data types, since we may want to
+scale the numeric features and one-hot encode the categorical ones.</p>
+<p>In this example, the numeric data is standard-scaled after mean-imputation,
+while the categorical data is one-hot encoded after imputing missing values
+with a new category (<code class="docutils literal notranslate"><span class="pre">'missing'</span></code>).</p>
+<p>In addition, we show two different ways to dispatch the columns to the
+particular pre-processor: by column names and by column data types.</p>
+<p>Finally, the preprocessing pipeline is integrated in a full prediction pipeline
+using <a class="reference internal" href="../../modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="sklearn.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>, together with a simple classification
+model.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Author: Pedro Morales &lt;part.morales@gmail.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># License: BSD 3 clause</span>
@@ -200,18 +209,26 @@ together with a simple classification model.</p>
 <span class="c1"># Alternatively X and y can be obtained directly from the frame attribute:</span>
 <span class="c1"># X = titanic.frame.drop(&#39;survived&#39;, axis=1)</span>
 <span class="c1"># y = titanic.frame[&#39;survived&#39;]</span>
-
-<span class="c1"># We will train our classifier with the following features:</span>
-<span class="c1"># Numeric Features:</span>
-<span class="c1"># - age: float.</span>
-<span class="c1"># - fare: float.</span>
-<span class="c1"># Categorical Features:</span>
-<span class="c1"># - embarked: categories encoded as strings {&#39;C&#39;, &#39;S&#39;, &#39;Q&#39;}.</span>
-<span class="c1"># - sex: categories encoded as strings {&#39;female&#39;, &#39;male&#39;}.</span>
-<span class="c1"># - pclass: ordinal integers {1, 2, 3}.</span>
-
-<span class="c1"># We create the preprocessing pipelines for both numeric and categorical data.</span>
-<span class="n">numeric_features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;fare&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="use-columntransformer-by-selecting-column-by-names">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">ColumnTransformer</span></code> by selecting column by names<a class="headerlink" href="#use-columntransformer-by-selecting-column-by-names" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>We will train our classifier with the following features:</p>
+<p>Numeric Features:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">age</span></code>: float;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fare</span></code>: float.</p></li>
+</ul>
+<p>Categorical Features:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">embarked</span></code>: categories encoded as strings <code class="docutils literal notranslate"><span class="pre">{'C',</span> <span class="pre">'S',</span> <span class="pre">'Q'}</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sex</span></code>: categories encoded as strings <code class="docutils literal notranslate"><span class="pre">{'female',</span> <span class="pre">'male'}</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pclass</span></code>: ordinal integers <code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">2,</span> <span class="pre">3}</span></code>.</p></li>
+</ul>
+<p>We create the preprocessing pipelines for both numeric and categorical data.</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">numeric_features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;fare&#39;</span><span class="p">]</span>
 <span class="n">numeric_transformer</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="p">[</span>
     <span class="p">(</span><span class="s1">&#39;imputer&#39;</span><span class="p">,</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;median&#39;</span><span class="p">)),</span>
     <span class="p">(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">())])</span>
@@ -237,6 +254,115 @@ together with a simple classification model.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model score: </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
 </pre></div>
 </div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>model score: 0.790
+</pre></div>
+</div>
+</div>
+<div class="section" id="html-representation-of-pipeline">
+<h2>HTML representation of <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code><a class="headerlink" href="#html-representation-of-pipeline" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>When the <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> is printed out in a jupyter notebook an HTML
+representation of the estimator is displayed as follows:</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">set_config</span>
+<span class="n">set_config</span><span class="p">(</span><span class="n">display</span><span class="o">=</span><span class="s1">&#39;diagram&#39;</span><span class="p">)</span>
+<span class="n">clf</span>
+</pre></div>
+</div>
+<style>div.sk-top-container {color: black;background-color: white;}div.sk-toggleable {background-color: white;}label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.2em 0.3em;box-sizing: border-box;text-align: center;}div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}div.sk-estimator {font-family: monospace;background-color: #f0f8ff;margin: 0.25em 0.25em;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;}div.sk-estimator:hover {background-color: #d4ebff;}div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;}div.sk-item {z-index: 1;}div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}div.sk-parallel-item:only-child::after {width: 0;}div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0.2em;box-sizing: border-box;padding-bottom: 0.1em;background-color: white;position: relative;}div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}div.sk-label-container {position: relative;z-index: 2;text-align: center;}div.sk-container {display: inline-block;position: relative;}</style><div class="sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="341c9ca0-4ca9-4f0e-b360-08b9a772b6b7" type="checkbox" ><label class="sk-toggleable__label" for="341c9ca0-4ca9-4f0e-b360-08b9a772b6b7">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('preprocessor',
+                 ColumnTransformer(transformers=[('num',
+                                                  Pipeline(steps=[('imputer',
+                                                                   SimpleImputer(strategy='median')),
+                                                                  ('scaler',
+                                                                   StandardScaler())]),
+                                                  ['age', 'fare']),
+                                                 ('cat',
+                                                  Pipeline(steps=[('imputer',
+                                                                   SimpleImputer(fill_value='missing',
+                                                                                 strategy='constant')),
+                                                                  ('onehot',
+                                                                   OneHotEncoder(handle_unknown='ignore'))]),
+                                                  ['embarked', 'sex',
+                                                   'pclass'])])),
+                ('classifier', LogisticRegression())])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="0dbcf611-2fd2-4be7-b6a7-3468958703aa" type="checkbox" ><label class="sk-toggleable__label" for="0dbcf611-2fd2-4be7-b6a7-3468958703aa">preprocessor: ColumnTransformer</label><div class="sk-toggleable__content"><pre>ColumnTransformer(transformers=[('num',
+                                 Pipeline(steps=[('imputer',
+                                                  SimpleImputer(strategy='median')),
+                                                 ('scaler', StandardScaler())]),
+                                 ['age', 'fare']),
+                                ('cat',
+                                 Pipeline(steps=[('imputer',
+                                                  SimpleImputer(fill_value='missing',
+                                                                strategy='constant')),
+                                                 ('onehot',
+                                                  OneHotEncoder(handle_unknown='ignore'))]),
+                                 ['embarked', 'sex', 'pclass'])])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="eb021de2-ce32-4f87-98b3-a7521d0632fa" type="checkbox" ><label class="sk-toggleable__label" for="eb021de2-ce32-4f87-98b3-a7521d0632fa">num</label><div class="sk-toggleable__content"><pre>['age', 'fare']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4d2e822e-e10c-4767-8dc3-ed12a0148336" type="checkbox" ><label class="sk-toggleable__label" for="4d2e822e-e10c-4767-8dc3-ed12a0148336">SimpleImputer</label><div class="sk-toggleable__content"><pre>SimpleImputer(strategy='median')</pre></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="e4a0168f-669f-4a5e-8e9c-4b4571fdc4c2" type="checkbox" ><label class="sk-toggleable__label" for="e4a0168f-669f-4a5e-8e9c-4b4571fdc4c2">StandardScaler</label><div class="sk-toggleable__content"><pre>StandardScaler()</pre></div></div></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="edd3a6f7-ef7b-4e21-9a0d-7b8247e4ab45" type="checkbox" ><label class="sk-toggleable__label" for="edd3a6f7-ef7b-4e21-9a0d-7b8247e4ab45">cat</label><div class="sk-toggleable__content"><pre>['embarked', 'sex', 'pclass']</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="afb2188c-ad49-4253-b3ae-d0321b816448" type="checkbox" ><label class="sk-toggleable__label" for="afb2188c-ad49-4253-b3ae-d0321b816448">SimpleImputer</label><div class="sk-toggleable__content"><pre>SimpleImputer(fill_value='missing', strategy='constant')</pre></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="f30c4cd8-8136-457b-ba31-1829c3f09d46" type="checkbox" ><label class="sk-toggleable__label" for="f30c4cd8-8136-457b-ba31-1829c3f09d46">OneHotEncoder</label><div class="sk-toggleable__content"><pre>OneHotEncoder(handle_unknown='ignore')</pre></div></div></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="2c9d3059-89cd-499e-a591-b9f8354c2bf6" type="checkbox" ><label class="sk-toggleable__label" for="2c9d3059-89cd-499e-a591-b9f8354c2bf6">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression()</pre></div></div></div></div></div></div></div>
+<br />
+<br /></div>
+<div class="section" id="use-columntransformer-by-selecting-column-by-data-types">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">ColumnTransformer</span></code> by selecting column by data types<a class="headerlink" href="#use-columntransformer-by-selecting-column-by-data-types" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>When dealing with a cleaned dataset, the preprocessing can be automatic by
+using the data types of the column to decide whether to treat a column as a
+numerical or categorical feature.
+<a class="reference internal" href="../../modules/generated/sklearn.compose.make_column_selector.html#sklearn.compose.make_column_selector" title="sklearn.compose.make_column_selector"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.compose.make_column_selector</span></code></a> gives this possibility.
+First, let’s only select a subset of columns to simplify our
+example.</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subset_feature</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;embarked&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;pclass&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;fare&#39;</span><span class="p">]</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">subset_feature</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Then, we introspect the information regarding each column data type.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 1309 entries, 0 to 1308
+Data columns (total 5 columns):
+ #   Column    Non-Null Count  Dtype
+---  ------    --------------  -----
+ 0   embarked  1307 non-null   category
+ 1   sex       1309 non-null   category
+ 2   pclass    1309 non-null   float64
+ 3   age       1046 non-null   float64
+ 4   fare      1308 non-null   float64
+dtypes: category(2), float64(3)
+memory usage: 33.6 KB
+</pre></div>
+</div>
+<p>We can observe that the <code class="docutils literal notranslate"><span class="pre">embarked</span></code> and <code class="docutils literal notranslate"><span class="pre">sex</span></code> columns were tagged as
+<code class="docutils literal notranslate"><span class="pre">category</span></code> columns when loading the data with <code class="docutils literal notranslate"><span class="pre">fetch_openml</span></code>. Therefore, we
+can use this information to dispatch the categorical columns to the
+<code class="docutils literal notranslate"><span class="pre">categorical_transformer</span></code> and the remaining columns to the
+<code class="docutils literal notranslate"><span class="pre">numerical_transformer</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In practice, you will have to handle yourself the column data type.
+If you want some columns to be considered as <code class="docutils literal notranslate"><span class="pre">category</span></code>, you will have to
+convert them into categorical columns. If you are using pandas, you can
+refer to their documentation regarding <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/user_guide/categorical.html">Categorical data</a>.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">make_column_selector</span> <span class="k">as</span> <span class="n">selector</span>
+
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span><span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;num&#39;</span><span class="p">,</span> <span class="n">numeric_transformer</span><span class="p">,</span> <span class="n">selector</span><span class="p">(</span><span class="n">dtype_exclude</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="n">categorical_transformer</span><span class="p">,</span> <span class="n">selector</span><span class="p">(</span><span class="n">dtype_include</span><span class="o">=</span><span class="s2">&quot;category&quot;</span><span class="p">))</span>
+<span class="p">])</span>
+
+<span class="c1"># Reproduce the identical fit/score process</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model score: </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>model score: 0.794
+</pre></div>
+</div>
+</div>
 <div class="section" id="using-the-prediction-pipeline-in-a-grid-search">
 <h2>Using the prediction pipeline in a grid search<a class="headerlink" href="#using-the-prediction-pipeline-in-a-grid-search" title="Permalink to this headline">¶</a></h2>
 <blockquote>
@@ -259,16 +385,20 @@ and the regularization parameter of the logistic regression using
        <span class="o">%</span> <span class="n">grid_search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>best logistic regression from grid search: 0.794
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  2.191 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-compose-plot-column-transformer-mixed-types-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/compose/plot_column_transformer_mixed_types.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" width="150px" /></a>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.23.X?urlpath=lab/tree/notebooks/auto_examples/compose/plot_column_transformer_mixed_types.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo5.svg" width="150px" /></a>
 </div>
-<div class="sphx-glr-download docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/30c193cbf9c63006412bbabc67d11db6/plot_column_transformer_mixed_types.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_column_transformer_mixed_types.py</span></code></a></p>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/79c38d2f2cb1f2ef7d68e0cc7ea7b4e4/plot_column_transformer_mixed_types.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_column_transformer_mixed_types.py</span></code></a></p>
 </div>
-<div class="sphx-glr-download docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/458e05890c168fca308218bd6a8ed10f/plot_column_transformer_mixed_types.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_column_transformer_mixed_types.ipynb</span></code></a></p>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/26f110ad6cff1a8a7c58b1a00d8b8b5a/plot_column_transformer_mixed_types.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_column_transformer_mixed_types.ipynb</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -279,7 +409,7 @@ and the regularization parameter of the logistic regression using
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../../_sources/auto_examples/compose/plot_column_transformer_mixed_types.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -400,7 +530,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

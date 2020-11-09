@@ -1,0 +1,227 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_auto_examples_miscellaneous_plot_display_object_visualization.py>`     to download the full example code or to run this example in your browser via Binder
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_auto_examples_miscellaneous_plot_display_object_visualization.py:
+
+
+===================================
+Visualizations with Display Objects
+===================================
+
+.. currentmodule:: sklearn.metrics
+
+In this example, we will construct display objects,
+:class:`ConfusionMatrixDisplay`, :class:`RocCurveDisplay`, and
+:class:`PrecisionRecallDisplay` directly from their respective metrics. This
+is an alternative to using their corresponding plot functions when
+a model's predictions are already computed or expensive to compute. Note that
+this is advanced usage, and in general we recommend using their respective
+plot functions.
+
+
+.. code-block:: default
+
+    print(__doc__)
+
+
+
+
+
+
+
+
+Load Data and train model
+-------------------------
+For this example, we load a blood transfusion service center data set from
+`OpenML <https://www.openml.org/d/1464>`. This is a binary classification
+problem where the target is whether an individual donated blood. Then the
+data is split into a train and test dataset and a logistic regression is
+fitted wtih the train dataset.
+
+
+.. code-block:: default
+
+    from sklearn.datasets import fetch_openml
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import make_pipeline
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+
+    X, y = fetch_openml(data_id=1464, return_X_y=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y)
+
+    clf = make_pipeline(StandardScaler(), LogisticRegression(random_state=0))
+    clf.fit(X_train, y_train)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /usr/local/lib/python3.8/dist-packages/sklearn/datasets/_openml.py:57: RuntimeWarning: Invalid cache, redownloading file
+      warn("Invalid cache, redownloading file", RuntimeWarning)
+
+    Pipeline(steps=[('standardscaler', StandardScaler()),
+                    ('logisticregression', LogisticRegression(random_state=0))])
+
+
+
+Create :class:`ConfusionMatrixDisplay`
+#############################################################################
+ With the fitted model, we compute the predictions of the model on the test
+ dataset. These predictions are used to compute the confustion matrix which
+ is plotted with the :class:`ConfusionMatrixDisplay`
+
+
+.. code-block:: default
+
+    from sklearn.metrics import confusion_matrix
+    from sklearn.metrics import ConfusionMatrixDisplay
+
+    y_pred = clf.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred)
+
+    cm_display = ConfusionMatrixDisplay(cm).plot()
+
+
+
+
+
+.. image:: /auto_examples/miscellaneous/images/sphx_glr_plot_display_object_visualization_001.png
+    :alt: plot display object visualization
+    :class: sphx-glr-single-img
+
+
+
+
+
+Create :class:`RocCurveDisplay`
+#############################################################################
+ The roc curve requires either the probabilities or the non-thresholded
+ decision values from the estimator. Since the logistic regression provides
+ a decision function, we will use it to plot the roc curve:
+
+
+.. code-block:: default
+
+    from sklearn.metrics import roc_curve
+    from sklearn.metrics import RocCurveDisplay
+    y_score = clf.decision_function(X_test)
+
+    fpr, tpr, _ = roc_curve(y_test, y_score, pos_label=clf.classes_[1])
+    roc_display = RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
+
+
+
+
+.. image:: /auto_examples/miscellaneous/images/sphx_glr_plot_display_object_visualization_002.png
+    :alt: plot display object visualization
+    :class: sphx-glr-single-img
+
+
+
+
+
+Create :class:`PrecisionRecallDisplay`
+#############################################################################
+ Similarly, the precision recall curve can be plotted using `y_score` from
+ the prevision sections.
+
+
+.. code-block:: default
+
+    from sklearn.metrics import precision_recall_curve
+    from sklearn.metrics import PrecisionRecallDisplay
+
+    prec, recall, _ = precision_recall_curve(y_test, y_score,
+                                             pos_label=clf.classes_[1])
+    pr_display = PrecisionRecallDisplay(precision=prec, recall=recall).plot()
+
+
+
+
+.. image:: /auto_examples/miscellaneous/images/sphx_glr_plot_display_object_visualization_003.png
+    :alt: plot display object visualization
+    :class: sphx-glr-single-img
+
+
+
+
+
+Combining the display objects into a single plot
+#############################################################################
+ The display objects store the computed values that were passed as arguments.
+ This allows for the visualizations to be easliy combined using matplotlib's
+ API. In the following example, we place the displays next to each other in a
+ row.
+
+
+.. code-block:: default
+
+
+    import matplotlib.pyplot as plt
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8))
+
+    roc_display.plot(ax=ax1)
+    pr_display.plot(ax=ax2)
+    plt.show()
+
+
+
+.. image:: /auto_examples/miscellaneous/images/sphx_glr_plot_display_object_visualization_004.png
+    :alt: plot display object visualization
+    :class: sphx-glr-single-img
+
+
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  5.274 seconds)
+
+
+.. _sphx_glr_download_auto_examples_miscellaneous_plot_display_object_visualization.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+  .. container:: binder-badge
+
+    .. image:: images/binder_badge_logo.svg
+      :target: https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.23.X?urlpath=lab/tree/notebooks/auto_examples/miscellaneous/plot_display_object_visualization.ipynb
+      :alt: Launch binder
+      :width: 150 px
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: plot_display_object_visualization.py <plot_display_object_visualization.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: plot_display_object_visualization.ipynb <plot_display_object_visualization.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

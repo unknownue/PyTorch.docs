@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>sklearn.utils.parallel_backend &mdash; scikit-learn 0.22 documentation</title>
+  <title>sklearn.utils.parallel_backend &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/modules/generated/sklearn.utils.parallel_backend.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
@@ -136,7 +142,7 @@
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -158,9 +164,9 @@
         
   <div class="section" id="sklearn-utils-parallel-backend">
 <h1><a class="reference internal" href="../classes.html#module-sklearn.utils" title="sklearn.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.utils</span></code></a>.parallel_backend<a class="headerlink" href="#sklearn-utils-parallel-backend" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="sklearn.utils.parallel_backend">
-<code class="sig-prename descclassname">sklearn.utils.</code><code class="sig-name descname">parallel_backend</code><span class="sig-paren">(</span><em class="sig-param">backend</em>, <em class="sig-param">n_jobs=-1</em>, <em class="sig-param">inner_max_num_threads=None</em>, <em class="sig-param">**backend_params</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/5f3c3f037/sklearn/../joblib/parallel.py#L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sklearn.utils.parallel_backend" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sklearn.utils.</code><code class="sig-name descname">parallel_backend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">backend</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">inner_max_num_threads</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">backend_params</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/0fb307bf3/sklearn/../joblib/parallel.py#L122"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sklearn.utils.parallel_backend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the default backend used by Parallel inside a with block.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">backend</span></code> is a string it must match a previously registered
 implementation using the <code class="docutils literal notranslate"><span class="pre">register_parallel_backend</span></code> function.</p>
@@ -179,6 +185,14 @@ GIL.</p>
 it is possible to use the ‘dask’ backend for better scheduling of nested
 parallel calls without over-subscription and potentially distribute
 parallel calls over a networked cluster of several hosts.</p>
+<p>It is also possible to use the distributed ‘ray’ backend for distributing
+the workload to a cluster of nodes. To use the ‘ray’ joblib backend add
+the following lines:</p>
+<p>&gt;&gt; from ray.util.joblib import register_ray
+&gt;&gt; register_ray()
+&gt;&gt; with parallel_backend(“ray”):
+..     print(Parallel()(delayed(neg)(i + 1) for i in range(5)))
+[-1, -2, -3, -4, -5]</p>
 <p>Alternatively the backend can be passed directly as an instance.</p>
 <p>By default all available workers will be used (<code class="docutils literal notranslate"><span class="pre">n_jobs=-1</span></code>) unless the
 caller passes an explicit value for the <code class="docutils literal notranslate"><span class="pre">n_jobs</span></code> parameter.</p>
@@ -186,7 +200,7 @@ caller passes an explicit value for the <code class="docutils literal notranslat
 the <code class="docutils literal notranslate"><span class="pre">Parallel</span></code> class constructor. It is particularly useful when calling
 into library code that uses joblib internally but does not expose the
 backend argument in its own API.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">neg</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">neg</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;threading&#39;</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">Parallel</span><span class="p">()(</span><span class="n">delayed</span><span class="p">(</span><span class="n">neg</span><span class="p">)(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span>
 <span class="gp">...</span>
@@ -212,7 +226,7 @@ to set this limit in the child processes.</p>
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../../_sources/modules/generated/sklearn.utils.parallel_backend.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -333,7 +347,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

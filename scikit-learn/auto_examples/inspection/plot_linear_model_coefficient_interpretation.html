@@ -1,0 +1,1466 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="scikit-learn: machine learning in Python">
+
+  
+  <title>Common pitfalls in interpretation of coefficients of linear models &mdash; scikit-learn 0.23.2 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/inspection/plot_linear_model_coefficient_interpretation.html" />
+
+  
+  <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script> 
+</head>
+<body>
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../../index.html">
+        <img
+          class="sk-brand-img"
+          src="../../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html">Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../developers/index.html">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html">FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html">Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html">About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html">Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html">Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html">About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="sk-sidebar-toc-logo">
+          <a href="../../index.html">
+            <img
+              class="sk-brand-img"
+              src="../../_static/scikit-learn-logo-small.png"
+              alt="logo"/>
+          </a>
+        </div>
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="plot_partial_dependence.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Partial Dependence Plots">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="../manifold/plot_swissroll.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Swiss Roll reduction with LLE">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 0.23.2</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+          <div class="sk-sidebar-toc">
+            <ul>
+<li><a class="reference internal" href="#">Common pitfalls in interpretation of coefficients of linear models</a><ul>
+<li><a class="reference internal" href="#the-dataset-wages">The dataset: wages</a></li>
+<li><a class="reference internal" href="#the-machine-learning-pipeline">The machine-learning pipeline</a></li>
+<li><a class="reference internal" href="#processing-the-dataset">Processing the dataset</a></li>
+<li><a class="reference internal" href="#interpreting-coefficients-scale-matters">Interpreting coefficients: scale matters</a></li>
+<li><a class="reference internal" href="#checking-the-variability-of-the-coefficients">Checking the variability of the coefficients</a></li>
+<li><a class="reference internal" href="#the-problem-of-correlated-variables">The problem of correlated variables</a></li>
+<li><a class="reference internal" href="#preprocessing-numerical-variables">Preprocessing numerical variables</a></li>
+<li><a class="reference internal" href="#linear-models-with-regularization">Linear models with regularization</a></li>
+<li><a class="reference internal" href="#linear-models-with-sparse-coefficients">Linear models with sparse coefficients</a></li>
+<li><a class="reference internal" href="#lessons-learned">Lessons learned</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-inspection-plot-linear-model-coefficient-interpretation-py"><span class="std std-ref">here</span></a>     to download the full example code or to run this example in your browser via Binder</p>
+</div>
+<div class="sphx-glr-example-title section" id="common-pitfalls-in-interpretation-of-coefficients-of-linear-models">
+<span id="sphx-glr-auto-examples-inspection-plot-linear-model-coefficient-interpretation-py"></span><h1>Common pitfalls in interpretation of coefficients of linear models<a class="headerlink" href="#common-pitfalls-in-interpretation-of-coefficients-of-linear-models" title="Permalink to this headline">¶</a></h1>
+<p>In linear models, the target value is modeled as
+a linear combination of the features (see the <a class="reference internal" href="../../modules/linear_model.html#linear-model"><span class="std std-ref">Linear Models</span></a> User Guide
+section for a description of a set of linear models available in
+scikit-learn).
+Coefficients in multiple linear models represent the relationship between the
+given feature, <span class="math notranslate nohighlight">\(X_i\)</span> and the target, <span class="math notranslate nohighlight">\(y\)</span>, assuming that all the
+other features remain constant (<a class="reference external" href="https://en.wikipedia.org/wiki/Conditional_dependence">conditional dependence</a>).
+This is different from plotting <span class="math notranslate nohighlight">\(X_i\)</span> versus <span class="math notranslate nohighlight">\(y\)</span> and fitting a
+linear relationship: in that case all possible values of the other features are
+taken into account in the estimation (marginal dependence).</p>
+<p>This example will provide some hints in interpreting coefficient in linear
+models, pointing at problems that arise when either the linear model is not
+appropriate to describe the dataset, or when features are correlated.</p>
+<p>We will use data from the <a class="reference external" href="https://www.openml.org/d/534">“Current Population Survey”</a> from 1985 to predict
+wage as a function of various features such as experience, age, or education.</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#the-dataset-wages" id="id1">The dataset: wages</a></p></li>
+<li><p><a class="reference internal" href="#the-machine-learning-pipeline" id="id2">The machine-learning pipeline</a></p></li>
+<li><p><a class="reference internal" href="#processing-the-dataset" id="id3">Processing the dataset</a></p></li>
+<li><p><a class="reference internal" href="#interpreting-coefficients-scale-matters" id="id4">Interpreting coefficients: scale matters</a></p></li>
+<li><p><a class="reference internal" href="#checking-the-variability-of-the-coefficients" id="id5">Checking the variability of the coefficients</a></p></li>
+<li><p><a class="reference internal" href="#the-problem-of-correlated-variables" id="id6">The problem of correlated variables</a></p></li>
+<li><p><a class="reference internal" href="#preprocessing-numerical-variables" id="id7">Preprocessing numerical variables</a></p></li>
+<li><p><a class="reference internal" href="#linear-models-with-regularization" id="id8">Linear models with regularization</a></p></li>
+<li><p><a class="reference internal" href="#linear-models-with-sparse-coefficients" id="id9">Linear models with sparse coefficients</a></p></li>
+<li><p><a class="reference internal" href="#lessons-learned" id="id10">Lessons learned</a></p></li>
+</ul>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+</pre></div>
+</div>
+<div class="section" id="the-dataset-wages">
+<h2><a class="toc-backref" href="#id1">The dataset: wages</a><a class="headerlink" href="#the-dataset-wages" title="Permalink to this headline">¶</a></h2>
+<p>We fetch the data from <a class="reference external" href="http://openml.org/">OpenML</a>.
+Note that setting the parameter <code class="docutils literal notranslate"><span class="pre">as_frame</span></code> to True will retrieve the data
+as a pandas dataframe.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_openml</span>
+
+<span class="n">survey</span> <span class="o">=</span> <span class="n">fetch_openml</span><span class="p">(</span><span class="n">data_id</span><span class="o">=</span><span class="mi">534</span><span class="p">,</span> <span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.8/dist-packages/sklearn/datasets/_openml.py:57: RuntimeWarning: Invalid cache, redownloading file
+  warn(&quot;Invalid cache, redownloading file&quot;, RuntimeWarning)
+</pre></div>
+</div>
+<p>Then, we identify features <code class="docutils literal notranslate"><span class="pre">X</span></code> and targets <code class="docutils literal notranslate"><span class="pre">y</span></code>: the column WAGE is our
+target variable (i.e., the variable which we want to predict).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">survey</span><span class="o">.</span><span class="n">feature_names</span><span class="p">]</span>
+<span class="n">X</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>EDUCATION</th>
+      <th>SOUTH</th>
+      <th>SEX</th>
+      <th>EXPERIENCE</th>
+      <th>UNION</th>
+      <th>AGE</th>
+      <th>RACE</th>
+      <th>OCCUPATION</th>
+      <th>SECTOR</th>
+      <th>MARR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>534.000000</td>
+      <td>534</td>
+      <td>534</td>
+      <td>534.000000</td>
+      <td>534</td>
+      <td>534.000000</td>
+      <td>534</td>
+      <td>534</td>
+      <td>534</td>
+      <td>534</td>
+    </tr>
+    <tr>
+      <th>unique</th>
+      <td>NaN</td>
+      <td>2</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>3</td>
+      <td>6</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>top</th>
+      <td>NaN</td>
+      <td>no</td>
+      <td>male</td>
+      <td>NaN</td>
+      <td>not_member</td>
+      <td>NaN</td>
+      <td>White</td>
+      <td>Other</td>
+      <td>Other</td>
+      <td>Married</td>
+    </tr>
+    <tr>
+      <th>freq</th>
+      <td>NaN</td>
+      <td>378</td>
+      <td>289</td>
+      <td>NaN</td>
+      <td>438</td>
+      <td>NaN</td>
+      <td>440</td>
+      <td>156</td>
+      <td>411</td>
+      <td>350</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>13.018727</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>17.822097</td>
+      <td>NaN</td>
+      <td>36.833333</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>2.615373</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>12.379710</td>
+      <td>NaN</td>
+      <td>11.726573</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>2.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>18.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>12.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>8.000000</td>
+      <td>NaN</td>
+      <td>28.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>12.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>15.000000</td>
+      <td>NaN</td>
+      <td>35.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>15.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>26.000000</td>
+      <td>NaN</td>
+      <td>44.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>18.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>55.000000</td>
+      <td>NaN</td>
+      <td>64.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br />
+<br /><p>Note that the dataset contains categorical and numerical variables.
+We will need to take this into account when preprocessing the dataset
+thereafter.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>EDUCATION</th>
+      <th>SOUTH</th>
+      <th>SEX</th>
+      <th>EXPERIENCE</th>
+      <th>UNION</th>
+      <th>AGE</th>
+      <th>RACE</th>
+      <th>OCCUPATION</th>
+      <th>SECTOR</th>
+      <th>MARR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8.0</td>
+      <td>no</td>
+      <td>female</td>
+      <td>21.0</td>
+      <td>not_member</td>
+      <td>35.0</td>
+      <td>Hispanic</td>
+      <td>Other</td>
+      <td>Manufacturing</td>
+      <td>Married</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.0</td>
+      <td>no</td>
+      <td>female</td>
+      <td>42.0</td>
+      <td>not_member</td>
+      <td>57.0</td>
+      <td>White</td>
+      <td>Other</td>
+      <td>Manufacturing</td>
+      <td>Married</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>12.0</td>
+      <td>no</td>
+      <td>male</td>
+      <td>1.0</td>
+      <td>not_member</td>
+      <td>19.0</td>
+      <td>White</td>
+      <td>Other</td>
+      <td>Manufacturing</td>
+      <td>Unmarried</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12.0</td>
+      <td>no</td>
+      <td>male</td>
+      <td>4.0</td>
+      <td>not_member</td>
+      <td>22.0</td>
+      <td>White</td>
+      <td>Other</td>
+      <td>Other</td>
+      <td>Unmarried</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>12.0</td>
+      <td>no</td>
+      <td>male</td>
+      <td>17.0</td>
+      <td>not_member</td>
+      <td>35.0</td>
+      <td>White</td>
+      <td>Other</td>
+      <td>Other</td>
+      <td>Married</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br />
+<br /><p>Our target for prediction: the wage.
+Wages are described as floating-point number in dollars per hour.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+<span class="n">survey</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0    5.10
+1    4.95
+2    6.67
+3    4.00
+4    7.50
+Name: WAGE, dtype: float64
+</pre></div>
+</div>
+<p>We split the sample into a train and a test dataset.
+Only the train dataset will be used in the following exploratory analysis.
+This is a way to emulate a real situation where predictions are performed on
+an unknown target, and we don’t want our analysis and decisions to be biased
+by our knowledge of the test data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>First, let’s get some insights by looking at the variable distributions and
+at the pairwise relationships between them. Only numerical
+variables will be used. In the following plot, each dot represents a sample.</p>
+<blockquote>
+<div></div></blockquote>
+<div class="highlight-default notranslate" id="marginal-dependencies"><div class="highlight"><pre><span></span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">train_dataset</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;WAGE&quot;</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;reg&#39;</span><span class="p">,</span> <span class="n">diag_kind</span><span class="o">=</span><span class="s1">&#39;kde&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="plot linear model coefficient interpretation" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_001.png" />
+<p>Looking closely at the WAGE distribution reveals that it has a
+long tail. For this reason, we should take its logarithm
+to turn it approximately into a normal distribution (linear models such
+as ridge or lasso work best for a normal distribution of error).</p>
+<p>The WAGE is increasing when EDUCATION is increasing.
+Note that the dependence between WAGE and EDUCATION
+represented here is a marginal dependence, i.e., it describes the behavior
+of a specific variable without keeping the others fixed.</p>
+<p>Also, the EXPERIENCE and AGE are strongly linearly correlated.</p>
+</div>
+<div class="section" id="the-machine-learning-pipeline">
+<span id="the-pipeline"></span><h2><a class="toc-backref" href="#id2">The machine-learning pipeline</a><a class="headerlink" href="#the-machine-learning-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>To design our machine-learning pipeline, we first manually
+check the type of data that we are dealing with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">survey</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 534 entries, 0 to 533
+Data columns (total 10 columns):
+ #   Column      Non-Null Count  Dtype
+---  ------      --------------  -----
+ 0   EDUCATION   534 non-null    float64
+ 1   SOUTH       534 non-null    category
+ 2   SEX         534 non-null    category
+ 3   EXPERIENCE  534 non-null    float64
+ 4   UNION       534 non-null    category
+ 5   AGE         534 non-null    float64
+ 6   RACE        534 non-null    category
+ 7   OCCUPATION  534 non-null    category
+ 8   SECTOR      534 non-null    category
+ 9   MARR        534 non-null    category
+dtypes: category(7), float64(3)
+memory usage: 17.1 KB
+</pre></div>
+</div>
+<p>As seen previously, the dataset contains columns with different data types
+and we need to apply a specific preprocessing for each data types.
+In particular categorical variables cannot be included in linear model if not
+coded as integers first. In addition, to avoid categorical features to be
+treated as ordered values, we need to one-hot-encode them.
+Our pre-processor will</p>
+<ul class="simple">
+<li><p>one-hot encode (i.e., generate a column by category) the categorical
+columns;</p></li>
+<li><p>as a first approach (we will see after how the normalisation of numerical
+values will affect our discussion), keep numerical values as they are.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">make_column_transformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+
+<span class="n">categorical_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RACE&#39;</span><span class="p">,</span> <span class="s1">&#39;OCCUPATION&#39;</span><span class="p">,</span> <span class="s1">&#39;SECTOR&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;MARR&#39;</span><span class="p">,</span> <span class="s1">&#39;UNION&#39;</span><span class="p">,</span> <span class="s1">&#39;SEX&#39;</span><span class="p">,</span> <span class="s1">&#39;SOUTH&#39;</span><span class="p">]</span>
+<span class="n">numerical_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;EDUCATION&#39;</span><span class="p">,</span> <span class="s1">&#39;EXPERIENCE&#39;</span><span class="p">,</span> <span class="s1">&#39;AGE&#39;</span><span class="p">]</span>
+
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">make_column_transformer</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="s1">&#39;if_binary&#39;</span><span class="p">),</span> <span class="n">categorical_columns</span><span class="p">),</span>
+    <span class="n">remainder</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>To describe the dataset as a linear model we use a ridge regressor
+with a very small regularization and to model the logarithm of the WAGE.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+<span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">TransformedTargetRegressor</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">preprocessor</span><span class="p">,</span>
+    <span class="n">TransformedTargetRegressor</span><span class="p">(</span>
+        <span class="n">regressor</span><span class="o">=</span><span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">),</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">,</span>
+        <span class="n">inverse_func</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">exp10</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="processing-the-dataset">
+<h2><a class="toc-backref" href="#id3">Processing the dataset</a><a class="headerlink" href="#processing-the-dataset" title="Permalink to this headline">¶</a></h2>
+<p>First, we fit the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then we check the performance of the computed model plotting its predictions
+on the test set and computing,
+for example, the median absolute error of the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">median_absolute_error</span>
+
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;MAE on training set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MAE on testing set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">string_score</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, small regularization&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Model predictions&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Truths&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="Ridge model, small regularization" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_002.png" />
+<p>The model learnt is far from being a good model making accurate predictions:
+this is obvious when looking at the plot above, where good predictions
+should lie on the red line.</p>
+<p>In the following section, we will interpret the coefficients of the model.
+While we do so, we should keep in mind that any conclusion we draw is
+about the model that we build, rather than about the true (real-world)
+generative process of the data.</p>
+</div>
+<div class="section" id="interpreting-coefficients-scale-matters">
+<h2><a class="toc-backref" href="#id4">Interpreting coefficients: scale matters</a><a class="headerlink" href="#interpreting-coefficients-scale-matters" title="Permalink to this headline">¶</a></h2>
+<p>First of all, we can take a look to the values of the coefficients of the
+regressor we have fitted.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">feature_names</span> <span class="o">=</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;columntransformer&#39;</span><span class="p">]</span>
+                      <span class="o">.</span><span class="n">named_transformers_</span><span class="p">[</span><span class="s1">&#39;onehotencoder&#39;</span><span class="p">]</span>
+                      <span class="o">.</span><span class="n">get_feature_names</span><span class="p">(</span><span class="n">input_features</span><span class="o">=</span><span class="n">categorical_columns</span><span class="p">))</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">numerical_columns</span><span class="p">])</span>
+
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Coefficients&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+
+<span class="n">coefs</span>
+</pre></div>
+</div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Coefficients</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>RACE_Hispanic</th>
+      <td>-0.013555</td>
+    </tr>
+    <tr>
+      <th>RACE_Other</th>
+      <td>-0.009111</td>
+    </tr>
+    <tr>
+      <th>RACE_White</th>
+      <td>0.022558</td>
+    </tr>
+    <tr>
+      <th>OCCUPATION_Clerical</th>
+      <td>0.000056</td>
+    </tr>
+    <tr>
+      <th>OCCUPATION_Management</th>
+      <td>0.090539</td>
+    </tr>
+    <tr>
+      <th>OCCUPATION_Other</th>
+      <td>-0.025091</td>
+    </tr>
+    <tr>
+      <th>OCCUPATION_Professional</th>
+      <td>0.071975</td>
+    </tr>
+    <tr>
+      <th>OCCUPATION_Sales</th>
+      <td>-0.046625</td>
+    </tr>
+    <tr>
+      <th>OCCUPATION_Service</th>
+      <td>-0.091042</td>
+    </tr>
+    <tr>
+      <th>SECTOR_Construction</th>
+      <td>-0.000177</td>
+    </tr>
+    <tr>
+      <th>SECTOR_Manufacturing</th>
+      <td>0.031275</td>
+    </tr>
+    <tr>
+      <th>SECTOR_Other</th>
+      <td>-0.031005</td>
+    </tr>
+    <tr>
+      <th>MARR_Unmarried</th>
+      <td>-0.032405</td>
+    </tr>
+    <tr>
+      <th>UNION_not_member</th>
+      <td>-0.117154</td>
+    </tr>
+    <tr>
+      <th>SEX_male</th>
+      <td>0.090808</td>
+    </tr>
+    <tr>
+      <th>SOUTH_yes</th>
+      <td>-0.033823</td>
+    </tr>
+    <tr>
+      <th>EDUCATION</th>
+      <td>0.054699</td>
+    </tr>
+    <tr>
+      <th>EXPERIENCE</th>
+      <td>0.035005</td>
+    </tr>
+    <tr>
+      <th>AGE</th>
+      <td>-0.030867</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br />
+<br /><p>The AGE coefficient is expressed in “dollars/hour per living years” while the
+EDUCATION one is expressed in “dollars/hour per years of education”. This
+representation of the coefficients has the benefit of making clear the
+practical predictions of the model: an increase of <span class="math notranslate nohighlight">\(1\)</span> year in AGE
+means a decrease of <span class="math notranslate nohighlight">\(0.030867\)</span> dollars/hour, while an increase of
+<span class="math notranslate nohighlight">\(1\)</span> year in EDUCATION means an increase of <span class="math notranslate nohighlight">\(0.054699\)</span>
+dollars/hour. On the other hand, categorical variables (as UNION or SEX) are
+adimensional numbers taking either the value 0 or 1. Their coefficients
+are expressed in dollars/hour. Then, we cannot compare the magnitude of
+different coefficients since the features have different natural scales, and
+hence value ranges, because of their different unit of measure. This is more
+visible if we plot the coefficients.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;barh&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, small regularization&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Ridge model, small regularization" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_003.png" />
+<p>Indeed, from the plot above the most important factor in determining WAGE
+appears to be the
+variable UNION, even if our intuition might tell us that variables
+like EXPERIENCE should have more impact.</p>
+<p>Looking at the coefficient plot to gauge feature importance can be
+misleading as some of them vary on a small scale, while others, like AGE,
+varies a lot more, several decades.</p>
+<p>This is visible if we compare the standard deviations of different
+features.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X_train_preprocessed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;columntransformer&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+
+<span class="n">X_train_preprocessed</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;barh&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Features std. dev.&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Features std. dev." class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_004.png" />
+<p>Multiplying the coefficients by the standard deviation of the related
+feature would reduce all the coefficients to the same unit of measure.
+As we will see <a class="reference internal" href="#scaling-num"><span class="std std-ref">after</span></a> this is equivalent to normalize
+numerical variables to their standard deviation,
+as <span class="math notranslate nohighlight">\(y = \sum{coef_i \times X_i} =
+\sum{(coef_i \times std_i) \times (X_i / std_i)}\)</span>.</p>
+<p>In that way, we emphasize that the
+greater the variance of a feature, the larger the weight of the corresponding
+coefficient on the output, all else being equal.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span> <span class="o">*</span>
+    <span class="n">X_train_preprocessed</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Coefficient importance&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+<span class="n">coefs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;barh&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, small regularization&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Ridge model, small regularization" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_005.png" />
+<p>Now that the coefficients have been scaled, we can safely compare them.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Why does the plot above suggest that an increase in age leads to a
+decrease in wage? Why the <a class="reference internal" href="#marginal-dependencies"><span class="std std-ref">initial pairplot</span></a> is telling the opposite?</p>
+</div>
+<p>The plot above tells us about dependencies between a specific feature and
+the target when all other features remain constant, i.e., <strong>conditional
+dependencies</strong>. An increase of the AGE will induce a decrease
+of the WAGE when all other features remain constant. On the contrary, an
+increase of the EXPERIENCE will induce an increase of the WAGE when all
+other features remain constant.
+Also, AGE, EXPERIENCE and EDUCATION are the three variables that most
+influence the model.</p>
+</div>
+<div class="section" id="checking-the-variability-of-the-coefficients">
+<h2><a class="toc-backref" href="#id5">Checking the variability of the coefficients</a><a class="headerlink" href="#checking-the-variability-of-the-coefficients" title="Permalink to this headline">¶</a></h2>
+<p>We can check the coefficient variability through cross-validation:
+it is a form of data perturbation (related to
+<a class="reference external" href="https://en.wikipedia.org/wiki/Resampling_(statistics)">resampling</a>).</p>
+<p>If coefficients vary significantly when changing the input dataset
+their robustness is not guaranteed, and they should probably be interpreted
+with caution.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_validate</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">RepeatedKFold</span>
+
+<span class="n">cv_model</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">RepeatedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">return_estimator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">est</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span> <span class="o">*</span>
+     <span class="n">X_train_preprocessed</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+     <span class="k">for</span> <span class="n">est</span> <span class="ow">in</span> <span class="n">cv_model</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,</span> <span class="n">saturation</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Coefficient importance&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Coefficient importance and its variability&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Coefficient importance and its variability" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_006.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 88.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 76.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 68.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 72.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 80.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 64.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 40.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 12.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-problem-of-correlated-variables">
+<h2><a class="toc-backref" href="#id6">The problem of correlated variables</a><a class="headerlink" href="#the-problem-of-correlated-variables" title="Permalink to this headline">¶</a></h2>
+<p>The AGE and EXPERIENCE coefficients are affected by strong variability which
+might be due to the collinearity between the 2 features: as AGE and
+EXPERIENCE vary together in the data, their effect is difficult to tease
+apart.</p>
+<p>To verify this interpretation we plot the variability of the AGE and
+EXPERIENCE coefficient.</p>
+<div class="highlight-default notranslate" id="covariation"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Age coefficient&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Experience coefficient&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">coefs</span><span class="p">[</span><span class="s2">&quot;AGE&quot;</span><span class="p">],</span> <span class="n">coefs</span><span class="p">[</span><span class="s2">&quot;EXPERIENCE&quot;</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Co-variations of coefficients for AGE and EXPERIENCE &#39;</span>
+              <span class="s1">&#39;across folds&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Co-variations of coefficients for AGE and EXPERIENCE across folds" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_007.png" />
+<p>Two regions are populated: when the EXPERIENCE coefficient is
+positive the AGE one is negative and viceversa.</p>
+<p>To go further we remove one of the 2 features and check what is the impact
+on the model stability.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">column_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AGE&#39;</span><span class="p">]</span>
+
+<span class="n">cv_model</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_to_drop</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">RepeatedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">return_estimator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">est</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span> <span class="o">*</span>
+     <span class="n">X_train_preprocessed</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_to_drop</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+     <span class="k">for</span> <span class="n">est</span> <span class="ow">in</span> <span class="n">cv_model</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">feature_names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,</span> <span class="n">saturation</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Coefficient importance and its variability&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Coefficient importance&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Coefficient importance and its variability" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_008.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 40.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 28.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 48.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 36.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 20.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 8.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 16.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 32.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 12.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+</pre></div>
+</div>
+<p>The estimation of the EXPERIENCE coefficient is now less variable and
+remain important for all models trained during cross-validation.</p>
+</div>
+<div class="section" id="preprocessing-numerical-variables">
+<span id="scaling-num"></span><h2><a class="toc-backref" href="#id7">Preprocessing numerical variables</a><a class="headerlink" href="#preprocessing-numerical-variables" title="Permalink to this headline">¶</a></h2>
+<p>As said above (see “<a class="reference internal" href="#the-pipeline"><span class="std std-ref">The machine-learning pipeline</span></a>”), we could also choose to scale
+numerical values before training the model.
+This can be useful to apply a similar amount regularization to all of them
+in the Ridge.
+The preprocessor is redefined in order to subtract the mean and scale
+variables to unit variance.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">make_column_transformer</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="s1">&#39;if_binary&#39;</span><span class="p">),</span> <span class="n">categorical_columns</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">numerical_columns</span><span class="p">),</span>
+    <span class="n">remainder</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The model will stay unchanged.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">preprocessor</span><span class="p">,</span>
+    <span class="n">TransformedTargetRegressor</span><span class="p">(</span>
+        <span class="n">regressor</span><span class="o">=</span><span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">),</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">,</span>
+        <span class="n">inverse_func</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">exp10</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Again, we check the performance of the computed
+model using, for example, the median absolute error of the model and the R
+squared coefficient.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;MAE on training set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MAE on testing set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">string_score</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, small regularization, normalized variables&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Model predictions&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Truths&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="Ridge model, small regularization, normalized variables" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_009.png" />
+<p>For the coefficient analysis, scaling is not needed this time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Coefficients&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+<span class="n">coefs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;barh&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, small regularization, normalized variables&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Ridge model, small regularization, normalized variables" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_010.png" />
+<p>We now inspect the coefficients across several cross-validation folds.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cv_model</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">RepeatedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">return_estimator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">est</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span>
+     <span class="k">for</span> <span class="n">est</span> <span class="ow">in</span> <span class="n">cv_model</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,</span> <span class="n">saturation</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Coefficient variability&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Coefficient variability" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_011.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 40.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 48.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 64.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 44.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 52.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 56.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 72.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 8.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+/usr/local/lib/python3.8/dist-packages/seaborn/categorical.py:1296: UserWarning: 20.0% of the points cannot be placed; you may want to decrease the size of the markers or use stripplot.
+  warnings.warn(msg, UserWarning)
+</pre></div>
+</div>
+<p>The result is quite similar to the non-normalized case.</p>
+</div>
+<div class="section" id="linear-models-with-regularization">
+<h2><a class="toc-backref" href="#id8">Linear models with regularization</a><a class="headerlink" href="#linear-models-with-regularization" title="Permalink to this headline">¶</a></h2>
+<p>In machine-learning practice, Ridge Regression is more often used with
+non-negligible regularization.</p>
+<p>Above, we limited this regularization to a very little amount.
+Regularization improves the conditioning of the problem and reduces the
+variance of the estimates. RidgeCV applies cross validation in order to
+determine which value of the regularization parameter (<code class="docutils literal notranslate"><span class="pre">alpha</span></code>) is best
+suited for prediction.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">RidgeCV</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">preprocessor</span><span class="p">,</span>
+    <span class="n">TransformedTargetRegressor</span><span class="p">(</span>
+        <span class="n">regressor</span><span class="o">=</span><span class="n">RidgeCV</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">21</span><span class="p">)),</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">,</span>
+        <span class="n">inverse_func</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">exp10</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>First we check which value of <span class="math notranslate nohighlight">\(\alpha\)</span> has been selected.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">alpha_</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>10.0
+</pre></div>
+</div>
+<p>Then we check the quality of the predictions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;MAE on training set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MAE on testing set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">string_score</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, regularization, normalized variables&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Model predictions&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Truths&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="Ridge model, regularization, normalized variables" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_012.png" />
+<p>The ability to reproduce the data of the regularized model is similar to
+the one of the non-regularized model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Coefficients&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+<span class="n">coefs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;barh&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Ridge model, regularization, normalized variables&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Ridge model, regularization, normalized variables" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_013.png" />
+<p>The coefficients are significantly different.
+AGE and EXPERIENCE coefficients are both positive but they now have less
+influence on the prediction.</p>
+<p>The regularization reduces the influence of correlated
+variables on the model because the weight is shared between the two
+predictive variables, so neither alone would have strong weights.</p>
+<p>On the other hand, the weights obtained with regularization are more
+stable  (see the <a class="reference internal" href="../../modules/linear_model.html#ridge-regression"><span class="std std-ref">Ridge regression and classification</span></a> User Guide section). This
+increased stability is visible from the plot, obtained from data
+perturbations, in a cross validation. This plot can  be compared with
+the <a class="reference internal" href="#covariation"><span class="std std-ref">previous one</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cv_model</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">RepeatedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">return_estimator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">est</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span> <span class="o">*</span>
+     <span class="n">X_train_preprocessed</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+     <span class="k">for</span> <span class="n">est</span> <span class="ow">in</span> <span class="n">cv_model</span><span class="p">[</span><span class="s1">&#39;estimator&#39;</span><span class="p">]],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Age coefficient&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Experience coefficient&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">coefs</span><span class="p">[</span><span class="s2">&quot;AGE&quot;</span><span class="p">],</span> <span class="n">coefs</span><span class="p">[</span><span class="s2">&quot;EXPERIENCE&quot;</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Co-variations of coefficients for AGE and EXPERIENCE &#39;</span>
+              <span class="s1">&#39;across folds&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Co-variations of coefficients for AGE and EXPERIENCE across folds" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_014.png" />
+</div>
+<div class="section" id="linear-models-with-sparse-coefficients">
+<h2><a class="toc-backref" href="#id9">Linear models with sparse coefficients</a><a class="headerlink" href="#linear-models-with-sparse-coefficients" title="Permalink to this headline">¶</a></h2>
+<p>Another possibility to take into account correlated variables in the dataset,
+is to estimate sparse coefficients. In some way we already did it manually
+when we dropped the AGE column in a previous Ridge estimation.</p>
+<p>Lasso models (see the <a class="reference internal" href="../../modules/linear_model.html#lasso"><span class="std std-ref">Lasso</span></a> User Guide section) estimates sparse
+coefficients. LassoCV applies cross validation in order to
+determine which value of the regularization parameter (<code class="docutils literal notranslate"><span class="pre">alpha</span></code>) is best
+suited for the model estimation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
+    <span class="n">preprocessor</span><span class="p">,</span>
+    <span class="n">TransformedTargetRegressor</span><span class="p">(</span>
+        <span class="n">regressor</span><span class="o">=</span><span class="n">LassoCV</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">21</span><span class="p">),</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100000</span><span class="p">),</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">,</span>
+        <span class="n">inverse_func</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">exp10</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>First we verify which value of <span class="math notranslate nohighlight">\(\alpha\)</span> has been selected.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">alpha_</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.001
+</pre></div>
+</div>
+<p>Then we check the quality of the predictions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;MAE on training set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">string_score</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MAE on testing set: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> $/hour&#39;</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">string_score</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Lasso model, regularization, normalized variables&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Model predictions&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Truths&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="Lasso model, regularization, normalized variables" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_015.png" />
+<p>For our dataset, again the model is not very predictive.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="s1">&#39;transformedtargetregressor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">regressor_</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Coefficients&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">feature_names</span>
+<span class="p">)</span>
+<span class="n">coefs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;barh&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Lasso model, regularization, normalized variables&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;.5&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Lasso model, regularization, normalized variables" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_linear_model_coefficient_interpretation_016.png" />
+<p>A Lasso model identifies the correlation between
+AGE and EXPERIENCE and suppresses one of them for the sake of the prediction.</p>
+<p>It is important to keep in mind that the coefficients that have been
+dropped may still be related to the outcome by themselves: the model
+chose to suppress them because they bring little or no additional
+information on top of the other features. Additionnaly, this selection
+is unstable for correlated features, and should be interpreted with
+caution.</p>
+</div>
+<div class="section" id="lessons-learned">
+<h2><a class="toc-backref" href="#id10">Lessons learned</a><a class="headerlink" href="#lessons-learned" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Coefficients must be scaled to the same unit of measure to retrieve
+feature importance. Scaling them with the standard-deviation of the
+feature is a useful proxy.</p></li>
+<li><p>Coefficients in multivariate linear models represent the dependency
+between a given feature and the target, <strong>conditional</strong> on the other
+features.</p></li>
+<li><p>Correlated features induce instabilities in the coefficients of linear
+models and their effects cannot be well teased apart.</p></li>
+<li><p>Different linear models respond differently to feature correlation and
+coefficients could significantly vary from one another.</p></li>
+<li><p>Inspecting coefficients across the folds of a cross-validation loop
+gives an idea of their stability.</p></li>
+</ul>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  11.863 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-inspection-plot-linear-model-coefficient-interpretation-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.23.X?urlpath=lab/tree/notebooks/auto_examples/inspection/plot_linear_model_coefficient_interpretation.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo27.svg" width="150px" /></a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/521b554adefca348463adbbe047d7e99/plot_linear_model_coefficient_interpretation.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_linear_model_coefficient_interpretation.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/cf0f90f46eb559facf7f63f124f61e04/plot_linear_model_coefficient_interpretation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_linear_model_coefficient_interpretation.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
+          <a href="../../_sources/auto_examples/inspection/plot_linear_model_coefficient_interpretation.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+    var hide_text = 'Hide prompts and outputs';
+    var show_text = 'Show prompts and outputs';
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        if (jthis.find('.gp').length > 0) {
+            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+            jthis.prepend(button);
+        }
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+    // define the behavior of the button when it's clicked
+    $('.copybutton').click(function(e){
+        e.preventDefault();
+        var button = $(this);
+        if (button.data('hidden') === 'false') {
+            // hide the code output
+            button.parent().find('.go, .gp, .gt').hide();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
+            button.css('text-decoration', 'line-through');
+            button.attr('title', show_text);
+            button.data('hidden', 'true');
+        } else {
+            // show the code output
+            button.parent().find('.go, .gp, .gt').show();
+            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
+            button.css('text-decoration', 'none');
+            button.attr('title', hide_text);
+            button.data('hidden', 'false');
+        }
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+  /*** Hide navbar when scrolling down ***/
+  // Returns true when headerlink target matches hash in url
+  (function() {
+    hashTargetOnTop = function() {
+        var hash = window.location.hash;
+        if ( hash.length < 2 ) { return false; }
+
+        var target = document.getElementById( hash.slice(1) );
+        if ( target === null ) { return false; }
+
+        var top = target.getBoundingClientRect().top;
+        return (top < 2) && (top > -2);
+    };
+
+    // Hide navbar on load if hash target is on top
+    var navBar = document.getElementById("navbar");
+    var navBarToggler = document.getElementById("sk-navbar-toggler");
+    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
+    var $window = $(window);
+
+    hideNavBar = function() {
+        navBar.style.top = navBarHeightHidden;
+    };
+
+    showNavBar = function() {
+        navBar.style.top = "0";
+    }
+
+    if (hashTargetOnTop()) {
+        hideNavBar()
+    }
+
+    var prevScrollpos = window.pageYOffset;
+    hideOnScroll = function(lastScrollTop) {
+        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
+            return;
+        }
+        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
+            hideNavBar()
+        } else {
+            showNavBar()
+        }
+        prevScrollpos = lastScrollTop;
+    };
+
+    /*** high performance scroll event listener***/
+    var raf = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.oRequestAnimationFrame;
+    var lastScrollTop = $window.scrollTop();
+
+    if (raf) {
+        loop();
+    }
+
+    function loop() {
+        var scrollTop = $window.scrollTop();
+        if (lastScrollTop === scrollTop) {
+            raf(loop);
+            return;
+        } else {
+            lastScrollTop = scrollTop;
+            hideOnScroll(lastScrollTop);
+            raf(loop);
+        }
+    }
+  })();
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

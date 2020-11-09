@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>4.1. Partial dependence plots &mdash; scikit-learn 0.22 documentation</title>
+  <title>4.1. Partial dependence plots &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/modules/partial_dependence.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
 <script src="../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
@@ -136,7 +142,7 @@
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -147,7 +153,11 @@
         </div>
           <div class="sk-sidebar-toc">
             <ul>
-<li><a class="reference internal" href="#">4.1. Partial dependence plots</a></li>
+<li><a class="reference internal" href="#">4.1. Partial dependence plots</a><ul>
+<li><a class="reference internal" href="#mathematical-definition">4.1.1. Mathematical Definition</a></li>
+<li><a class="reference internal" href="#computation-methods">4.1.2. Computation methods</a></li>
+</ul>
+</li>
 </ul>
 
           </div>
@@ -157,7 +167,7 @@
       <div class="sk-page-content container-fluid body px-md-3" role="main">
         
   <div class="section" id="partial-dependence-plots">
-<span id="partial-dependence"></span><h1>4.1. Partial dependence plots<a class="headerlink" href="#partial-dependence-plots" title="Permalink to this headline">¶</a></h1>
+<span id="partial-dependence"></span><h1><span class="section-number">4.1. </span>Partial dependence plots<a class="headerlink" href="#partial-dependence-plots" title="Permalink to this headline">¶</a></h1>
 <p>Partial dependence plots (PDP) show the dependence between the target
 response <a class="footnote-reference brackets" href="#id2" id="id1">1</a> and a set of ‘target’ features, marginalizing over the values
 of all other features (the ‘complement’ features). Intuitively, we can
@@ -169,7 +179,7 @@ chosen among the most important features.</p>
 <p>The figure below shows four one-way and one two-way partial dependence plots
 for the California housing dataset, with a <a class="reference internal" href="generated/sklearn.ensemble.GradientBoostingRegressor.html#sklearn.ensemble.GradientBoostingRegressor" title="sklearn.ensemble.GradientBoostingRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">GradientBoostingRegressor</span></code></a>:</p>
 <div class="figure align-center">
-<a class="reference external image-reference" href="../auto_examples/inspection/plot_partial_dependence.html"><img alt="modules/../auto_examples/inspection/images/sphx_glr_plot_partial_dependence_002.png" src="modules/../auto_examples/inspection/images/sphx_glr_plot_partial_dependence_002.png" /></a>
+<a class="reference external image-reference" href="../auto_examples/inspection/plot_partial_dependence.html"><img alt="../_images/sphx_glr_plot_partial_dependence_0021.png" src="../_images/sphx_glr_plot_partial_dependence_0021.png" style="width: 448.0px; height: 336.0px;" /></a>
 </div>
 <p>One-way PDPs tell us about the interaction between the target response and
 the target feature (e.g. linear, non-linear). The upper left plot in the
@@ -232,21 +242,60 @@ generated. The <code class="docutils literal notranslate"><span class="pre">valu
 <a class="reference internal" href="generated/sklearn.inspection.partial_dependence.html#sklearn.inspection.partial_dependence" title="sklearn.inspection.partial_dependence"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.inspection.partial_dependence</span></code></a> gives the actual values
 used in the grid for each target feature. They also correspond to the axis
 of the plots.</p>
-<p>For each value of the ‘target’ features in the <code class="docutils literal notranslate"><span class="pre">grid</span></code> the partial
-dependence function needs to marginalize the predictions of the estimator
-over all possible values of the ‘complement’ features. With the <code class="docutils literal notranslate"><span class="pre">'brute'</span></code>
-method, this is done by replacing every target feature value of <code class="docutils literal notranslate"><span class="pre">X</span></code> by those
-in the grid, and computing the average prediction.</p>
-<p>In decision trees this can be evaluated efficiently without reference to the
-training data (<code class="docutils literal notranslate"><span class="pre">'recursion'</span></code> method). For each grid point a weighted tree
-traversal is performed: if a split node involves a ‘target’ feature, the
-corresponding left or right branch is followed, otherwise both branches are
-followed, each branch is weighted by the fraction of training samples that
-entered that branch. Finally, the partial dependence is given by a weighted
-average of all visited leaves. Note that with the <code class="docutils literal notranslate"><span class="pre">'recursion'</span></code> method,
-<code class="docutils literal notranslate"><span class="pre">X</span></code> is only used to generate the grid, not to compute the averaged
-predictions. The averaged predictions will always be computed on the data with
-which the trees were trained.</p>
+<div class="section" id="mathematical-definition">
+<h2><span class="section-number">4.1.1. </span>Mathematical Definition<a class="headerlink" href="#mathematical-definition" title="Permalink to this headline">¶</a></h2>
+<p>Let <span class="math notranslate nohighlight">\(X_S\)</span> be the set of target features (i.e. the <code class="docutils literal notranslate"><span class="pre">features</span></code> parameter)
+and let <span class="math notranslate nohighlight">\(X_C\)</span> be its complement.</p>
+<p>The partial dependence of the response <span class="math notranslate nohighlight">\(f\)</span> at a point <span class="math notranslate nohighlight">\(x_S\)</span> is
+defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}pd_{X_S}(x_S) &amp;\overset{def}{=} \mathbb{E}_{X_C}\left[ f(x_S, X_C) \right]\\
+              &amp;= \int f(x_S, x_C) p(x_C) dx_C,\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(f(x_S, x_C)\)</span> is the response function (<a class="reference internal" href="../glossary.html#term-predict"><span class="xref std std-term">predict</span></a>,
+<a class="reference internal" href="../glossary.html#term-predict_proba"><span class="xref std std-term">predict_proba</span></a> or <a class="reference internal" href="../glossary.html#term-decision_function"><span class="xref std std-term">decision_function</span></a>) for a given sample whose
+values are defined by <span class="math notranslate nohighlight">\(x_S\)</span> for the features in <span class="math notranslate nohighlight">\(X_S\)</span>, and by
+<span class="math notranslate nohighlight">\(x_C\)</span> for the features in <span class="math notranslate nohighlight">\(X_C\)</span>. Note that <span class="math notranslate nohighlight">\(x_S\)</span> and
+<span class="math notranslate nohighlight">\(x_C\)</span> may be tuples.</p>
+<p>Computing this integral for various values of <span class="math notranslate nohighlight">\(x_S\)</span> produces a plot as
+above.</p>
+</div>
+<div class="section" id="computation-methods">
+<h2><span class="section-number">4.1.2. </span>Computation methods<a class="headerlink" href="#computation-methods" title="Permalink to this headline">¶</a></h2>
+<p>There are two main methods to approximate the integral above, namely the
+‘brute’ and ‘recursion’ methods. The <code class="docutils literal notranslate"><span class="pre">method</span></code> parameter controls which method
+to use.</p>
+<p>The ‘brute’ method is a generic method that works with any estimator. It
+approximates the above integral by computing an average over the data <code class="docutils literal notranslate"><span class="pre">X</span></code>:</p>
+<div class="math notranslate nohighlight">
+\[pd_{X_S}(x_S) \approx \frac{1}{n_\text{samples}} \sum_{i=1}^n f(x_S, x_C^{(i)}),\]</div>
+<p>where <span class="math notranslate nohighlight">\(x_C^{(i)}\)</span> is the value of the i-th sample for the features in
+<span class="math notranslate nohighlight">\(X_C\)</span>. For each value of <span class="math notranslate nohighlight">\(x_S\)</span>, this method requires a full pass
+over the dataset <code class="docutils literal notranslate"><span class="pre">X</span></code> which is computationally intensive.</p>
+<p>The ‘recursion’ method is faster than the ‘brute’ method, but it is only
+supported by some tree-based estimators. It is computed as follows. For a
+given point <span class="math notranslate nohighlight">\(x_S\)</span>, a weighted tree traversal is performed: if a split
+node involves a ‘target’ feature, the corresponding left or right branch is
+followed; otherwise both branches are followed, each branch being weighted
+by the fraction of training samples that entered that branch. Finally, the
+partial dependence is given by a weighted average of all the visited leaves
+values.</p>
+<p>With the ‘brute’ method, the parameter <code class="docutils literal notranslate"><span class="pre">X</span></code> is used both for generating the
+grid of values <span class="math notranslate nohighlight">\(x_S\)</span> and the complement feature values <span class="math notranslate nohighlight">\(x_C\)</span>.
+However with the ‘recursion’ method, <code class="docutils literal notranslate"><span class="pre">X</span></code> is only used for the grid values:
+implicitly, the <span class="math notranslate nohighlight">\(x_C\)</span> values are those of the training data.</p>
+<p>By default, the ‘recursion’ method is used on tree-based estimators that
+support it, and ‘brute’ is used for the rest.</p>
+<div class="admonition note" id="pdp-method-differences">
+<p class="admonition-title">Note</p>
+<p>While both methods should be close in general, they might differ in some
+specific settings. The ‘brute’ method assumes the existence of the
+data points <span class="math notranslate nohighlight">\((x_S, x_C^{(i)})\)</span>. When the features are correlated,
+such artificial samples may have a very low probability mass. The ‘brute’
+and ‘recursion’ methods will likely disagree regarding the value of the
+partial dependence, because they will treat these unlikely
+samples differently. Remember, however, that the primary assumption for
+interpreting PDPs is that the features should be independent.</p>
+</div>
 <p class="rubric">Footnotes</p>
 <dl class="footnote brackets">
 <dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
@@ -269,12 +318,13 @@ Second Edition, Section 10.13.2, Springer, 2009.</p>
 <p>C. Molnar, <a class="reference external" href="https://christophm.github.io/interpretable-ml-book/">Interpretable Machine Learning</a>, Section 5.1, 2019.</p>
 </div>
 </div>
+</div>
 
 
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../_sources/modules/partial_dependence.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -395,7 +445,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

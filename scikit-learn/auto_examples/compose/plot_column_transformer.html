@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>Column Transformer with Heterogeneous Data Sources &mdash; scikit-learn 0.22 documentation</title>
+  <title>Column Transformer with Heterogeneous Data Sources &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/compose/plot_column_transformer.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
@@ -131,12 +137,12 @@
           </a>
         </div>
         <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
-            <a href="plot_compare_reduction.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Selecting dimensionality reduction with Pipeline and GridSearchCV">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
+            <a href="plot_column_transformer_mixed_types.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Column Transformer with Mixed Types">Prev</a><a href="../index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples">Up</a>
             <a href="plot_transformed_target.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Effect of transforming the targets in regression model">Next</a>
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -147,7 +153,12 @@
         </div>
           <div class="sk-sidebar-toc">
             <ul>
-<li><a class="reference internal" href="#">Column Transformer with Heterogeneous Data Sources</a></li>
+<li><a class="reference internal" href="#">Column Transformer with Heterogeneous Data Sources</a><ul>
+<li><a class="reference internal" href="#newsgroups-dataset">20 newsgroups dataset</a></li>
+<li><a class="reference internal" href="#creating-transformers">Creating transformers</a></li>
+<li><a class="reference internal" href="#classification-pipeline">Classification pipeline</a></li>
+</ul>
+</li>
 </ul>
 
           </div>
@@ -158,34 +169,29 @@
         
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-compose-plot-column-transformer-py"><span class="std std-ref">here</span></a> to download the full example code or to run this example in your browser via Binder</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-compose-plot-column-transformer-py"><span class="std std-ref">here</span></a>     to download the full example code or to run this example in your browser via Binder</p>
 </div>
 <div class="sphx-glr-example-title section" id="column-transformer-with-heterogeneous-data-sources">
 <span id="sphx-glr-auto-examples-compose-plot-column-transformer-py"></span><h1>Column Transformer with Heterogeneous Data Sources<a class="headerlink" href="#column-transformer-with-heterogeneous-data-sources" title="Permalink to this headline">¶</a></h1>
-<p>Datasets can often contain components of that require different feature
-extraction and processing pipelines.  This scenario might occur when:</p>
+<p>Datasets can often contain components that require different feature
+extraction and processing pipelines. This scenario might occur when:</p>
 <ol class="arabic simple">
-<li><p>Your dataset consists of heterogeneous data types (e.g. raster images and
-text captions)</p></li>
-<li><p>Your dataset is stored in a Pandas DataFrame and different columns
+<li><p>your dataset consists of heterogeneous data types (e.g. raster images and
+text captions),</p></li>
+<li><p>your dataset is stored in a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> and different columns
 require different processing pipelines.</p></li>
 </ol>
 <p>This example demonstrates how to use
-<a class="reference internal" href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a> on a dataset containing
-different types of features.  We use the 20-newsgroups dataset and compute
-standard bag-of-words features for the subject line and body in separate
-pipelines as well as ad hoc features on the body. We combine them (with
-weights) using a ColumnTransformer and finally train a classifier on the
-combined set of features.</p>
-<p>The choice of features is not particularly helpful, but serves to illustrate
-the technique.</p>
+<a class="reference internal" href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnTransformer</span></code></a> on a dataset containing
+different types of features. The choice of features is not particularly
+helpful, but serves to illustrate the technique.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Author: Matt Terry &lt;matt.terry@gmail.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># License: BSD 3 clause</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">FunctionTransformer</span>
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">TruncatedSVD</span>
 <span class="kn">from</span> <span class="nn">sklearn.feature_extraction</span> <span class="kn">import</span> <span class="n">DictVectorizer</span>
@@ -194,85 +200,16 @@ the technique.</p>
 <span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">ColumnTransformer</span>
 <span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
-
-
-<span class="k">class</span> <span class="nc">TextStats</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extract features from each document for DictVectorizer&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posts</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[{</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
-                 <span class="s1">&#39;num_sentences&#39;</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)}</span>
-                <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">posts</span><span class="p">]</span>
-
-
-<span class="k">class</span> <span class="nc">SubjectBodyExtractor</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extract the subject &amp; body from a usenet post in a single pass.</span>
-
-<span class="sd">    Takes a sequence of strings and produces a dict of sequences.  Keys are</span>
-<span class="sd">    `subject` and `body`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posts</span><span class="p">):</span>
-        <span class="c1"># construct object dtype array with two columns</span>
-        <span class="c1"># first column = &#39;subject&#39; and second column = &#39;body&#39;</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">posts</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">posts</span><span class="p">):</span>
-            <span class="n">headers</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">bod</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">bod</span>
-
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;Subject:&#39;</span>
-            <span class="n">sub</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
-                    <span class="n">sub</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
-                    <span class="k">break</span>
-            <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub</span>
-
-        <span class="k">return</span> <span class="n">features</span>
-
-
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
-    <span class="c1"># Extract the subject &amp; body</span>
-    <span class="p">(</span><span class="s1">&#39;subjectbody&#39;</span><span class="p">,</span> <span class="n">SubjectBodyExtractor</span><span class="p">()),</span>
-
-    <span class="c1"># Use ColumnTransformer to combine the features from subject and body</span>
-    <span class="p">(</span><span class="s1">&#39;union&#39;</span><span class="p">,</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="c1"># Pulling features from the post&#39;s subject line (first column)</span>
-            <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="n">TfidfVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
-
-            <span class="c1"># Pipeline for standard bag-of-words model for body (second column)</span>
-            <span class="p">(</span><span class="s1">&#39;body_bow&#39;</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">([</span>
-                <span class="p">(</span><span class="s1">&#39;tfidf&#39;</span><span class="p">,</span> <span class="n">TfidfVectorizer</span><span class="p">()),</span>
-                <span class="p">(</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">TruncatedSVD</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">50</span><span class="p">)),</span>
-            <span class="p">]),</span> <span class="mi">1</span><span class="p">),</span>
-
-            <span class="c1"># Pipeline for pulling ad hoc features from post&#39;s body</span>
-            <span class="p">(</span><span class="s1">&#39;body_stats&#39;</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">([</span>
-                <span class="p">(</span><span class="s1">&#39;stats&#39;</span><span class="p">,</span> <span class="n">TextStats</span><span class="p">()),</span>  <span class="c1"># returns a list of dicts</span>
-                <span class="p">(</span><span class="s1">&#39;vect&#39;</span><span class="p">,</span> <span class="n">DictVectorizer</span><span class="p">()),</span>  <span class="c1"># list of dicts -&gt; feature matrix</span>
-            <span class="p">]),</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="p">],</span>
-
-        <span class="c1"># weight components in ColumnTransformer</span>
-        <span class="n">transformer_weights</span><span class="o">=</span><span class="p">{</span>
-            <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
-            <span class="s1">&#39;body_bow&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-            <span class="s1">&#39;body_stats&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)),</span>
-
-    <span class="c1"># Use a SVC classifier on the combined features</span>
-    <span class="p">(</span><span class="s1">&#39;svc&#39;</span><span class="p">,</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">dual</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># limit the list of categories to make running this example faster.</span>
-<span class="n">categories</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;alt.atheism&#39;</span><span class="p">,</span> <span class="s1">&#39;talk.religion.misc&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="newsgroups-dataset">
+<h2>20 newsgroups dataset<a class="headerlink" href="#newsgroups-dataset" title="Permalink to this headline">¶</a></h2>
+<p>We will use the <a class="reference internal" href="../../datasets/index.html#newsgroups-dataset"><span class="std std-ref">20 newsgroups dataset</span></a>, which
+comprises posts from newsgroups on 20 topics. This dataset is split
+into train and test subsets based on messages posted before and after
+a specific date. We will only use posts from 2 categories to speed up running
+time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">categories</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sci.med&#39;</span><span class="p">,</span> <span class="s1">&#39;sci.space&#39;</span><span class="p">]</span>
 <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                                       <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span>
                                       <span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">,</span>
@@ -283,32 +220,167 @@ the technique.</p>
                                     <span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">,</span>
                                     <span class="n">remove</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;footers&#39;</span><span class="p">,</span> <span class="s1">&#39;quotes&#39;</span><span class="p">),</span>
                                     <span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<p>Each feature comprises meta information about that post, such as the subject,
+and the body of the news post.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>From: mccall@mksol.dseg.ti.com (fred j mccall 575-3539)
+Subject: Re: Metric vs English
+Article-I.D.: mksol.1993Apr6.131900.8407
+Organization: Texas Instruments Inc
+Lines: 31
+
+
+
+
+American, perhaps, but nothing military about it.  I learned (mostly)
+slugs when we talked English units in high school physics and while
+the teacher was an ex-Navy fighter jock the book certainly wasn&#39;t
+produced by the military.
+
+[Poundals were just too flinking small and made the math come out
+funny; sort of the same reason proponents of SI give for using that.]
+
+--
+&quot;Insisting on perfect safety is for people who don&#39;t have the balls to live
+ in the real world.&quot;   -- Mary Shafer, NASA Ames Dryden
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-transformers">
+<h2>Creating transformers<a class="headerlink" href="#creating-transformers" title="Permalink to this headline">¶</a></h2>
+<p>First, we would like a transformer that extracts the subject and
+body of each post. Since this is a stateless transformation (does not
+require state information from training data), we can define a function that
+performs the data transformation then use
+<a class="reference internal" href="../../modules/generated/sklearn.preprocessing.FunctionTransformer.html#sklearn.preprocessing.FunctionTransformer" title="sklearn.preprocessing.FunctionTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionTransformer</span></code></a> to create a scikit-learn
+transformer.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">subject_body_extractor</span><span class="p">(</span><span class="n">posts</span><span class="p">):</span>
+    <span class="c1"># construct object dtype array with two columns</span>
+    <span class="c1"># first column = &#39;subject&#39; and second column = &#39;body&#39;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">posts</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">posts</span><span class="p">):</span>
+        <span class="c1"># temporary variable `_` stores &#39;\n\n&#39;</span>
+        <span class="n">headers</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># store body text in second column</span>
+        <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">body</span>
+
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;Subject:&#39;</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># save text after &#39;Subject:&#39; in first column</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+                <span class="n">sub</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
+                <span class="k">break</span>
+        <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub</span>
+
+    <span class="k">return</span> <span class="n">features</span>
+
+
+<span class="n">subject_body_transformer</span> <span class="o">=</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">subject_body_extractor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We will also create a transformer that extracts the
+length of the text and the number of sentences.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">text_stats</span><span class="p">(</span><span class="n">posts</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[{</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+             <span class="s1">&#39;num_sentences&#39;</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)}</span>
+            <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">posts</span><span class="p">]</span>
+
+
+<span class="n">text_stats_transformer</span> <span class="o">=</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">text_stats</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="classification-pipeline">
+<h2>Classification pipeline<a class="headerlink" href="#classification-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>The pipeline below extracts the subject and body from each post using
+<code class="docutils literal notranslate"><span class="pre">SubjectBodyExtractor</span></code>, producing a (n_samples, 2) array. This array is
+then used to compute standard bag-of-words features for the subject and body
+as well as text length and number of sentences on the body, using
+<code class="docutils literal notranslate"><span class="pre">ColumnTransformer</span></code>. We combine them, with weights, then train a
+classifier on the combined set of features.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="c1"># Extract subject &amp; body</span>
+    <span class="p">(</span><span class="s1">&#39;subjectbody&#39;</span><span class="p">,</span> <span class="n">subject_body_transformer</span><span class="p">),</span>
+    <span class="c1"># Use ColumnTransformer to combine the subject and body features</span>
+    <span class="p">(</span><span class="s1">&#39;union&#39;</span><span class="p">,</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="c1"># bag-of-words for subject (col 0)</span>
+            <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="n">TfidfVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="c1"># bag-of-words with decomposition for body (col 1)</span>
+            <span class="p">(</span><span class="s1">&#39;body_bow&#39;</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">([</span>
+                <span class="p">(</span><span class="s1">&#39;tfidf&#39;</span><span class="p">,</span> <span class="n">TfidfVectorizer</span><span class="p">()),</span>
+                <span class="p">(</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">TruncatedSVD</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">50</span><span class="p">)),</span>
+            <span class="p">]),</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="c1"># Pipeline for pulling text stats from post&#39;s body</span>
+            <span class="p">(</span><span class="s1">&#39;body_stats&#39;</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">([</span>
+                <span class="p">(</span><span class="s1">&#39;stats&#39;</span><span class="p">,</span> <span class="n">text_stats_transformer</span><span class="p">),</span>  <span class="c1"># returns a list of dicts</span>
+                <span class="p">(</span><span class="s1">&#39;vect&#39;</span><span class="p">,</span> <span class="n">DictVectorizer</span><span class="p">()),</span>  <span class="c1"># list of dicts -&gt; feature matrix</span>
+            <span class="p">]),</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="c1"># weight above ColumnTransformer features</span>
+        <span class="n">transformer_weights</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s1">&#39;body_bow&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s1">&#39;body_stats&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)),</span>
+    <span class="c1"># Use a SVC classifier on the combined features</span>
+    <span class="p">(</span><span class="s1">&#39;svc&#39;</span><span class="p">,</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">dual</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+<span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we fit our pipeline on the training data and use it to predict
+topics for <code class="docutils literal notranslate"><span class="pre">X_test</span></code>. Performance metrics of our pipeline are then printed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Classification report:</span><span class="se">\n\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[Pipeline] ....... (step 1 of 3) Processing subjectbody, total=   0.0s
+[Pipeline] ............. (step 2 of 3) Processing union, total=   0.3s
+[Pipeline] ............... (step 3 of 3) Processing svc, total=   0.0s
+Classification report:
+
+              precision    recall  f1-score   support
+
+           0       0.84      0.88      0.86       396
+           1       0.87      0.83      0.85       394
+
+    accuracy                           0.85       790
+   macro avg       0.86      0.85      0.85       790
+weighted avg       0.86      0.85      0.85       790
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  1.986 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-compose-plot-column-transformer-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.22.X?urlpath=lab/tree/notebooks/auto_examples/compose/plot_column_transformer.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" width="150px" /></a>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/0.23.X?urlpath=lab/tree/notebooks/auto_examples/compose/plot_column_transformer.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo5.svg" width="150px" /></a>
 </div>
-<div class="sphx-glr-download docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/b0fe3be5cfb8256403c21e22b1c18017/plot_column_transformer.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_column_transformer.py</span></code></a></p>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/3e8abcbcde21489054beb05cb87da525/plot_column_transformer.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_column_transformer.py</span></code></a></p>
 </div>
-<div class="sphx-glr-download docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/66c00a3a47dc6f6c9edd9bfef6c9656d/plot_column_transformer.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_column_transformer.ipynb</span></code></a></p>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/15dc6d7a809edf988a7328336a25faec/plot_column_transformer.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_column_transformer.ipynb</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
 </div>
 
 
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../../_sources/auto_examples/compose/plot_column_transformer.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -429,7 +501,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||

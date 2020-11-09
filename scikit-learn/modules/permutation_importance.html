@@ -10,7 +10,7 @@
   <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>4.2. Permutation feature importance &mdash; scikit-learn 0.22 documentation</title>
+  <title>4.2. Permutation feature importance &mdash; scikit-learn 0.23.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/modules/permutation_importance.html" />
 
@@ -20,6 +20,8 @@
 
   <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
 <script src="../_static/jquery.js"></script> 
@@ -67,6 +69,9 @@
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html">Tutorial</a>
         </li>
         <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../whats_new/v0.23.html">What's new</a>
+        </li>
+        <li class="nav-item">
           <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html">Glossary</a>
         </li>
         <li class="nav-item">
@@ -95,6 +100,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html">Getting Started</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html">Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../whats_new/v0.23.html">What's new</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html">Glossary</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../developers/index.html">Development</a>
               <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html">FAQ</a>
@@ -136,7 +142,7 @@
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.22</strong><br/>
+          <strong>scikit-learn 0.23.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -148,8 +154,9 @@
           <div class="sk-sidebar-toc">
             <ul>
 <li><a class="reference internal" href="#">4.2. Permutation feature importance</a><ul>
-<li><a class="reference internal" href="#relation-to-impurity-based-importance-in-trees">4.2.1. Relation to impurity-based importance in trees</a></li>
-<li><a class="reference internal" href="#strongly-correlated-features">4.2.2. Strongly correlated features</a></li>
+<li><a class="reference internal" href="#outline-of-the-permutation-importance-algorithm">4.2.1. Outline of the permutation importance algorithm</a></li>
+<li><a class="reference internal" href="#relation-to-impurity-based-importance-in-trees">4.2.2. Relation to impurity-based importance in trees</a></li>
+<li><a class="reference internal" href="#misleading-values-on-strongly-correlated-features">4.2.3. Misleading values on strongly correlated features</a></li>
 </ul>
 </li>
 </ul>
@@ -161,9 +168,9 @@
       <div class="sk-page-content container-fluid body px-md-3" role="main">
         
   <div class="section" id="permutation-feature-importance">
-<span id="permutation-importance"></span><h1>4.2. Permutation feature importance<a class="headerlink" href="#permutation-feature-importance" title="Permalink to this headline">¶</a></h1>
+<span id="permutation-importance"></span><h1><span class="section-number">4.2. </span>Permutation feature importance<a class="headerlink" href="#permutation-feature-importance" title="Permalink to this headline">¶</a></h1>
 <p>Permutation feature importance is a model inspection technique that can be used
-for any <a class="reference internal" href="../glossary.html#term-fitted"><span class="xref std std-term">fitted</span></a> <a class="reference internal" href="../glossary.html#term-estimator"><span class="xref std std-term">estimator</span></a> when the data is rectangular. This is
+for any <a class="reference internal" href="../glossary.html#term-fitted"><span class="xref std std-term">fitted</span></a> <a class="reference internal" href="../glossary.html#term-estimator"><span class="xref std std-term">estimator</span></a> when the data is tabular. This is
 especially useful for non-linear or opaque <a class="reference internal" href="../glossary.html#term-estimators"><span class="xref std std-term">estimators</span></a>. The permutation
 feature importance is defined to be the decrease in a model score when a single
 feature value is randomly shuffled <a class="footnote-reference brackets" href="#id2" id="id1">1</a>. This procedure breaks the relationship
@@ -174,39 +181,114 @@ different permutations of the feature.</p>
 <p>The <a class="reference internal" href="generated/sklearn.inspection.permutation_importance.html#sklearn.inspection.permutation_importance" title="sklearn.inspection.permutation_importance"><code class="xref py py-func docutils literal notranslate"><span class="pre">permutation_importance</span></code></a> function calculates the feature importance
 of <a class="reference internal" href="../glossary.html#term-estimators"><span class="xref std std-term">estimators</span></a> for a given dataset. The <code class="docutils literal notranslate"><span class="pre">n_repeats</span></code> parameter sets the
 number of times a feature is randomly shuffled and returns a sample of feature
-importances. Permutation importances can either be computed on the training set
-or an held-out testing or validation set. Using a held-out set makes it
-possible to highlight which features contribute the most to the generalization
-power of the inspected model. Features that are important on the training set
-but not on the held-out set might cause the model to overfit.</p>
-<p>Note that features that are deemed non-important for some model with a
-low predictive performance could be highly predictive for a model that
-generalizes better. The conclusions should always be drawn in the context of
-the specific model under inspection and cannot be automatically generalized to
-the intrinsic predictive value of the features by them-selves. Therefore it is
-always important to evaluate the predictive power of a model using a held-out
-set (or better with cross-validation) prior to computing importances.</p>
+importances.</p>
+<p>Let’s consider the following trained regression model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_diabetes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">diabetes</span> <span class="o">=</span> <span class="n">load_diabetes</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">diabetes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">diabetes</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">)</span>
+<span class="go">0.356...</span>
+</pre></div>
+</div>
+<p>Its validation performance, measured via the <span class="math notranslate nohighlight">\(R^2\)</span> score, is
+significantly larger than the chance level. This makes it possible to use the
+<a class="reference internal" href="generated/sklearn.inspection.permutation_importance.html#sklearn.inspection.permutation_importance" title="sklearn.inspection.permutation_importance"><code class="xref py py-func docutils literal notranslate"><span class="pre">permutation_importance</span></code></a> function to probe which features are most
+predictive:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.inspection</span> <span class="kn">import</span> <span class="n">permutation_importance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">permutation_importance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span>
+<span class="gp">... </span>                           <span class="n">n_repeats</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="gp">... </span>                           <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">importances_mean</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">importances_mean</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span><span class="o">.</span><span class="n">importances_std</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diabetes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;8</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">importances_mean</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>              <span class="sa">f</span><span class="s2">&quot; +/- </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">importances_std</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">s5      0.204 +/- 0.050</span>
+<span class="go">bmi     0.176 +/- 0.048</span>
+<span class="go">bp      0.088 +/- 0.033</span>
+<span class="go">sex     0.056 +/- 0.023</span>
+</pre></div>
+</div>
+<p>Note that the importance values for the top features represent a large
+fraction of the reference score of 0.356.</p>
+<p>Permutation importances can be computed either on the training set or on a
+held-out testing or validation set. Using a held-out set makes it possible to
+highlight which features contribute the most to the generalization power of the
+inspected model. Features that are important on the training set but not on the
+held-out set might cause the model to overfit.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Features that are deemed of <strong>low importance for a bad model</strong> (low
+cross-validation score) could be <strong>very important for a good model</strong>.
+Therefore it is always important to evaluate the predictive power of a model
+using a held-out set (or better with cross-validation) prior to computing
+importances. Permutation importance does not reflect to the intrinsic
+predictive value of a feature by itself but <strong>how important this feature is
+for a particular model</strong>.</p>
+</div>
+<div class="section" id="outline-of-the-permutation-importance-algorithm">
+<h2><span class="section-number">4.2.1. </span>Outline of the permutation importance algorithm<a class="headerlink" href="#outline-of-the-permutation-importance-algorithm" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Inputs: fitted predictive model <span class="math notranslate nohighlight">\(m\)</span>, tabular dataset (training or
+validation) <span class="math notranslate nohighlight">\(D\)</span>.</p></li>
+<li><p>Compute the reference score <span class="math notranslate nohighlight">\(s\)</span> of the model <span class="math notranslate nohighlight">\(m\)</span> on data
+<span class="math notranslate nohighlight">\(D\)</span> (for instance the accuracy for a classifier or the <span class="math notranslate nohighlight">\(R^2\)</span> for
+a regressor).</p></li>
+<li><p>For each feature <span class="math notranslate nohighlight">\(j\)</span> (column of <span class="math notranslate nohighlight">\(D\)</span>):</p>
+<ul>
+<li><p>For each repetition <span class="math notranslate nohighlight">\(k\)</span> in <span class="math notranslate nohighlight">\({1, ..., K}\)</span>:</p>
+<ul class="simple">
+<li><p>Randomly shuffle column <span class="math notranslate nohighlight">\(j\)</span> of dataset <span class="math notranslate nohighlight">\(D\)</span> to generate a
+corrupted version of the data named <span class="math notranslate nohighlight">\(\tilde{D}_{k,j}\)</span>.</p></li>
+<li><p>Compute the score <span class="math notranslate nohighlight">\(s_{k,j}\)</span> of model <span class="math notranslate nohighlight">\(m\)</span> on corrupted data
+<span class="math notranslate nohighlight">\(\tilde{D}_{k,j}\)</span>.</p></li>
+</ul>
+</li>
+<li><p>Compute importance <span class="math notranslate nohighlight">\(i_j\)</span> for feature <span class="math notranslate nohighlight">\(f_j\)</span> defined as:</p>
+<div class="math notranslate nohighlight">
+\[i_j = s - \frac{1}{K} \sum_{k=1}^{K} s_{k,j}\]</div>
+</li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="section" id="relation-to-impurity-based-importance-in-trees">
-<h2>4.2.1. Relation to impurity-based importance in trees<a class="headerlink" href="#relation-to-impurity-based-importance-in-trees" title="Permalink to this headline">¶</a></h2>
-<p>Tree based models provides a different measure of feature importances based
-on the mean decrease in impurity (MDI, the splitting criterion). This gives
-importance to features that may not be predictive on unseen data. The
-permutation feature importance avoids this issue, since it can be applied to
-unseen data. Furthermore, impurity-based feature importance for trees
-are strongly biased and favor high cardinality features
-(typically numerical features). Permutation-based feature importances do not
-exhibit such a bias. Additionally, the permutation feature importance may use
-an arbitrary metric on the tree’s predictions. These two methods of obtaining
-feature importance are explored in:
+<h2><span class="section-number">4.2.2. </span>Relation to impurity-based importance in trees<a class="headerlink" href="#relation-to-impurity-based-importance-in-trees" title="Permalink to this headline">¶</a></h2>
+<p>Tree-based models provide an alternative measure of <a class="reference internal" href="ensemble.html#random-forest-feature-importance"><span class="std std-ref">feature importances
+based on the mean decrease in impurity</span></a>
+(MDI). Impurity is quantified by the splitting criterion of the decision trees
+(Gini, Entropy or Mean Squared Error). However, this method can give high
+importance to features that may not be predictive on unseen data when the model
+is overfitting. Permutation-based feature importance, on the other hand, avoids
+this issue, since it can be computed on unseen data.</p>
+<p>Furthermore, impurity-based feature importance for trees are <strong>strongly
+biased</strong> and <strong>favor high cardinality features</strong> (typically numerical features)
+over low cardinality features such as binary features or categorical variables
+with a small number of possible categories.</p>
+<p>Permutation-based feature importances do not exhibit such a bias. Additionally,
+the permutation feature importance may be computed performance metric on the
+model predictions predictions and can be used to analyze any model class (not
+just tree-based models).</p>
+<p>The following example highlights the limitations of impurity-based feature
+importance in contrast to permutation-based feature importance:
 <a class="reference internal" href="../auto_examples/inspection/plot_permutation_importance.html#sphx-glr-auto-examples-inspection-plot-permutation-importance-py"><span class="std std-ref">Permutation Importance vs Random Forest Feature Importance (MDI)</span></a>.</p>
 </div>
-<div class="section" id="strongly-correlated-features">
-<h2>4.2.2. Strongly correlated features<a class="headerlink" href="#strongly-correlated-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="misleading-values-on-strongly-correlated-features">
+<h2><span class="section-number">4.2.3. </span>Misleading values on strongly correlated features<a class="headerlink" href="#misleading-values-on-strongly-correlated-features" title="Permalink to this headline">¶</a></h2>
 <p>When two features are correlated and one of the features is permuted, the model
 will still have access to the feature through its correlated feature. This will
-result in a lower importance for both features, where they might <em>actually</em> be
-important. One way  to handle this is to cluster features that are correlated
-and only keep one feature from each cluster. This use case is explored in:
+result in a lower importance value for both features, where they might
+<em>actually</em> be important.</p>
+<p>One way to handle this is to cluster features that are correlated and only
+keep one feature from each cluster. This strategy is explored in the following
+example:
 <a class="reference internal" href="../auto_examples/inspection/plot_permutation_importance_multicollinear.html#sphx-glr-auto-examples-inspection-plot-permutation-importance-multicollinear-py"><span class="std std-ref">Permutation Importance with Multicollinear or Correlated Features</span></a>.</p>
 <div class="topic">
 <p class="topic-title">Examples:</p>
@@ -231,7 +313,7 @@ and only keep one feature from each cluster. This use case is explored in:
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2019, scikit-learn developers (BSD License).
+            &copy; 2007 - 2020, scikit-learn developers (BSD License).
           <a href="../_sources/modules/permutation_importance.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -352,7 +434,7 @@ $(document).ready(function() {
         prevScrollpos = lastScrollTop;
     };
 
-    /*** high preformance scroll event listener***/
+    /*** high performance scroll event listener***/
     var raf = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
