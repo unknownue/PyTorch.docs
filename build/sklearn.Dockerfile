@@ -20,14 +20,14 @@ RUN apt update && apt upgrade -y && \
     apt install -y --no-install-recommends git wget build-essential ca-certificates && \
     apt clean
 
-# Install Python3 and corresponding pip
+# Install Python 3 and corresponding pip
 RUN apt install -y --no-install-recommends python3 python3-distutils && \
     wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && \
     apt clean && \
     ln -sf python3 /usr/bin/python && ln -sf pip3 /usr/bin/pip && \
     pip3 install --upgrade pip && \
     pip install --no-cache-dir sphinx sphinx-gallery numpydoc matplotlib Pillow pandas \
-            scikit-image packaging seaborn pytest && \
+            scikit-image packaging seaborn && \
     pip install --no-cache-dir scikit-learn==$SKLEARN_VERSION
 
 # install latex
