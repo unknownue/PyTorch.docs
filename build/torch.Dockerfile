@@ -8,8 +8,8 @@ LABEL license="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG VERSION_PYTORCH=1.8.0
-ARG VERSION_VISION=0.9.0
+ARG VERSION_PYTORCH=1.9.0
+ARG VERSION_VISION=0.10.0
 
 WORKDIR /root/
 # ADD sources.list /etc/apt/sources.list
@@ -28,7 +28,7 @@ RUN apt install -y --no-install-recommends python3.8 python3-distutils && \
     # python3.8 get-pip.py && \
     apt clean && \
     ln -sf python3.8 /usr/bin/python && ln -sf pip3 /usr/bin/pip
-RUN pip3 install pqi && pqi use aliyun
+# RUN pip3 install pqi && pqi use aliyun
 
 WORKDIR /root/dev/
 
