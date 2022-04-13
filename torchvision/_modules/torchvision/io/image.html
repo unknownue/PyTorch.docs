@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchvision.io.image &mdash; Torchvision 0.10.0+cu102 documentation</title>
+  <title>torchvision.io.image &mdash; Torchvision main documentation</title>
   
 
   
@@ -28,11 +28,11 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom_torchvision.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -123,8 +123,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -196,7 +200,7 @@
           <div class="pytorch-left-menu-search">
             
     <div class="version">
-      <a href='https://pytorch.org/vision/versions.html'>0.10.0 &#x25BC</a>
+      <a href='https://pytorch.org/vision/versions.html'>main (0.12.0a0+9b5a3fe ) &#x25BC</a>
     </div>
     
 
@@ -222,16 +226,18 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">torchvision.datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../io.html">torchvision.io</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../models.html">torchvision.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">torchvision.ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">torchvision.transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torchvision.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">Transforming and augmenting images</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models and pre-trained weights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io.html">Reading/Writing images and videos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../feature_extraction.html">Feature extraction for model inspection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples and training references</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Example gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training_references.html">Training references</a></li>
 </ul>
 <p class="caption"><span class="caption-text">PyTorch Libraries</span></p>
 <ul>
@@ -317,57 +323,22 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <h1>Source code for torchvision.io.image</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">import</span> <span class="nn">importlib.machinery</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">..extension</span> <span class="kn">import</span> <span class="n">_load_library</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_log_api_usage_once</span>
 
-<span class="n">_HAS_IMAGE_OPT</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">lib_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
-
-    <span class="n">loader_details</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">ExtensionFileLoader</span><span class="p">,</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">EXTENSION_SUFFIXES</span>
-    <span class="p">)</span>
-
-    <span class="n">extfinder</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">FileFinder</span><span class="p">(</span><span class="n">lib_dir</span><span class="p">,</span> <span class="n">loader_details</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
-    <span class="n">ext_specs</span> <span class="o">=</span> <span class="n">extfinder</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-        <span class="c1"># Load the image extension using LoadLibraryExW</span>
-        <span class="kn">import</span> <span class="nn">ctypes</span>
-
-        <span class="n">kernel32</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="s1">&#39;kernel32.dll&#39;</span><span class="p">,</span> <span class="n">use_last_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">with_load_library_flags</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">kernel32</span><span class="p">,</span> <span class="s1">&#39;AddDllDirectory&#39;</span><span class="p">)</span>
-        <span class="n">prev_error_mode</span> <span class="o">=</span> <span class="n">kernel32</span><span class="o">.</span><span class="n">SetErrorMode</span><span class="p">(</span><span class="mh">0x0001</span><span class="p">)</span>
-
-        <span class="n">kernel32</span><span class="o">.</span><span class="n">LoadLibraryW</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span>
-        <span class="k">if</span> <span class="n">with_load_library_flags</span><span class="p">:</span>
-            <span class="n">kernel32</span><span class="o">.</span><span class="n">LoadLibraryExW</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span>
-
-        <span class="k">if</span> <span class="n">ext_specs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">kernel32</span><span class="o">.</span><span class="n">LoadLibraryExW</span><span class="p">(</span><span class="n">ext_specs</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mh">0x00001100</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">err</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinError</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">get_last_error</span><span class="p">())</span>
-                <span class="n">err</span><span class="o">.</span><span class="n">strerror</span> <span class="o">+=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39; Error loading &quot;</span><span class="si">{</span><span class="n">ext_specs</span><span class="o">.</span><span class="n">origin</span><span class="si">}</span><span class="s1">&quot; or any or &#39;</span>
-                                 <span class="s1">&#39;its dependencies.&#39;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">err</span>
-
-        <span class="n">kernel32</span><span class="o">.</span><span class="n">SetErrorMode</span><span class="p">(</span><span class="n">prev_error_mode</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">ext_specs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">load_library</span><span class="p">(</span><span class="n">ext_specs</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
-        <span class="n">_HAS_IMAGE_OPT</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="n">_load_library</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load image Python extension: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ImageReadMode"><a class="viewcode-back" href="../../../io.html#torchvision.io.ImageReadMode">[docs]</a><span class="k">class</span> <span class="nc">ImageReadMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ImageReadMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Support for various modes while reading images.</span>
 
@@ -377,14 +348,15 @@
 <span class="sd">    ``ImageReadMode.RGB`` for RGB and ``ImageReadMode.RGB_ALPHA`` for</span>
 <span class="sd">    RGB with transparency.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">UNCHANGED</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">GRAY</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">GRAY_ALPHA</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">RGB</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">RGB_ALPHA</span> <span class="o">=</span> <span class="mi">4</span></div>
+    <span class="n">RGB_ALPHA</span> <span class="o">=</span> <span class="mi">4</span>
 
 
-<div class="viewcode-block" id="read_file"><a class="viewcode-back" href="../../../io.html#torchvision.io.read_file">[docs]</a><span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads and outputs the bytes contents of a file as a uint8 Tensor</span>
 <span class="sd">    with one dimension.</span>
@@ -395,11 +367,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        data (Tensor)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">read_file</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data</span></div>
+    <span class="k">return</span> <span class="n">data</span>
 
 
-<div class="viewcode-block" id="write_file"><a class="viewcode-back" href="../../../io.html#torchvision.io.write_file">[docs]</a><span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="write_file"><a class="viewcode-back" href="../../../generated/torchvision.io.write_file.html#torchvision.io.write_file">[docs]</a><span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Writes the contents of a uint8 tensor with one dimension to a</span>
 <span class="sd">    file.</span>
@@ -408,14 +382,16 @@
 <span class="sd">        filename (str): the path to the file to be written</span>
 <span class="sd">        data (Tensor): the contents to be written to the output file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">write_file</span><span class="p">)</span>
     <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="decode_png"><a class="viewcode-back" href="../../../io.html#torchvision.io.decode_png">[docs]</a><span class="k">def</span> <span class="nf">decode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">decode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decodes a PNG image into a 3 dimensional RGB Tensor.</span>
+<span class="sd">    Decodes a PNG image into a 3 dimensional RGB or grayscale Tensor.</span>
 <span class="sd">    Optionally converts the image to the desired format.</span>
-<span class="sd">    The values of the output tensor are uint8 between 0 and 255.</span>
+<span class="sd">    The values of the output tensor are uint8 in [0, 255].</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (Tensor[1]): a one dimensional uint8 tensor containing</span>
@@ -428,11 +404,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        output (Tensor[image_channels, image_height, image_width])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">decode_png</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span>
 
 
-<div class="viewcode-block" id="encode_png"><a class="viewcode-back" href="../../../io.html#torchvision.io.encode_png">[docs]</a><span class="k">def</span> <span class="nf">encode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">compression_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">encode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">compression_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes an input tensor in CHW layout and returns a buffer with the contents</span>
 <span class="sd">    of its corresponding PNG file.</span>
@@ -447,11 +425,13 @@
 <span class="sd">        Tensor[1]: A one dimensional int8 tensor that contains the raw bytes of the</span>
 <span class="sd">            PNG file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">encode_png</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">encode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">compression_level</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">return</span> <span class="n">output</span>
 
 
-<div class="viewcode-block" id="write_png"><a class="viewcode-back" href="../../../io.html#torchvision.io.write_png">[docs]</a><span class="k">def</span> <span class="nf">write_png</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">compression_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">):</span>
+<div class="viewcode-block" id="write_png"><a class="viewcode-back" href="../../../generated/torchvision.io.write_png.html#torchvision.io.write_png">[docs]</a><span class="k">def</span> <span class="nf">write_png</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">compression_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes an input tensor in CHW layout (or HW in the case of grayscale images)</span>
 <span class="sd">    and saves it in a PNG file.</span>
@@ -463,14 +443,17 @@
 <span class="sd">        compression_level (int): Compression factor for the resulting file, it must be a number</span>
 <span class="sd">            between 0 and 9. Default: 6</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">write_png</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">encode_png</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">compression_level</span><span class="p">)</span>
     <span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="decode_jpeg"><a class="viewcode-back" href="../../../io.html#torchvision.io.decode_jpeg">[docs]</a><span class="k">def</span> <span class="nf">decode_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">,</span>
-                <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">decode_jpeg</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decodes a JPEG image into a 3 dimensional RGB Tensor.</span>
+<span class="sd">    Decodes a JPEG image into a 3 dimensional RGB or grayscale Tensor.</span>
 <span class="sd">    Optionally converts the image to the desired format.</span>
 <span class="sd">    The values of the output tensor are uint8 between 0 and 255.</span>
 
@@ -490,15 +473,17 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        output (Tensor[image_channels, image_height, image_width])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">decode_jpeg</span><span class="p">)</span>
     <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;cuda&quot;</span><span class="p">:</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_jpeg_cuda</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">return</span> <span class="n">output</span>
 
 
-<div class="viewcode-block" id="encode_jpeg"><a class="viewcode-back" href="../../../io.html#torchvision.io.encode_jpeg">[docs]</a><span class="k">def</span> <span class="nf">encode_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">quality</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">75</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">encode_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">quality</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">75</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes an input tensor in CHW layout and returns a buffer with the contents</span>
 <span class="sd">    of its corresponding JPEG file.</span>
@@ -513,15 +498,16 @@
 <span class="sd">        output (Tensor[1]): A one dimensional int8 tensor that contains the raw bytes of the</span>
 <span class="sd">            JPEG file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">encode_jpeg</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">quality</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">quality</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Image quality should be a positive number &#39;</span>
-                         <span class="s1">&#39;between 1 and 100&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Image quality should be a positive number between 1 and 100&quot;</span><span class="p">)</span>
 
     <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">encode_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">quality</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">return</span> <span class="n">output</span>
 
 
-<div class="viewcode-block" id="write_jpeg"><a class="viewcode-back" href="../../../io.html#torchvision.io.write_jpeg">[docs]</a><span class="k">def</span> <span class="nf">write_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">quality</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">75</span><span class="p">):</span>
+<div class="viewcode-block" id="write_jpeg"><a class="viewcode-back" href="../../../generated/torchvision.io.write_jpeg.html#torchvision.io.write_jpeg">[docs]</a><span class="k">def</span> <span class="nf">write_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">quality</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">75</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes an input tensor in CHW layout and saves it in a JPEG file.</span>
 
@@ -532,17 +518,19 @@
 <span class="sd">        quality (int): Quality of the resulting JPEG file, it must be a number</span>
 <span class="sd">            between 1 and 100. Default: 75</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">write_jpeg</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">encode_jpeg</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">quality</span><span class="p">)</span>
     <span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="decode_image"><a class="viewcode-back" href="../../../io.html#torchvision.io.decode_image">[docs]</a><span class="k">def</span> <span class="nf">decode_image</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">decode_image</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Detects whether an image is a JPEG or PNG and performs the appropriate</span>
-<span class="sd">    operation to decode the image into a 3 dimensional RGB Tensor.</span>
+<span class="sd">    operation to decode the image into a 3 dimensional RGB or grayscale Tensor.</span>
 
 <span class="sd">    Optionally converts the image to the desired format.</span>
-<span class="sd">    The values of the output tensor are uint8 between 0 and 255.</span>
+<span class="sd">    The values of the output tensor are uint8 in [0, 255].</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (Tensor): a one dimensional uint8 tensor containing the raw bytes of the</span>
@@ -555,15 +543,17 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        output (Tensor[image_channels, image_height, image_width])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">decode_image</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_image</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">return</span> <span class="n">output</span>
 
 
-<div class="viewcode-block" id="read_image"><a class="viewcode-back" href="../../../io.html#torchvision.io.read_image">[docs]</a><span class="k">def</span> <span class="nf">read_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">read_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Reads a JPEG or PNG image into a 3 dimensional RGB Tensor.</span>
+<span class="sd">    Reads a JPEG or PNG image into a 3 dimensional RGB or grayscale Tensor.</span>
 <span class="sd">    Optionally converts the image to the desired format.</span>
-<span class="sd">    The values of the output tensor are uint8 between 0 and 255.</span>
+<span class="sd">    The values of the output tensor are uint8 in [0, 255].</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        path (str): path of the JPEG or PNG image.</span>
@@ -575,8 +565,15 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        output (Tensor[image_channels, image_height, image_width])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">read_image</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_read_png_16</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">ImageReadMode</span> <span class="o">=</span> <span class="n">ImageReadMode</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_png</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
              </article>
@@ -628,10 +625,8 @@
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>
-         <script src="../../../_static/language_data.js"></script>
          <script src="../../../_static/clipboard.min.js"></script>
          <script src="../../../_static/copybutton.js"></script>
-         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
      
 
   
@@ -705,37 +700,6 @@
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">

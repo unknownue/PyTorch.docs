@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchvision.ops.ps_roi_pool &mdash; Torchvision 0.10.0+cu102 documentation</title>
+  <title>torchvision.ops.ps_roi_pool &mdash; Torchvision main documentation</title>
   
 
   
@@ -28,11 +28,11 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom_torchvision.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -123,8 +123,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -196,7 +200,7 @@
           <div class="pytorch-left-menu-search">
             
     <div class="version">
-      <a href='https://pytorch.org/vision/versions.html'>0.10.0 &#x25BC</a>
+      <a href='https://pytorch.org/vision/versions.html'>main (0.12.0a0+9b5a3fe ) &#x25BC</a>
     </div>
     
 
@@ -222,16 +226,18 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">torchvision.datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../io.html">torchvision.io</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../models.html">torchvision.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">torchvision.ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">torchvision.transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torchvision.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">Transforming and augmenting images</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models and pre-trained weights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io.html">Reading/Writing images and videos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../feature_extraction.html">Feature extraction for model inspection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples and training references</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Example gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training_references.html">Training references</a></li>
 </ul>
 <p class="caption"><span class="caption-text">PyTorch Libraries</span></p>
 <ul>
@@ -317,14 +323,14 @@
   <h1>Source code for torchvision.ops.ps_roi_pool</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
-
 <span class="kn">from</span> <span class="nn">torch.nn.modules.utils</span> <span class="kn">import</span> <span class="n">_pair</span>
-
 <span class="kn">from</span> <span class="nn">torchvision.extension</span> <span class="kn">import</span> <span class="n">_assert_has_ops</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_log_api_usage_once</span>
 <span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">convert_boxes_to_roi_format</span><span class="p">,</span> <span class="n">check_roi_boxes_shape</span>
 
 
-<div class="viewcode-block" id="ps_roi_pool"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.ps_roi_pool">[docs]</a><span class="k">def</span> <span class="nf">ps_roi_pool</span><span class="p">(</span>
+<div class="viewcode-block" id="ps_roi_pool"><a class="viewcode-back" href="../../../generated/torchvision.ops.ps_roi_pool.html#torchvision.ops.ps_roi_pool">[docs]</a><span class="k">def</span> <span class="nf">ps_roi_pool</span><span class="p">(</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="n">output_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -346,30 +352,34 @@
 <span class="sd">            in the batch.</span>
 <span class="sd">        output_size (int or Tuple[int, int]): the size of the output (in bins or pixels) after the pooling</span>
 <span class="sd">            is performed, as (height, width).</span>
-<span class="sd">        spatial_scale (float): a scaling factor that maps the input coordinates to</span>
-<span class="sd">            the box coordinates. Default: 1.0</span>
+<span class="sd">        spatial_scale (float): a scaling factor that maps the box coordinates to</span>
+<span class="sd">            the input coordinates. For example, if your boxes are defined on the scale</span>
+<span class="sd">            of a 224x224 image and your input is a 112x112 feature map (resulting from a 0.5x scaling of</span>
+<span class="sd">            the original image), you&#39;ll want to set this to 0.5. Default: 1.0</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor[K, C / (output_size[0] * output_size[1]), output_size[0], output_size[1]]: The pooled RoIs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">ps_roi_pool</span><span class="p">)</span>
     <span class="n">_assert_has_ops</span><span class="p">()</span>
     <span class="n">check_roi_boxes_shape</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
     <span class="n">rois</span> <span class="o">=</span> <span class="n">boxes</span>
     <span class="n">output_size</span> <span class="o">=</span> <span class="n">_pair</span><span class="p">(</span><span class="n">output_size</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rois</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
         <span class="n">rois</span> <span class="o">=</span> <span class="n">convert_boxes_to_roi_format</span><span class="p">(</span><span class="n">rois</span><span class="p">)</span>
-    <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">torchvision</span><span class="o">.</span><span class="n">ps_roi_pool</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">rois</span><span class="p">,</span> <span class="n">spatial_scale</span><span class="p">,</span>
-                                                  <span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                                  <span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">torchvision</span><span class="o">.</span><span class="n">ps_roi_pool</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">rois</span><span class="p">,</span> <span class="n">spatial_scale</span><span class="p">,</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">output</span></div>
 
 
-<div class="viewcode-block" id="PSRoIPool"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.PSRoIPool">[docs]</a><span class="k">class</span> <span class="nc">PSRoIPool</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">PSRoIPool</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    See :func:`ps_roi_pool`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">spatial_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PSRoIPool</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="n">output_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spatial_scale</span> <span class="o">=</span> <span class="n">spatial_scale</span>
 
@@ -377,11 +387,8 @@
         <span class="k">return</span> <span class="n">ps_roi_pool</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">rois</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_scale</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">tmpstr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span>
-        <span class="n">tmpstr</span> <span class="o">+=</span> <span class="s1">&#39;output_size=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">)</span>
-        <span class="n">tmpstr</span> <span class="o">+=</span> <span class="s1">&#39;, spatial_scale=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_scale</span><span class="p">)</span>
-        <span class="n">tmpstr</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
-        <span class="k">return</span> <span class="n">tmpstr</span></div>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(output_size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="si">}</span><span class="s2">, spatial_scale=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_scale</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
              </article>
@@ -433,10 +440,8 @@
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>
-         <script src="../../../_static/language_data.js"></script>
          <script src="../../../_static/clipboard.min.js"></script>
          <script src="../../../_static/copybutton.js"></script>
-         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
      
 
   
@@ -510,37 +515,6 @@
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">

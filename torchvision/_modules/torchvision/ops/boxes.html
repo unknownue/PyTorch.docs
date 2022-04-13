@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchvision.ops.boxes &mdash; Torchvision 0.10.0+cu102 documentation</title>
+  <title>torchvision.ops.boxes &mdash; Torchvision main documentation</title>
   
 
   
@@ -28,11 +28,11 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom_torchvision.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -123,8 +123,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -196,7 +200,7 @@
           <div class="pytorch-left-menu-search">
             
     <div class="version">
-      <a href='https://pytorch.org/vision/versions.html'>0.10.0 &#x25BC</a>
+      <a href='https://pytorch.org/vision/versions.html'>main (0.12.0a0+9b5a3fe ) &#x25BC</a>
     </div>
     
 
@@ -222,16 +226,18 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">torchvision.datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../io.html">torchvision.io</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../models.html">torchvision.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">torchvision.ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">torchvision.transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torchvision.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">Transforming and augmenting images</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models and pre-trained weights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io.html">Reading/Writing images and videos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../feature_extraction.html">Feature extraction for model inspection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples and training references</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Example gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training_references.html">Training references</a></li>
 </ul>
 <p class="caption"><span class="caption-text">PyTorch Libraries</span></p>
 <ul>
@@ -315,15 +321,18 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <h1>Source code for torchvision.ops.boxes</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">._box_convert</span> <span class="kn">import</span> <span class="n">_box_cxcywh_to_xyxy</span><span class="p">,</span> <span class="n">_box_xyxy_to_cxcywh</span><span class="p">,</span> <span class="n">_box_xywh_to_xyxy</span><span class="p">,</span> <span class="n">_box_xyxy_to_xywh</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torchvision</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torchvision.extension</span> <span class="kn">import</span> <span class="n">_assert_has_ops</span>
 
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_log_api_usage_once</span>
+<span class="kn">from</span> <span class="nn">._box_convert</span> <span class="kn">import</span> <span class="n">_box_cxcywh_to_xyxy</span><span class="p">,</span> <span class="n">_box_xyxy_to_cxcywh</span><span class="p">,</span> <span class="n">_box_xywh_to_xyxy</span><span class="p">,</span> <span class="n">_box_xyxy_to_xywh</span>
 
-<div class="viewcode-block" id="nms"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.nms">[docs]</a><span class="k">def</span> <span class="nf">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+
+<span class="k">def</span> <span class="nf">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs non-maximum suppression (NMS) on the boxes according</span>
 <span class="sd">    to their intersection-over-union (IoU).</span>
@@ -348,11 +357,13 @@
 <span class="sd">        Tensor: int64 tensor with the indices of the elements that have been kept</span>
 <span class="sd">        by NMS, sorted in decreasing order of scores</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">nms</span><span class="p">)</span>
     <span class="n">_assert_has_ops</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">torchvision</span><span class="o">.</span><span class="n">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">torchvision</span><span class="o">.</span><span class="n">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="batched_nms"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.batched_nms">[docs]</a><span class="k">def</span> <span class="nf">batched_nms</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">batched_nms</span><span class="p">(</span>
     <span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="n">scores</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="n">idxs</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
@@ -376,13 +387,14 @@
 <span class="sd">        Tensor: int64 tensor with the indices of the elements that have been kept by NMS, sorted</span>
 <span class="sd">        in decreasing order of scores</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">batched_nms</span><span class="p">)</span>
     <span class="c1"># Benchmarks that drove the following thresholds are at</span>
     <span class="c1"># https://github.com/pytorch/vision/issues/1311#issuecomment-781329339</span>
-    <span class="c1"># Ideally for GPU we&#39;d use a higher threshold</span>
-    <span class="k">if</span> <span class="n">boxes</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">4_000</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">_is_tracing</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">boxes</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">4000</span> <span class="k">if</span> <span class="n">boxes</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;cpu&quot;</span> <span class="k">else</span> <span class="mi">20000</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">_is_tracing</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">_batched_nms_vanilla</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_batched_nms_coordinate_trick</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_batched_nms_coordinate_trick</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">)</span>
 
 
 <span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">_script_if_tracing</span>
@@ -422,7 +434,7 @@
     <span class="k">return</span> <span class="n">keep_indices</span><span class="p">[</span><span class="n">scores</span><span class="p">[</span><span class="n">keep_indices</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">descending</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
 
 
-<div class="viewcode-block" id="remove_small_boxes"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.remove_small_boxes">[docs]</a><span class="k">def</span> <span class="nf">remove_small_boxes</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">min_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="remove_small_boxes"><a class="viewcode-back" href="../../../generated/torchvision.ops.remove_small_boxes.html#torchvision.ops.remove_small_boxes">[docs]</a><span class="k">def</span> <span class="nf">remove_small_boxes</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">min_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove boxes which contains at least one side smaller than min_size.</span>
 
@@ -435,13 +447,15 @@
 <span class="sd">        Tensor[K]: indices of the boxes that have both sides</span>
 <span class="sd">        larger than min_size</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">remove_small_boxes</span><span class="p">)</span>
     <span class="n">ws</span><span class="p">,</span> <span class="n">hs</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">keep</span> <span class="o">=</span> <span class="p">(</span><span class="n">ws</span> <span class="o">&gt;=</span> <span class="n">min_size</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">hs</span> <span class="o">&gt;=</span> <span class="n">min_size</span><span class="p">)</span>
     <span class="n">keep</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">keep</span></div>
 
 
-<div class="viewcode-block" id="clip_boxes_to_image"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.clip_boxes_to_image">[docs]</a><span class="k">def</span> <span class="nf">clip_boxes_to_image</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">clip_boxes_to_image</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clip boxes so that they lie inside an image of size `size`.</span>
 
@@ -453,6 +467,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor[N, 4]: clipped boxes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">clip_boxes_to_image</span><span class="p">)</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">boxes</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span>
     <span class="n">boxes_x</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">boxes_y</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
@@ -468,10 +484,10 @@
         <span class="n">boxes_y</span> <span class="o">=</span> <span class="n">boxes_y</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">height</span><span class="p">)</span>
 
     <span class="n">clipped_boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">boxes_x</span><span class="p">,</span> <span class="n">boxes_y</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">clipped_boxes</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">boxes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">clipped_boxes</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">boxes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="box_convert"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.box_convert">[docs]</a><span class="k">def</span> <span class="nf">box_convert</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">in_fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">box_convert</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">in_fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts boxes from given in_fmt to out_fmt.</span>
 <span class="sd">    Supported in_fmt and out_fmt are:</span>
@@ -492,7 +508,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor[N, 4]: Boxes into converted format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">box_convert</span><span class="p">)</span>
     <span class="n">allowed_fmts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;xyxy&quot;</span><span class="p">,</span> <span class="s2">&quot;xywh&quot;</span><span class="p">,</span> <span class="s2">&quot;cxcywh&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">in_fmt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_fmts</span> <span class="ow">or</span> <span class="n">out_fmt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_fmts</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported Bounding Box Conversions for given in_fmt and out_fmt&quot;</span><span class="p">)</span>
@@ -500,13 +517,13 @@
     <span class="k">if</span> <span class="n">in_fmt</span> <span class="o">==</span> <span class="n">out_fmt</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">boxes</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">in_fmt</span> <span class="o">!=</span> <span class="s1">&#39;xyxy&#39;</span> <span class="ow">and</span> <span class="n">out_fmt</span> <span class="o">!=</span> <span class="s1">&#39;xyxy&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">in_fmt</span> <span class="o">!=</span> <span class="s2">&quot;xyxy&quot;</span> <span class="ow">and</span> <span class="n">out_fmt</span> <span class="o">!=</span> <span class="s2">&quot;xyxy&quot;</span><span class="p">:</span>
         <span class="c1"># convert to xyxy and change in_fmt xyxy</span>
         <span class="k">if</span> <span class="n">in_fmt</span> <span class="o">==</span> <span class="s2">&quot;xywh&quot;</span><span class="p">:</span>
             <span class="n">boxes</span> <span class="o">=</span> <span class="n">_box_xywh_to_xyxy</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">in_fmt</span> <span class="o">==</span> <span class="s2">&quot;cxcywh&quot;</span><span class="p">:</span>
             <span class="n">boxes</span> <span class="o">=</span> <span class="n">_box_cxcywh_to_xyxy</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
-        <span class="n">in_fmt</span> <span class="o">=</span> <span class="s1">&#39;xyxy&#39;</span>
+        <span class="n">in_fmt</span> <span class="o">=</span> <span class="s2">&quot;xyxy&quot;</span>
 
     <span class="k">if</span> <span class="n">in_fmt</span> <span class="o">==</span> <span class="s2">&quot;xyxy&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">out_fmt</span> <span class="o">==</span> <span class="s2">&quot;xywh&quot;</span><span class="p">:</span>
@@ -518,7 +535,7 @@
             <span class="n">boxes</span> <span class="o">=</span> <span class="n">_box_xywh_to_xyxy</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">in_fmt</span> <span class="o">==</span> <span class="s2">&quot;cxcywh&quot;</span><span class="p">:</span>
             <span class="n">boxes</span> <span class="o">=</span> <span class="n">_box_cxcywh_to_xyxy</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">boxes</span></div>
+    <span class="k">return</span> <span class="n">boxes</span>
 
 
 <span class="k">def</span> <span class="nf">_upcast</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -529,7 +546,7 @@
         <span class="k">return</span> <span class="n">t</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="k">else</span> <span class="n">t</span><span class="o">.</span><span class="n">int</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="box_area"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.box_area">[docs]</a><span class="k">def</span> <span class="nf">box_area</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">box_area</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the area of a set of bounding boxes, which are specified by their</span>
 <span class="sd">    (x1, y1, x2, y2) coordinates.</span>
@@ -542,8 +559,10 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor[N]: the area for each box</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">box_area</span><span class="p">)</span>
     <span class="n">boxes</span> <span class="o">=</span> <span class="n">_upcast</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">boxes</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">boxes</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">boxes</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">boxes</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
 
 
 <span class="c1"># implementation from https://github.com/kuangliu/torchcv/blob/master/torchcv/utils/box.py</span>
@@ -563,7 +582,7 @@
     <span class="k">return</span> <span class="n">inter</span><span class="p">,</span> <span class="n">union</span>
 
 
-<div class="viewcode-block" id="box_iou"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.box_iou">[docs]</a><span class="k">def</span> <span class="nf">box_iou</span><span class="p">(</span><span class="n">boxes1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">boxes2</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">box_iou</span><span class="p">(</span><span class="n">boxes1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">boxes2</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return intersection-over-union (Jaccard index) between two sets of boxes.</span>
 
@@ -577,13 +596,15 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor[N, M]: the NxM matrix containing the pairwise IoU values for every element in boxes1 and boxes2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">box_iou</span><span class="p">)</span>
     <span class="n">inter</span><span class="p">,</span> <span class="n">union</span> <span class="o">=</span> <span class="n">_box_inter_union</span><span class="p">(</span><span class="n">boxes1</span><span class="p">,</span> <span class="n">boxes2</span><span class="p">)</span>
     <span class="n">iou</span> <span class="o">=</span> <span class="n">inter</span> <span class="o">/</span> <span class="n">union</span>
-    <span class="k">return</span> <span class="n">iou</span></div>
+    <span class="k">return</span> <span class="n">iou</span>
 
 
 <span class="c1"># Implementation adapted from https://github.com/facebookresearch/detr/blob/master/util/box_ops.py</span>
-<div class="viewcode-block" id="generalized_box_iou"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.generalized_box_iou">[docs]</a><span class="k">def</span> <span class="nf">generalized_box_iou</span><span class="p">(</span><span class="n">boxes1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">boxes2</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">generalized_box_iou</span><span class="p">(</span><span class="n">boxes1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">boxes2</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return generalized intersection-over-union (Jaccard index) between two sets of boxes.</span>
 
@@ -598,7 +619,8 @@
 <span class="sd">        Tensor[N, M]: the NxM matrix containing the pairwise generalized IoU values</span>
 <span class="sd">        for every element in boxes1 and boxes2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">generalized_box_iou</span><span class="p">)</span>
     <span class="c1"># degenerate boxes gives inf / nan results</span>
     <span class="c1"># so do an early check</span>
     <span class="k">assert</span> <span class="p">(</span><span class="n">boxes1</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">&gt;=</span> <span class="n">boxes1</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -613,7 +635,41 @@
     <span class="n">whi</span> <span class="o">=</span> <span class="n">_upcast</span><span class="p">(</span><span class="n">rbi</span> <span class="o">-</span> <span class="n">lti</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># [N,M,2]</span>
     <span class="n">areai</span> <span class="o">=</span> <span class="n">whi</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">whi</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">iou</span> <span class="o">-</span> <span class="p">(</span><span class="n">areai</span> <span class="o">-</span> <span class="n">union</span><span class="p">)</span> <span class="o">/</span> <span class="n">areai</span></div>
+    <span class="k">return</span> <span class="n">iou</span> <span class="o">-</span> <span class="p">(</span><span class="n">areai</span> <span class="o">-</span> <span class="n">union</span><span class="p">)</span> <span class="o">/</span> <span class="n">areai</span>
+
+
+<span class="k">def</span> <span class="nf">masks_to_boxes</span><span class="p">(</span><span class="n">masks</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the bounding boxes around the provided masks.</span>
+
+<span class="sd">    Returns a [N, 4] tensor containing bounding boxes. The boxes are in ``(x1, y1, x2, y2)`` format with</span>
+<span class="sd">    ``0 &lt;= x1 &lt; x2`` and ``0 &lt;= y1 &lt; y2``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        masks (Tensor[N, H, W]): masks to transform where N is the number of masks</span>
+<span class="sd">            and (H, W) are the spatial dimensions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tensor[N, 4]: bounding boxes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_scripting</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">is_tracing</span><span class="p">():</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="n">masks_to_boxes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">masks</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">masks</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">bounding_boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">masks</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">bounding_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">bounding_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">bounding_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">bounding_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bounding_boxes</span>
 </pre></div>
 
              </article>
@@ -665,10 +721,8 @@
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>
-         <script src="../../../_static/language_data.js"></script>
          <script src="../../../_static/clipboard.min.js"></script>
          <script src="../../../_static/copybutton.js"></script>
-         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
      
 
   
@@ -742,37 +796,6 @@
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">

@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchvision.ops.poolers &mdash; Torchvision 0.10.0+cu102 documentation</title>
+  <title>torchvision.ops.poolers &mdash; Torchvision main documentation</title>
   
 
   
@@ -28,11 +28,11 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom_torchvision.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -123,8 +123,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -196,7 +200,7 @@
           <div class="pytorch-left-menu-search">
             
     <div class="version">
-      <a href='https://pytorch.org/vision/versions.html'>0.10.0 &#x25BC</a>
+      <a href='https://pytorch.org/vision/versions.html'>main (0.12.0a0+9b5a3fe ) &#x25BC</a>
     </div>
     
 
@@ -222,16 +226,18 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">torchvision.datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../io.html">torchvision.io</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../models.html">torchvision.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">torchvision.ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">torchvision.transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">torchvision.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">Transforming and augmenting images</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models and pre-trained weights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ops.html">Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io.html">Reading/Writing images and videos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../feature_extraction.html">Feature extraction for model inspection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples and training references</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Example gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../training_references.html">Training references</a></li>
 </ul>
 <p class="caption"><span class="caption-text">PyTorch Libraries</span></p>
 <ul>
@@ -315,14 +321,17 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <h1>Source code for torchvision.ops.poolers</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.fx</span>
 <span class="kn">import</span> <span class="nn">torchvision</span>
-<span class="kn">from</span> <span class="nn">torchvision.ops</span> <span class="kn">import</span> <span class="n">roi_align</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torchvision.ops.boxes</span> <span class="kn">import</span> <span class="n">box_area</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_log_api_usage_once</span>
+<span class="kn">from</span> <span class="nn">.roi_align</span> <span class="kn">import</span> <span class="n">roi_align</span>
 
 
 <span class="c1"># copying result_idx_in_level to a specific index in result[]</span>
@@ -333,15 +342,17 @@
 <span class="k">def</span> <span class="nf">_onnx_merge_levels</span><span class="p">(</span><span class="n">levels</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">unmerged_results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="n">first_result</span> <span class="o">=</span> <span class="n">unmerged_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">dtype</span><span class="p">,</span> <span class="n">device</span> <span class="o">=</span> <span class="n">first_result</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">first_result</span><span class="o">.</span><span class="n">device</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">levels</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">first_result</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-                       <span class="n">first_result</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">first_result</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
-                      <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">levels</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">first_result</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">first_result</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">first_result</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+    <span class="p">)</span>
     <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmerged_results</span><span class="p">)):</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">levels</span> <span class="o">==</span> <span class="n">level</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-                             <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-                             <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
-                             <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">unmerged_results</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">res</span>
 
@@ -357,7 +368,7 @@
     <span class="k">return</span> <span class="n">LevelMapper</span><span class="p">(</span><span class="n">k_min</span><span class="p">,</span> <span class="n">k_max</span><span class="p">,</span> <span class="n">canonical_scale</span><span class="p">,</span> <span class="n">canonical_level</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">LevelMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">LevelMapper</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Determine which FPN level each RoI in a set of RoIs should map to based</span>
 <span class="sd">    on the heuristic in the FPN paper.</span>
 
@@ -397,7 +408,150 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">target_lvls</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_min</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MultiScaleRoIAlign"><a class="viewcode-back" href="../../../ops.html#torchvision.ops.MultiScaleRoIAlign">[docs]</a><span class="k">class</span> <span class="nc">MultiScaleRoIAlign</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_convert_to_roi_format</span><span class="p">(</span><span class="n">boxes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="n">concat_boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">device</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">concat_boxes</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">concat_boxes</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">b</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">strided</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boxes</span><span class="p">)],</span>
+        <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rois</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">ids</span><span class="p">,</span> <span class="n">concat_boxes</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rois</span>
+
+
+<span class="k">def</span> <span class="nf">_infer_scale</span><span class="p">(</span><span class="n">feature</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">original_size</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="c1"># assumption: the scale is of the form 2 ** (-k), with k integer</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="n">possible_scales</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">original_size</span><span class="p">):</span>
+        <span class="n">approx_scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">approx_scale</span><span class="p">)</span><span class="o">.</span><span class="n">log2</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">())</span>
+        <span class="n">possible_scales</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">possible_scales</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">possible_scales</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">possible_scales</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">wrap</span>
+<span class="k">def</span> <span class="nf">_setup_scales</span><span class="p">(</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">image_shapes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">canonical_scale</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">canonical_level</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">LevelMapper</span><span class="p">]:</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">image_shapes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="n">max_x</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_y</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">image_shapes</span><span class="p">:</span>
+        <span class="n">max_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_x</span><span class="p">)</span>
+        <span class="n">max_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">max_y</span><span class="p">)</span>
+    <span class="n">original_input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">)</span>
+
+    <span class="n">scales</span> <span class="o">=</span> <span class="p">[</span><span class="n">_infer_scale</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">original_input_shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">features</span><span class="p">]</span>
+    <span class="c1"># get the levels in the feature map by leveraging the fact that the network always</span>
+    <span class="c1"># downsamples by a factor of 2 at each level.</span>
+    <span class="n">lvl_min</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">scales</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">lvl_max</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">scales</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="n">map_levels</span> <span class="o">=</span> <span class="n">initLevelMapper</span><span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">lvl_min</span><span class="p">),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">lvl_max</span><span class="p">),</span>
+        <span class="n">canonical_scale</span><span class="o">=</span><span class="n">canonical_scale</span><span class="p">,</span>
+        <span class="n">canonical_level</span><span class="o">=</span><span class="n">canonical_level</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">scales</span><span class="p">,</span> <span class="n">map_levels</span>
+
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">wrap</span>
+<span class="k">def</span> <span class="nf">_filter_input</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">featmap_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
+    <span class="n">x_filtered</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">featmap_names</span><span class="p">:</span>
+            <span class="n">x_filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x_filtered</span>
+
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">wrap</span>
+<span class="k">def</span> <span class="nf">_multiscale_roi_align</span><span class="p">(</span>
+    <span class="n">x_filtered</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="n">boxes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="n">output_size</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">sampling_ratio</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">scales</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">mapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LevelMapper</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        x_filtered (List[Tensor]): List of input tensors.</span>
+<span class="sd">        boxes (List[Tensor[N, 4]]): boxes to be used to perform the pooling operation, in</span>
+<span class="sd">            (x1, y1, x2, y2) format and in the image reference size, not the feature map</span>
+<span class="sd">            reference. The coordinate must satisfy ``0 &lt;= x1 &lt; x2`` and ``0 &lt;= y1 &lt; y2``.</span>
+<span class="sd">        output_size (Union[List[Tuple[int, int]], List[int]]): size of the output</span>
+<span class="sd">        sampling_ratio (int): sampling ratio for ROIAlign</span>
+<span class="sd">        scales (Optional[List[float]]): If None, scales will be automatically infered. Default value is None.</span>
+<span class="sd">        mapper (Optional[LevelMapper]): If none, mapper will be automatically infered. Default value is None.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        result (Tensor)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">scales</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">mapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="n">num_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">)</span>
+    <span class="n">rois</span> <span class="o">=</span> <span class="n">_convert_to_roi_format</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">num_levels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">roi_align</span><span class="p">(</span>
+            <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">rois</span><span class="p">,</span>
+            <span class="n">output_size</span><span class="o">=</span><span class="n">output_size</span><span class="p">,</span>
+            <span class="n">spatial_scale</span><span class="o">=</span><span class="n">scales</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">sampling_ratio</span><span class="o">=</span><span class="n">sampling_ratio</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">mapper</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+
+    <span class="n">num_rois</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rois</span><span class="p">)</span>
+    <span class="n">num_channels</span> <span class="o">=</span> <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">dtype</span><span class="p">,</span> <span class="n">device</span> <span class="o">=</span> <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">device</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">num_rois</span><span class="p">,</span>
+            <span class="n">num_channels</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="n">output_size</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">tracing_results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="p">(</span><span class="n">per_level_feature</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">,</span> <span class="n">scales</span><span class="p">)):</span>
+        <span class="n">idx_in_level</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">levels</span> <span class="o">==</span> <span class="n">level</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">rois_per_level</span> <span class="o">=</span> <span class="n">rois</span><span class="p">[</span><span class="n">idx_in_level</span><span class="p">]</span>
+
+        <span class="n">result_idx_in_level</span> <span class="o">=</span> <span class="n">roi_align</span><span class="p">(</span>
+            <span class="n">per_level_feature</span><span class="p">,</span>
+            <span class="n">rois_per_level</span><span class="p">,</span>
+            <span class="n">output_size</span><span class="o">=</span><span class="n">output_size</span><span class="p">,</span>
+            <span class="n">spatial_scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+            <span class="n">sampling_ratio</span><span class="o">=</span><span class="n">sampling_ratio</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">_is_tracing</span><span class="p">():</span>
+            <span class="n">tracing_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_idx_in_level</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># result and result_idx_in_level&#39;s dtypes are based on dtypes of different</span>
+            <span class="c1"># elements in x_filtered.  x_filtered contains tensors output by different</span>
+            <span class="c1"># layers.  When autocast is active, it may choose different dtypes for</span>
+            <span class="c1"># different layers&#39; outputs.  Therefore, we defensively match result&#39;s dtype</span>
+            <span class="c1"># before copying elements from result_idx_in_level in the following op.</span>
+            <span class="c1"># We need to cast manually (can&#39;t rely on autocast to cast for us) because</span>
+            <span class="c1"># the op acts on result in-place, and autocast only affects out-of-place ops.</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">idx_in_level</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_idx_in_level</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">_is_tracing</span><span class="p">():</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_onnx_merge_levels</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="n">tracing_results</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="MultiScaleRoIAlign"><a class="viewcode-back" href="../../../generated/torchvision.ops.MultiScaleRoIAlign.html#torchvision.ops.MultiScaleRoIAlign">[docs]</a><span class="k">class</span> <span class="nc">MultiScaleRoIAlign</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Multi-scale RoIAlign pooling, which is useful for detection with or without FPN.</span>
 
@@ -433,10 +587,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="vm">__annotations__</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;scales&#39;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
-        <span class="s1">&#39;map_levels&#39;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LevelMapper</span><span class="p">]</span>
-    <span class="p">}</span>
+    <span class="vm">__annotations__</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;scales&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="s2">&quot;map_levels&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LevelMapper</span><span class="p">]}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -447,7 +598,8 @@
         <span class="n">canonical_scale</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">224</span><span class="p">,</span>
         <span class="n">canonical_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MultiScaleRoIAlign</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">_log_api_usage_once</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">output_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">output_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">featmap_names</span> <span class="o">=</span> <span class="n">featmap_names</span>
@@ -459,56 +611,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">canonical_level</span> <span class="o">=</span> <span class="n">canonical_level</span>
 
     <span class="k">def</span> <span class="nf">convert_to_roi_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boxes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">concat_boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">device</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">concat_boxes</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">concat_boxes</span><span class="o">.</span><span class="n">dtype</span>
-        <span class="n">ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">b</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">strided</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
-            <span class="p">],</span>
-            <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">rois</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">ids</span><span class="p">,</span> <span class="n">concat_boxes</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">rois</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The &#39;convert_to_roi_format&#39; method is deprecated since 0.12 and will be removed in 0.14.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_convert_to_roi_format</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">infer_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">original_size</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="c1"># assumption: the scale is of the form 2 ** (-k), with k integer</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
-        <span class="n">possible_scales</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">original_size</span><span class="p">):</span>
-            <span class="n">approx_scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>
-            <span class="n">scale</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">approx_scale</span><span class="p">)</span><span class="o">.</span><span class="n">log2</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">())</span>
-            <span class="n">possible_scales</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">possible_scales</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">possible_scales</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">possible_scales</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The &#39;infer_scale&#39; method is deprecated since 0.12 and will be removed in 0.14.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_infer_scale</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">original_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">setup_scales</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">setup_setup_scales</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">],</span>
         <span class="n">image_shapes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">image_shapes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
-        <span class="n">max_x</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">max_y</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">image_shapes</span><span class="p">:</span>
-            <span class="n">max_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_x</span><span class="p">)</span>
-            <span class="n">max_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">max_y</span><span class="p">)</span>
-        <span class="n">original_input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The &#39;setup_setup_scales&#39; method is deprecated since 0.12 and will be removed in 0.14.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_levels</span> <span class="o">=</span> <span class="n">_setup_scales</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">image_shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canonical_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canonical_level</span><span class="p">)</span>
 
-        <span class="n">scales</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">infer_scale</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">original_input_shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">features</span><span class="p">]</span>
-        <span class="c1"># get the levels in the feature map by leveraging the fact that the network always</span>
-        <span class="c1"># downsamples by a factor of 2 at each level.</span>
-        <span class="n">lvl_min</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">scales</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">lvl_max</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">scales</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scales</span> <span class="o">=</span> <span class="n">scales</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">map_levels</span> <span class="o">=</span> <span class="n">initLevelMapper</span><span class="p">(</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">lvl_min</span><span class="p">),</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">lvl_max</span><span class="p">),</span>
-            <span class="n">canonical_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">canonical_scale</span><span class="p">,</span>
-            <span class="n">canonical_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">canonical_level</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+<div class="viewcode-block" id="MultiScaleRoIAlign.forward"><a class="viewcode-back" href="../../../generated/torchvision.ops.MultiScaleRoIAlign.html#torchvision.ops.MultiScaleRoIAlign.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span>
         <span class="n">boxes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">],</span>
@@ -527,71 +645,26 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            result (Tensor)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">x_filtered</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">featmap_names</span><span class="p">:</span>
-                <span class="n">x_filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        <span class="n">num_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">)</span>
-        <span class="n">rois</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_roi_format</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">setup_scales</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">,</span> <span class="n">image_shapes</span><span class="p">)</span>
-
-        <span class="n">scales</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span>
-        <span class="k">assert</span> <span class="n">scales</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-        <span class="k">if</span> <span class="n">num_levels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">roi_align</span><span class="p">(</span>
-                <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rois</span><span class="p">,</span>
-                <span class="n">output_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span>
-                <span class="n">spatial_scale</span><span class="o">=</span><span class="n">scales</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">sampling_ratio</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_ratio</span>
+        <span class="n">x_filtered</span> <span class="o">=</span> <span class="n">_filter_input</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">featmap_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_levels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_levels</span> <span class="o">=</span> <span class="n">_setup_scales</span><span class="p">(</span>
+                <span class="n">x_filtered</span><span class="p">,</span> <span class="n">image_shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canonical_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canonical_level</span>
             <span class="p">)</span>
 
-        <span class="n">mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_levels</span>
-        <span class="k">assert</span> <span class="n">mapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-        <span class="n">levels</span> <span class="o">=</span> <span class="n">mapper</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
-
-        <span class="n">num_rois</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rois</span><span class="p">)</span>
-        <span class="n">num_channels</span> <span class="o">=</span> <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">dtype</span><span class="p">,</span> <span class="n">device</span> <span class="o">=</span> <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">x_filtered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">device</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">num_rois</span><span class="p">,</span> <span class="n">num_channels</span><span class="p">,)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
-            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">tracing_results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="p">(</span><span class="n">per_level_feature</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x_filtered</span><span class="p">,</span> <span class="n">scales</span><span class="p">)):</span>
-            <span class="n">idx_in_level</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">levels</span> <span class="o">==</span> <span class="n">level</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">rois_per_level</span> <span class="o">=</span> <span class="n">rois</span><span class="p">[</span><span class="n">idx_in_level</span><span class="p">]</span>
-
-            <span class="n">result_idx_in_level</span> <span class="o">=</span> <span class="n">roi_align</span><span class="p">(</span>
-                <span class="n">per_level_feature</span><span class="p">,</span> <span class="n">rois_per_level</span><span class="p">,</span>
-                <span class="n">output_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span>
-                <span class="n">spatial_scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">sampling_ratio</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_ratio</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">_is_tracing</span><span class="p">():</span>
-                <span class="n">tracing_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_idx_in_level</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># result and result_idx_in_level&#39;s dtypes are based on dtypes of different</span>
-                <span class="c1"># elements in x_filtered.  x_filtered contains tensors output by different</span>
-                <span class="c1"># layers.  When autocast is active, it may choose different dtypes for</span>
-                <span class="c1"># different layers&#39; outputs.  Therefore, we defensively match result&#39;s dtype</span>
-                <span class="c1"># before copying elements from result_idx_in_level in the following op.</span>
-                <span class="c1"># We need to cast manually (can&#39;t rely on autocast to cast for us) because</span>
-                <span class="c1"># the op acts on result in-place, and autocast only affects out-of-place ops.</span>
-                <span class="n">result</span><span class="p">[</span><span class="n">idx_in_level</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_idx_in_level</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">_is_tracing</span><span class="p">():</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">_onnx_merge_levels</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="n">tracing_results</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">_multiscale_roi_align</span><span class="p">(</span>
+            <span class="n">x_filtered</span><span class="p">,</span>
+            <span class="n">boxes</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sampling_ratio</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_levels</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(featmap_names=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">featmap_names</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;output_size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="si">}</span><span class="s2">, sampling_ratio=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_ratio</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(featmap_names=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">featmap_names</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;output_size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="si">}</span><span class="s2">, sampling_ratio=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling_ratio</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span></div>
 </pre></div>
 
              </article>
@@ -643,10 +716,8 @@
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>
-         <script src="../../../_static/language_data.js"></script>
          <script src="../../../_static/clipboard.min.js"></script>
          <script src="../../../_static/copybutton.js"></script>
-         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
      
 
   
@@ -720,37 +791,6 @@
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">
