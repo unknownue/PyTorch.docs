@@ -24,6 +24,7 @@ $ docker run --rm \
     -w /root/dev/vision/docs/ \
     unknownue/pytorch.docs \
     pip3 install -r requirements.txt --no-cache-dir && \
+    pip3 install --no-cache-dir av && \
     make html
 ```
 
