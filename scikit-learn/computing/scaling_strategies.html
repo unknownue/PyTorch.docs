@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="8.1. Strategies to scale computationally: bigger data" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://scikit-learn/stable/computing/scaling_strategies.html" />
+<meta property="og:site_name" content="scikit-learn" />
+<meta property="og:description" content="For some applications the amount of examples, features (or both) and/or the speed at which they need to be processed are challenging for traditional approaches. In these cases scikit-learn has a nu..." />
+<meta property="og:image" content="https://scikit-learn/stable/computing/auto_examples/applications/images/sphx_glr_plot_out_of_core_classification_001.png" />
+<meta property="og:image:alt" content="accuracy_over_time" />
+<meta name="description" content="For some applications the amount of examples, features (or both) and/or the speed at which they need to be processed are challenging for traditional approaches. In these cases scikit-learn has a nu..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <title>8.1. Strategies to scale computationally: bigger data &mdash; scikit-learn 1.3.2 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/computing/scaling_strategies.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/js/vendor/jquery-3.6.3.slim.min.js"></script> 
+</head>
+<body>
+
+
+
+
+
+
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" target="_blank" rel="noopener noreferrer" href="https://blog.scikit-learn.org/">Community</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html" >Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html" >Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../whats_new/v1.3.html" >What's new</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html" >Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html" >FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../support.html" >Support</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html" >Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html" >Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../governance.html" >Governance</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html" >About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html" >Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html" >Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../whats_new/v1.3.html" >What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html" >Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html" >FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../support.html" >Support</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html" >Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html" >Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../governance.html" >Governance</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html" >About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="../computing.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="8. Computing with scikit-learn">Prev</a><a href="../computing.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="8. Computing with scikit-learn">Up</a>
+            <a href="computational_performance.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="8.2. Computational Performance">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 1.3.2</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+            <div class="sk-sidebar-toc">
+            
+              <ul>
+              
+              
+              
+              
+              
+              
+              
+              
+              <li>
+                <a href="../user_guide.html" class="sk-toc-active">User Guide</a>
+              </li>
+              <ul>
+              
+                <li>
+                  <a href="../supervised_learning.html" class="">1. Supervised learning</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../unsupervised_learning.html" class="">2. Unsupervised learning</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../model_selection.html" class="">3. Model selection and evaluation</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../inspection.html" class="">4. Inspection</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../visualizations.html" class="">5. Visualizations</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../data_transforms.html" class="">6. Dataset transformations</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../datasets.html" class="">7. Dataset loading utilities</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../computing.html" class="sk-toc-active">8. Computing with scikit-learn</a>
+                  
+                  <ul>
+                    
+                      <li class="sk-toctree-l3">
+                        <a href="">8.1. Strategies to scale computationally: bigger data</a>
+                      </li>
+                    
+                      <li class="sk-toctree-l3">
+                        <a href="computational_performance.html">8.2. Computational Performance</a>
+                      </li>
+                    
+                      <li class="sk-toctree-l3">
+                        <a href="parallelism.html">8.3. Parallelism, resource management, and configuration</a>
+                      </li>
+                    
+                  </ul>
+                  
+                </li>
+              
+                <li>
+                  <a href="../model_persistence.html" class="">9. Model persistence</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../common_pitfalls.html" class="">10. Common pitfalls and recommended practices</a>
+                  
+                </li>
+              
+                <li>
+                  <a href="../dispatching.html" class="">11. Dispatching</a>
+                  
+                </li>
+              
+              </ul>
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              </ul>
+            </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <section id="strategies-to-scale-computationally-bigger-data">
+<span id="scaling-strategies"></span><h1><span class="section-number">8.1. </span>Strategies to scale computationally: bigger data<a class="headerlink" href="#strategies-to-scale-computationally-bigger-data" title="Link to this heading">¶</a></h1>
+<p>For some applications the amount of examples, features (or both) and/or the
+speed at which they need to be processed are challenging for traditional
+approaches. In these cases scikit-learn has a number of options you can
+consider to make your system scale.</p>
+<section id="scaling-with-instances-using-out-of-core-learning">
+<h2><span class="section-number">8.1.1. </span>Scaling with instances using out-of-core learning<a class="headerlink" href="#scaling-with-instances-using-out-of-core-learning" title="Link to this heading">¶</a></h2>
+<p>Out-of-core (or “external memory”) learning is a technique used to learn from
+data that cannot fit in a computer’s main memory (RAM).</p>
+<p>Here is a sketch of a system designed to achieve this goal:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>a way to stream instances</p></li>
+<li><p>a way to extract features from instances</p></li>
+<li><p>an incremental algorithm</p></li>
+</ol>
+</div></blockquote>
+<section id="streaming-instances">
+<h3><span class="section-number">8.1.1.1. </span>Streaming instances<a class="headerlink" href="#streaming-instances" title="Link to this heading">¶</a></h3>
+<p>Basically, 1. may be a reader that yields instances from files on a
+hard drive, a database, from a network stream etc. However,
+details on how to achieve this are beyond the scope of this documentation.</p>
+</section>
+<section id="extracting-features">
+<h3><span class="section-number">8.1.1.2. </span>Extracting features<a class="headerlink" href="#extracting-features" title="Link to this heading">¶</a></h3>
+<p>2. could be any relevant way to extract features among the
+different <a class="reference internal" href="../modules/feature_extraction.html#feature-extraction"><span class="std std-ref">feature extraction</span></a> methods supported by
+scikit-learn. However, when working with data that needs vectorization and
+where the set of features or values is not known in advance one should take
+explicit care. A good example is text classification where unknown terms are
+likely to be found during training. It is possible to use a stateful
+vectorizer if making multiple passes over the data is reasonable from an
+application point of view. Otherwise, one can turn up the difficulty by using
+a stateless feature extractor. Currently the preferred way to do this is to
+use the so-called <a class="reference internal" href="../modules/feature_extraction.html#feature-hashing"><span class="std std-ref">hashing trick</span></a> as implemented by
+<a class="reference internal" href="../modules/generated/sklearn.feature_extraction.FeatureHasher.html#sklearn.feature_extraction.FeatureHasher" title="sklearn.feature_extraction.FeatureHasher"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.feature_extraction.FeatureHasher</span></code></a> for datasets with categorical
+variables represented as list of Python dicts or
+<a class="reference internal" href="../modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html#sklearn.feature_extraction.text.HashingVectorizer" title="sklearn.feature_extraction.text.HashingVectorizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.feature_extraction.text.HashingVectorizer</span></code></a> for text documents.</p>
+</section>
+<section id="incremental-learning">
+<h3><span class="section-number">8.1.1.3. </span>Incremental learning<a class="headerlink" href="#incremental-learning" title="Link to this heading">¶</a></h3>
+<p>Finally, for 3. we have a number of options inside scikit-learn. Although not
+all algorithms can learn incrementally (i.e. without seeing all the instances
+at once), all estimators implementing the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API are candidates.
+Actually, the ability to learn incrementally from a mini-batch of instances
+(sometimes called “online learning”) is key to out-of-core learning as it
+guarantees that at any given time there will be only a small amount of
+instances in the main memory. Choosing a good size for the mini-batch that
+balances relevancy and memory footprint could involve some tuning <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Here is a list of incremental estimators for different tasks:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Classification</dt><dd><ul>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.naive_bayes.MultinomialNB.html#sklearn.naive_bayes.MultinomialNB" title="sklearn.naive_bayes.MultinomialNB"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.naive_bayes.MultinomialNB</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.naive_bayes.BernoulliNB.html#sklearn.naive_bayes.BernoulliNB" title="sklearn.naive_bayes.BernoulliNB"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.naive_bayes.BernoulliNB</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.linear_model.Perceptron.html#sklearn.linear_model.Perceptron" title="sklearn.linear_model.Perceptron"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.Perceptron</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier" title="sklearn.linear_model.SGDClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.linear_model.PassiveAggressiveClassifier.html#sklearn.linear_model.PassiveAggressiveClassifier" title="sklearn.linear_model.PassiveAggressiveClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.PassiveAggressiveClassifier</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="sklearn.neural_network.MLPClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.neural_network.MLPClassifier</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Regression</dt><dd><ul>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.linear_model.SGDRegressor.html#sklearn.linear_model.SGDRegressor" title="sklearn.linear_model.SGDRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDRegressor</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.linear_model.PassiveAggressiveRegressor.html#sklearn.linear_model.PassiveAggressiveRegressor" title="sklearn.linear_model.PassiveAggressiveRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.PassiveAggressiveRegressor</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor" title="sklearn.neural_network.MLPRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.neural_network.MLPRegressor</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Clustering</dt><dd><ul>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.cluster.MiniBatchKMeans.html#sklearn.cluster.MiniBatchKMeans" title="sklearn.cluster.MiniBatchKMeans"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.cluster.MiniBatchKMeans</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.cluster.Birch.html#sklearn.cluster.Birch" title="sklearn.cluster.Birch"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.cluster.Birch</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Decomposition / feature Extraction</dt><dd><ul>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.decomposition.MiniBatchDictionaryLearning.html#sklearn.decomposition.MiniBatchDictionaryLearning" title="sklearn.decomposition.MiniBatchDictionaryLearning"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.MiniBatchDictionaryLearning</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.decomposition.IncrementalPCA.html#sklearn.decomposition.IncrementalPCA" title="sklearn.decomposition.IncrementalPCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.IncrementalPCA</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.decomposition.LatentDirichletAllocation.html#sklearn.decomposition.LatentDirichletAllocation" title="sklearn.decomposition.LatentDirichletAllocation"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.LatentDirichletAllocation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.decomposition.MiniBatchNMF.html#sklearn.decomposition.MiniBatchNMF" title="sklearn.decomposition.MiniBatchNMF"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.MiniBatchNMF</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Preprocessing</dt><dd><ul>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.preprocessing.StandardScaler.html#sklearn.preprocessing.StandardScaler" title="sklearn.preprocessing.StandardScaler"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.StandardScaler</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler" title="sklearn.preprocessing.MinMaxScaler"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.MinMaxScaler</span></code></a></p></li>
+<li><p><a class="reference internal" href="../modules/generated/sklearn.preprocessing.MaxAbsScaler.html#sklearn.preprocessing.MaxAbsScaler" title="sklearn.preprocessing.MaxAbsScaler"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.MaxAbsScaler</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>For classification, a somewhat important thing to note is that although a
+stateless feature extraction routine may be able to cope with new/unseen
+attributes, the incremental learner itself may be unable to cope with
+new/unseen targets classes. In this case you have to pass all the possible
+classes to the first <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call using the <code class="docutils literal notranslate"><span class="pre">classes=</span></code> parameter.</p>
+<p>Another aspect to consider when choosing a proper algorithm is that not all of
+them put the same importance on each example over time. Namely, the
+<code class="docutils literal notranslate"><span class="pre">Perceptron</span></code> is still sensitive to badly labeled examples even after many
+examples whereas the <code class="docutils literal notranslate"><span class="pre">SGD*</span></code> and <code class="docutils literal notranslate"><span class="pre">PassiveAggressive*</span></code> families are more
+robust to this kind of artifacts. Conversely, the latter also tend to give less
+importance to remarkably different, yet properly labeled examples when they
+come late in the stream as their learning rate decreases over time.</p>
+</section>
+<section id="examples">
+<h3><span class="section-number">8.1.1.4. </span>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>Finally, we have a full-fledged example of
+<a class="reference internal" href="../auto_examples/applications/plot_out_of_core_classification.html#sphx-glr-auto-examples-applications-plot-out-of-core-classification-py"><span class="std std-ref">Out-of-core classification of text documents</span></a>. It is aimed at
+providing a starting point for people wanting to build out-of-core learning
+systems and demonstrates most of the notions discussed above.</p>
+<p>Furthermore, it also shows the evolution of the performance of different
+algorithms with the number of processed examples.</p>
+<p class="centered">
+<strong><a class="reference external" href="../auto_examples/applications/plot_out_of_core_classification.html"><img alt="accuracy_over_time" src="../_images/sphx_glr_plot_out_of_core_classification_001.png" style="width: 512.0px; height: 384.0px;" /></a></strong></p><p>Now looking at the computation time of the different parts, we see that the
+vectorization is much more expensive than learning itself. From the different
+algorithms, <code class="docutils literal notranslate"><span class="pre">MultinomialNB</span></code> is the most expensive, but its overhead can be
+mitigated by increasing the size of the mini-batches (exercise: change
+<code class="docutils literal notranslate"><span class="pre">minibatch_size</span></code> to 100 and 10000 in the program and compare).</p>
+<p class="centered">
+<strong><a class="reference external" href="../auto_examples/applications/plot_out_of_core_classification.html"><img alt="computation_time" src="../_images/sphx_glr_plot_out_of_core_classification_003.png" style="width: 512.0px; height: 384.0px;" /></a></strong></p></section>
+<section id="notes">
+<h3><span class="section-number">8.1.1.5. </span>Notes<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h3>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Depending on the algorithm the mini-batch size can influence results or
+not. SGD*, PassiveAggressive*, and discrete NaiveBayes are truly online
+and are not affected by batch size. Conversely, MiniBatchKMeans
+convergence rate is affected by the batch size. Also, its memory
+footprint can vary dramatically with batch size.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2023, scikit-learn developers (BSD License).
+          <a href="../_sources/computing/scaling_strategies.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+<script defer data-domain="scikit-learn.org" src="https://views.scientific-python.org/js/script.js">
+</script>
+
+
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

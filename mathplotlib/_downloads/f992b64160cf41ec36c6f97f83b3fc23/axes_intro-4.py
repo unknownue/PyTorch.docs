@@ -1,0 +1,7 @@
+fig, ax = plt.subplots(figsize=(4, 2.5), layout='constrained')
+np.random.seed(19680801)
+t = np.arange(200)
+x = 2**np.cumsum(np.random.randn(200))
+linesx = ax.plot(t, x)
+ax.set_yscale('log')
+ax.set_xlim([20, 180])

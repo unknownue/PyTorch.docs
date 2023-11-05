@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="1. Metadata Routing" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://scikit-learn/stable/metadata_routing.html" />
+<meta property="og:site_name" content="scikit-learn" />
+<meta property="og:description" content="This guide demonstrates how metadata such as sample_weight can be routed and passed along to estimators, scorers, and CV splitters through meta-estimators such as Pipeline and GridSearchCV. In orde..." />
+<meta property="og:image" content="https://scikit-learn.org/stable/_static/scikit-learn-logo-small.png" />
+<meta property="og:image:alt" content="scikit-learn" />
+<meta name="description" content="This guide demonstrates how metadata such as sample_weight can be routed and passed along to estimators, scorers, and CV splitters through meta-estimators such as Pipeline and GridSearchCV. In orde..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <title>1. Metadata Routing &mdash; scikit-learn 1.3.2 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/metadata_routing.html" />
+
+  
+  <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+<script src="_static/js/vendor/jquery-3.6.3.slim.min.js"></script> 
+</head>
+<body>
+
+
+
+
+
+
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="index.html">
+        <img
+          class="sk-brand-img"
+          src="_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" target="_blank" rel="noopener noreferrer" href="https://blog.scikit-learn.org/">Community</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="getting_started.html" >Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="tutorial/index.html" >Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="whats_new/v1.3.html" >What's new</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="glossary.html" >Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="faq.html" >FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="support.html" >Support</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="related_projects.html" >Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="roadmap.html" >Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="governance.html" >Governance</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="about.html" >About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="getting_started.html" >Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="tutorial/index.html" >Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="whats_new/v1.3.html" >What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="glossary.html" >Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="faq.html" >FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="support.html" >Support</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="related_projects.html" >Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="roadmap.html" >Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="governance.html" >Governance</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="about.html" >About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="modules/array_api.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="11.1. Array API support (experimental)">Prev</a><a href="user_guide.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="User Guide">Up</a>
+            <a href="glossary.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Glossary of Common Terms and API Elements">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 1.3.2</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+            <div class="sk-sidebar-toc">
+              <ul>
+<li><a class="reference internal" href="#">1. Metadata Routing</a><ul>
+<li><a class="reference internal" href="#usage-examples">1.1. Usage Examples</a><ul>
+<li><a class="reference internal" href="#weighted-scoring-and-fitting">1.1.1. Weighted scoring and fitting</a></li>
+<li><a class="reference internal" href="#weighted-scoring-and-unweighted-fitting">1.1.2. Weighted scoring and unweighted fitting</a></li>
+<li><a class="reference internal" href="#unweighted-feature-selection">1.1.3. Unweighted feature selection</a></li>
+<li><a class="reference internal" href="#advanced-different-scoring-and-fitting-weights">1.1.4. Advanced: Different scoring and fitting weights</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-interface">1.2. API Interface</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <span class="target" id="metadata-routing"></span><section id="id1">
+<h1><span class="section-number">1. </span>Metadata Routing<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Metadata Routing API is experimental, and is not implemented yet for many
+estimators. It may change without the usual deprecation cycle. By default
+this feature is not enabled. You can enable this feature  by setting the
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing</span></code> flag to <code class="docutils literal notranslate"><span class="pre">True</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sklearn</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">enable_metadata_routing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>This guide demonstrates how metadata such as <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> can be routed
+and passed along to estimators, scorers, and CV splitters through
+meta-estimators such as <a class="reference internal" href="modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="sklearn.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a> and
+<a class="reference internal" href="modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="sklearn.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a>. In order to pass metadata to a method
+such as <code class="docutils literal notranslate"><span class="pre">fit</span></code> or <code class="docutils literal notranslate"><span class="pre">score</span></code>, the object consuming the metadata, must <em>request</em>
+it. For estimators and splitters, this is done via <code class="docutils literal notranslate"><span class="pre">set_*_request</span></code> methods,
+e.g. <code class="docutils literal notranslate"><span class="pre">set_fit_request(...)</span></code>, and for scorers this is done via the
+<code class="docutils literal notranslate"><span class="pre">set_score_request</span></code> method. For grouped splitters such as
+<a class="reference internal" href="modules/generated/sklearn.model_selection.GroupKFold.html#sklearn.model_selection.GroupKFold" title="sklearn.model_selection.GroupKFold"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupKFold</span></code></a>, a <code class="docutils literal notranslate"><span class="pre">groups</span></code> parameter is requested by
+default. This is best demonstrated by the following examples.</p>
+<p>If you are developing a scikit-learn compatible estimator or meta-estimator,
+you can check our related developer guide:
+<a class="reference internal" href="auto_examples/miscellaneous/plot_metadata_routing.html#sphx-glr-auto-examples-miscellaneous-plot-metadata-routing-py"><span class="std std-ref">Metadata Routing</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that the methods and requirements introduced in this document are only
+relevant if you want to pass <a class="reference internal" href="glossary.html#term-metadata"><span class="xref std std-term">metadata</span></a> (e.g. <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>) to a method.
+If you’re only passing <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> and no other parameter / metadata to
+methods such as <a class="reference internal" href="glossary.html#term-fit"><span class="xref std std-term">fit</span></a>, <a class="reference internal" href="glossary.html#term-transform"><span class="xref std std-term">transform</span></a>, etc, then you don’t need to set
+anything.</p>
+</div>
+<section id="usage-examples">
+<h2><span class="section-number">1.1. </span>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading">¶</a></h2>
+<p>Here we present a few examples to show different common use-cases. The examples
+in this section require the following imports and data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">make_scorer</span><span class="p">,</span> <span class="n">accuracy_score</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegressionCV</span><span class="p">,</span> <span class="n">LogisticRegression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_validate</span><span class="p">,</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">GroupKFold</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">SelectKBest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_groups</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_weights</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_other_weights</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="weighted-scoring-and-fitting">
+<h3><span class="section-number">1.1.1. </span>Weighted scoring and fitting<a class="headerlink" href="#weighted-scoring-and-fitting" title="Link to this heading">¶</a></h3>
+<p>Here <a class="reference internal" href="modules/generated/sklearn.model_selection.GroupKFold.html#sklearn.model_selection.GroupKFold" title="sklearn.model_selection.GroupKFold"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupKFold</span></code></a> requests <code class="docutils literal notranslate"><span class="pre">groups</span></code> by default. However, we
+need to explicitly request weights for our scorer and the internal cross validation of
+<a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a>. Both of these <em>consumers</em> know how to use
+metadata called <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_acc</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">)</span><span class="o">.</span><span class="n">set_score_request</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegressionCV</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span> <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">set_fit_request</span><span class="p">(</span><span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cv_results</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lr</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sample_weight&quot;</span><span class="p">:</span> <span class="n">my_weights</span><span class="p">,</span> <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="n">my_groups</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that in this example, <code class="docutils literal notranslate"><span class="pre">my_weights</span></code> is passed to both the scorer and
+<a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a>.</p>
+<p>Error handling: if <code class="docutils literal notranslate"><span class="pre">props={&quot;sample_weigh&quot;:</span> <span class="pre">my_weights,</span> <span class="pre">...}</span></code> were passed
+(note the typo), <a class="reference internal" href="modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate" title="sklearn.model_selection.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate</span></code></a> would raise an error,
+since <code class="docutils literal notranslate"><span class="pre">sample_weigh</span></code> was not requested by any of its underlying objects.</p>
+</section>
+<section id="weighted-scoring-and-unweighted-fitting">
+<h3><span class="section-number">1.1.2. </span>Weighted scoring and unweighted fitting<a class="headerlink" href="#weighted-scoring-and-unweighted-fitting" title="Link to this heading">¶</a></h3>
+<p>When passing metadata such as <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> around, all <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>
+<a class="reference internal" href="glossary.html#term-consumer"><span class="xref std std-term">consumers</span></a> require weights to be either explicitly requested
+or not requested (i.e. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>) when used in another
+<a class="reference internal" href="glossary.html#term-router"><span class="xref std std-term">router</span></a> such as a <a class="reference internal" href="modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="sklearn.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a> or a <code class="docutils literal notranslate"><span class="pre">*GridSearchCV</span></code>. To
+perform an unweighted fit, we need to configure
+<a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a> to not request sample weights, so
+that <a class="reference internal" href="modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate" title="sklearn.model_selection.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate</span></code></a> does not pass the weights along:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_acc</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">)</span><span class="o">.</span><span class="n">set_score_request</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegressionCV</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span> <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">set_fit_request</span><span class="p">(</span><span class="n">sample_weight</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cv_results</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lr</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sample_weight&quot;</span><span class="p">:</span> <span class="n">my_weights</span><span class="p">,</span> <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="n">my_groups</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If <a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV.set_fit_request" title="sklearn.linear_model.LogisticRegressionCV.set_fit_request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_model.LogisticRegressionCV.set_fit_request</span></code></a> has not
+been called, <a class="reference internal" href="modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate" title="sklearn.model_selection.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate</span></code></a> will raise an
+error because <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> is passed in but
+<a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a> would not be explicitly configured
+to recognize the weights.</p>
+</section>
+<section id="unweighted-feature-selection">
+<h3><span class="section-number">1.1.3. </span>Unweighted feature selection<a class="headerlink" href="#unweighted-feature-selection" title="Link to this heading">¶</a></h3>
+<p>Setting request values for metadata are only required if the object, e.g. estimator,
+scorer, etc., is a consumer of that metadata Unlike
+<a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a>, <a class="reference internal" href="modules/generated/sklearn.feature_selection.SelectKBest.html#sklearn.feature_selection.SelectKBest" title="sklearn.feature_selection.SelectKBest"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectKBest</span></code></a>
+doesn’t consume weights and therefore no request value for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> on its
+instance is set and <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> is not routed to it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_acc</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">)</span><span class="o">.</span><span class="n">set_score_request</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegressionCV</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span> <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">set_fit_request</span><span class="p">(</span><span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sel</span> <span class="o">=</span> <span class="n">SelectKBest</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipe</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cv_results</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">pipe</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sample_weight&quot;</span><span class="p">:</span> <span class="n">my_weights</span><span class="p">,</span> <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="n">my_groups</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-different-scoring-and-fitting-weights">
+<h3><span class="section-number">1.1.4. </span>Advanced: Different scoring and fitting weights<a class="headerlink" href="#advanced-different-scoring-and-fitting-weights" title="Link to this heading">¶</a></h3>
+<p>Despite <a class="reference internal" href="modules/generated/sklearn.metrics.make_scorer.html#sklearn.metrics.make_scorer" title="sklearn.metrics.make_scorer"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_scorer</span></code></a> and
+<a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a> both expecting the key
+<code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>, we can use aliases to pass different weights to different
+consumers. In this example, we pass <code class="docutils literal notranslate"><span class="pre">scoring_weight</span></code> to the scorer, and
+<code class="docutils literal notranslate"><span class="pre">fitting_weight</span></code> to <a class="reference internal" href="modules/generated/sklearn.linear_model.LogisticRegressionCV.html#sklearn.linear_model.LogisticRegressionCV" title="sklearn.linear_model.LogisticRegressionCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticRegressionCV</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weighted_acc</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">)</span><span class="o">.</span><span class="n">set_score_request</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="n">sample_weight</span><span class="o">=</span><span class="s2">&quot;scoring_weight&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegressionCV</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span> <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">set_fit_request</span><span class="p">(</span><span class="n">sample_weight</span><span class="o">=</span><span class="s2">&quot;fitting_weight&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cv_results</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">lr</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">cv</span><span class="o">=</span><span class="n">GroupKFold</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">props</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;scoring_weight&quot;</span><span class="p">:</span> <span class="n">my_weights</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;fitting_weight&quot;</span><span class="p">:</span> <span class="n">my_other_weights</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="n">my_groups</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">scoring</span><span class="o">=</span><span class="n">weighted_acc</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-interface">
+<h2><span class="section-number">1.2. </span>API Interface<a class="headerlink" href="#api-interface" title="Link to this heading">¶</a></h2>
+<p>A <a class="reference internal" href="glossary.html#term-consumer"><span class="xref std std-term">consumer</span></a> is an object (estimator, meta-estimator, scorer, splitter)
+which accepts and uses some <a class="reference internal" href="glossary.html#term-metadata"><span class="xref std std-term">metadata</span></a> in at least one of its methods
+(<code class="docutils literal notranslate"><span class="pre">fit</span></code>, <code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">inverse_transform</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, <code class="docutils literal notranslate"><span class="pre">score</span></code>,
+<code class="docutils literal notranslate"><span class="pre">split</span></code>). Meta-estimators which only forward the metadata to other objects
+(the child estimator, scorers, or splitters) and don’t use the metadata
+themselves are not consumers. (Meta-)Estimators which route metadata to other
+objects are <a class="reference internal" href="glossary.html#term-router"><span class="xref std std-term">routers</span></a>. A(n) (meta-)estimator can be a
+<a class="reference internal" href="glossary.html#term-consumer"><span class="xref std std-term">consumer</span></a> and a <a class="reference internal" href="glossary.html#term-router"><span class="xref std std-term">router</span></a> at the same time. (Meta-)Estimators and
+splitters expose a <code class="docutils literal notranslate"><span class="pre">set_*_request</span></code> method for each method which accepts at
+least one metadata. For instance, if an estimator supports <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> in
+<code class="docutils literal notranslate"><span class="pre">fit</span></code> and <code class="docutils literal notranslate"><span class="pre">score</span></code>, it exposes
+<code class="docutils literal notranslate"><span class="pre">estimator.set_fit_request(sample_weight=value)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">estimator.set_score_request(sample_weight=value)</span></code>. Here <code class="docutils literal notranslate"><span class="pre">value</span></code> can be:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: method requests a <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>. This means if the metadata is
+provided, it will be used, otherwise no error is raised.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: method does not request a <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: router will raise an error if <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> is passed. This is
+in almost all cases the default value when an object is instantiated and
+ensures the user sets the metadata requests explicitly when a metadata is
+passed. The only exception are <code class="docutils literal notranslate"><span class="pre">Group*Fold</span></code> splitters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;param_name&quot;</span></code>: if this estimator is used in a meta-estimator, the
+meta-estimator should forward <code class="docutils literal notranslate"><span class="pre">&quot;param_name&quot;</span></code> as <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> to this
+estimator. This means the mapping between the metadata required by the
+object, e.g. <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> and what is provided by the user, e.g.
+<code class="docutils literal notranslate"><span class="pre">my_weights</span></code> is done at the router level, and not by the object, e.g.
+estimator, itself.</p></li>
+</ul>
+<p>Metadata are requested in the same way for scorers using <code class="docutils literal notranslate"><span class="pre">set_score_request</span></code>.</p>
+<p>If a metadata, e.g. <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code>, is passed by the user, the metadata
+request for all objects which potentially can consume <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> should
+be set by the user, otherwise an error is raised by the router object. For
+example, the following code raises an error, since it hasn’t been explicitly
+specified whether <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> should be passed to the estimator’s scorer
+or not:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span><span class="o">.</span><span class="n">set_fit_request</span><span class="p">(</span><span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">GridSearchCV</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">estimator</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span>
+<span class="gp">... </span>    <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">my_weights</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">[sample_weight] are passed but are not explicitly set as requested or not for</span>
+<span class="go">LogisticRegression.score</span>
+</pre></div>
+</div>
+<p>The issue can be fixed by explicitly setting the request value:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span><span class="o">.</span><span class="n">set_fit_request</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">sample_weight</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">set_score_request</span><span class="p">(</span><span class="n">sample_weight</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2023, scikit-learn developers (BSD License).
+          <a href="_sources/metadata_routing.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+<script defer data-domain="scikit-learn.org" src="https://views.scientific-python.org/js/script.js">
+</script>
+
+
+<script src="_static/clipboard.min.js"></script>
+<script src="_static/copybutton.js"></script>
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

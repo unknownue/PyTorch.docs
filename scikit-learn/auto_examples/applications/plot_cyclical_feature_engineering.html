@@ -1,0 +1,2149 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="Time-related feature engineering" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://scikit-learn/stable/auto_examples/applications/plot_cyclical_feature_engineering.html" />
+<meta property="og:site_name" content="scikit-learn" />
+<meta property="og:description" content="This notebook introduces different strategies to leverage time-related features for a bike sharing demand regression task that is highly dependent on business cycles (days, weeks, months) and yearl..." />
+<meta property="og:image" content="https://scikit-learn.org/stable/_static/scikit-learn-logo-small.png" />
+<meta property="og:image:alt" content="scikit-learn" />
+<meta name="description" content="This notebook introduces different strategies to leverage time-related features for a bike sharing demand regression task that is highly dependent on business cycles (days, weeks, months) and yearl..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <title>Time-related feature engineering &mdash; scikit-learn 1.3.2 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/auto_examples/applications/plot_cyclical_feature_engineering.html" />
+
+  
+  <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/js/vendor/jquery-3.6.3.slim.min.js"></script> 
+</head>
+<body>
+
+
+
+
+
+
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../../index.html">
+        <img
+          class="sk-brand-img"
+          src="../../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" target="_blank" rel="noopener noreferrer" href="https://blog.scikit-learn.org/">Community</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html" >Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../tutorial/index.html" >Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v1.3.html" >What's new</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html" >Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html" >FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../support.html" >Support</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html" >Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html" >Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../governance.html" >Governance</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html" >About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html" >Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../tutorial/index.html" >Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v1.3.html" >What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html" >Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html" >FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../support.html" >Support</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html" >Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html" >Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../governance.html" >Governance</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html" >About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="plot_species_distribution_modeling.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Species distribution modeling">Prev</a><a href="index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Examples based on real world datasets">Up</a>
+            <a href="plot_topics_extraction_with_nmf_lda.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Topic extraction with Non-negative Matrix Factorization and Latent Dirichlet Allocation">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 1.3.2</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+            <div class="sk-sidebar-toc">
+              <ul>
+<li><a class="reference internal" href="#">Time-related feature engineering</a><ul>
+<li><a class="reference internal" href="#data-exploration-on-the-bike-sharing-demand-dataset">Data exploration on the Bike Sharing Demand dataset</a></li>
+<li><a class="reference internal" href="#time-based-cross-validation">Time-based cross-validation</a></li>
+<li><a class="reference internal" href="#gradient-boosting">Gradient Boosting</a></li>
+<li><a class="reference internal" href="#naive-linear-regression">Naive linear regression</a></li>
+<li><a class="reference internal" href="#time-steps-as-categories">Time-steps as categories</a></li>
+<li><a class="reference internal" href="#trigonometric-features">Trigonometric features</a></li>
+<li><a class="reference internal" href="#periodic-spline-features">Periodic spline features</a></li>
+<li><a class="reference internal" href="#qualitative-analysis-of-the-impact-of-features-on-linear-model-predictions">Qualitative analysis of the impact of features on linear model predictions</a></li>
+<li><a class="reference internal" href="#modeling-pairwise-interactions-with-splines-and-polynomial-features">Modeling pairwise interactions with splines and polynomial features</a></li>
+<li><a class="reference internal" href="#modeling-non-linear-feature-interactions-with-kernels">Modeling non-linear feature interactions with kernels</a></li>
+<li><a class="reference internal" href="#concluding-remarks">Concluding remarks</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-applications-plot-cyclical-feature-engineering-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code or to run this example in your browser via Binder</p>
+</div>
+<section class="sphx-glr-example-title" id="time-related-feature-engineering">
+<span id="sphx-glr-auto-examples-applications-plot-cyclical-feature-engineering-py"></span><h1>Time-related feature engineering<a class="headerlink" href="#time-related-feature-engineering" title="Link to this heading">¶</a></h1>
+<p>This notebook introduces different strategies to leverage time-related features
+for a bike sharing demand regression task that is highly dependent on business
+cycles (days, weeks, months) and yearly season cycles.</p>
+<p>In the process, we introduce how to perform periodic feature engineering using
+the <a class="reference internal" href="../../modules/generated/sklearn.preprocessing.SplineTransformer.html#sklearn.preprocessing.SplineTransformer" title="sklearn.preprocessing.SplineTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.SplineTransformer</span></code></a> class and its
+<code class="docutils literal notranslate"><span class="pre">extrapolation=&quot;periodic&quot;</span></code> option.</p>
+<section id="data-exploration-on-the-bike-sharing-demand-dataset">
+<h2>Data exploration on the Bike Sharing Demand dataset<a class="headerlink" href="#data-exploration-on-the-bike-sharing-demand-dataset" title="Link to this heading">¶</a></h2>
+<p>We start by loading the data from the OpenML repository.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.datasets.fetch_openml.html#sklearn.datasets.fetch_openml" title="sklearn.datasets.fetch_openml" class="sphx-glr-backref-module-sklearn-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_openml</span></a>
+
+<span class="n">bike_sharing</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.datasets.fetch_openml.html#sklearn.datasets.fetch_openml" title="sklearn.datasets.fetch_openml" class="sphx-glr-backref-module-sklearn-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_openml</span></a><span class="p">(</span>
+    <span class="s2">&quot;Bike_Sharing_Demand&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parser</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span>
+<span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">bike_sharing</span><span class="o">.</span><span class="n">frame</span>
+</pre></div>
+</div>
+<p>To get a quick understanding of the periodic patterns of the data, let us
+have a look at the average demand per hour during a week.</p>
+<p>Note that the week starts on a Sunday, during the weekend. We can clearly
+distinguish the commute patterns in the morning and evenings of the work days
+and the leisure use of the bikes on the weekends with a more spread peak
+demand around the middle of the days:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">average_week_demand</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;weekday&quot;</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">])[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">average_week_demand</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Average hourly bike demand during the week&quot;</span><span class="p">,</span>
+    <span class="n">xticks</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">24</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)],</span>
+    <span class="n">xticklabels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Sun&quot;</span><span class="p">,</span> <span class="s2">&quot;Mon&quot;</span><span class="p">,</span> <span class="s2">&quot;Tue&quot;</span><span class="p">,</span> <span class="s2">&quot;Wed&quot;</span><span class="p">,</span> <span class="s2">&quot;Thu&quot;</span><span class="p">,</span> <span class="s2">&quot;Fri&quot;</span><span class="p">,</span> <span class="s2">&quot;Sat&quot;</span><span class="p">],</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time of the week&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Number of bike rentals&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_001.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_001.png" alt="Average hourly bike demand during the week" class = "sphx-glr-single-img"/><p>The target of the prediction problem is the absolute count of bike rentals on
+a hourly basis:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>977
+</pre></div>
+</div>
+<p>Let us rescale the target variable (number of hourly bike rentals) to predict
+a relative demand so that the mean absolute error is more easily interpreted
+as a fraction of the maximum demand.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The fit method of the models used in this notebook all minimize the
+mean squared error to estimate the conditional mean instead of the mean
+absolute error that would fit an estimator of the conditional median.</p>
+<p>When reporting performance measure on the test set in the discussion, we
+instead choose to focus on the mean absolute error that is more
+intuitive than the (root) mean squared error. Note, however, that the
+best models for one metric are also the best for the other in this
+study.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">y</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Fraction of rented fleet demand&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Number of hours&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_002.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_002.png" alt="plot cyclical feature engineering" class = "sphx-glr-single-img"/><p>The input feature data frame is a time annotated hourly log of variables
+describing the weather conditions. It includes both numerical and categorical
+variables. Note that the time information has already been expanded into
+several complementary columns.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+<span class="n">X</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>season</th>
+      <th>year</th>
+      <th>month</th>
+      <th>hour</th>
+      <th>holiday</th>
+      <th>weekday</th>
+      <th>workingday</th>
+      <th>weather</th>
+      <th>temp</th>
+      <th>feel_temp</th>
+      <th>humidity</th>
+      <th>windspeed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>spring</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>9.84</td>
+      <td>14.395</td>
+      <td>0.81</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>spring</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>9.02</td>
+      <td>13.635</td>
+      <td>0.80</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>spring</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>9.02</td>
+      <td>13.635</td>
+      <td>0.80</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>spring</td>
+      <td>0</td>
+      <td>1</td>
+      <td>3</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>9.84</td>
+      <td>14.395</td>
+      <td>0.75</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>spring</td>
+      <td>0</td>
+      <td>1</td>
+      <td>4</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>9.84</td>
+      <td>14.395</td>
+      <td>0.75</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>17374</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>19</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>10.66</td>
+      <td>12.880</td>
+      <td>0.60</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>17375</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>20</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>10.66</td>
+      <td>12.880</td>
+      <td>0.60</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>17376</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>21</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>10.66</td>
+      <td>12.880</td>
+      <td>0.60</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>17377</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>22</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>10.66</td>
+      <td>13.635</td>
+      <td>0.56</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>17378</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>23</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>10.66</td>
+      <td>13.635</td>
+      <td>0.65</td>
+      <td>8.9981</td>
+    </tr>
+  </tbody>
+</table>
+<p>17379 rows × 12 columns</p>
+</div>
+</div>
+<br />
+<br /><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the time information was only present as a date or datetime column, we
+could have expanded it into hour-in-the-day, day-in-the-week,
+day-in-the-month, month-in-the-year using pandas:
+<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#time-date-components">https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#time-date-components</a></p>
+</div>
+<p>We now introspect the distribution of the categorical variables, starting
+with <code class="docutils literal notranslate"><span class="pre">&quot;weather&quot;</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">[</span><span class="s2">&quot;weather&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>weather
+clear         11413
+misty          4544
+rain           1419
+heavy_rain        3
+Name: count, dtype: int64
+</pre></div>
+</div>
+<p>Since there are only 3 <code class="docutils literal notranslate"><span class="pre">&quot;heavy_rain&quot;</span></code> events, we cannot use this category to
+train machine learning models with cross validation. Instead, we simplify the
+representation by collapsing those into the <code class="docutils literal notranslate"><span class="pre">&quot;rain&quot;</span></code> category.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">[</span><span class="s2">&quot;weather&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="s2">&quot;heavy_rain&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;rain&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">[</span><span class="s2">&quot;weather&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>weather
+clear    11413
+misty     4544
+rain      1422
+Name: count, dtype: int64
+</pre></div>
+</div>
+<p>As expected, the <code class="docutils literal notranslate"><span class="pre">&quot;season&quot;</span></code> variable is well balanced:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">[</span><span class="s2">&quot;season&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>season
+fall      4496
+summer    4409
+spring    4242
+winter    4232
+Name: count, dtype: int64
+</pre></div>
+</div>
+</section>
+<section id="time-based-cross-validation">
+<h2>Time-based cross-validation<a class="headerlink" href="#time-based-cross-validation" title="Link to this heading">¶</a></h2>
+<p>Since the dataset is a time-ordered event log (hourly demand), we will use a
+time-sensitive cross-validation splitter to evaluate our demand forecasting
+model as realistically as possible. We use a gap of 2 days between the train
+and test side of the splits. We also limit the training set size to make the
+performance of the CV folds more stable.</p>
+<p>1000 test datapoints should be enough to quantify the performance of the
+model. This represents a bit less than a month and a half of contiguous test
+data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.model_selection.TimeSeriesSplit.html#sklearn.model_selection.TimeSeriesSplit" title="sklearn.model_selection.TimeSeriesSplit" class="sphx-glr-backref-module-sklearn-model_selection sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TimeSeriesSplit</span></a>
+
+<span class="n">ts_cv</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.model_selection.TimeSeriesSplit.html#sklearn.model_selection.TimeSeriesSplit" title="sklearn.model_selection.TimeSeriesSplit" class="sphx-glr-backref-module-sklearn-model_selection sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TimeSeriesSplit</span></a><span class="p">(</span>
+    <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">gap</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+    <span class="n">max_train_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Let us manually inspect the various splits to check that the
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesSplit</span></code> works as we expect, starting with the first split:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">all_splits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ts_cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">train_0</span><span class="p">,</span> <span class="n">test_0</span> <span class="o">=</span> <span class="n">all_splits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>season</th>
+      <th>year</th>
+      <th>month</th>
+      <th>hour</th>
+      <th>holiday</th>
+      <th>weekday</th>
+      <th>workingday</th>
+      <th>weather</th>
+      <th>temp</th>
+      <th>feel_temp</th>
+      <th>humidity</th>
+      <th>windspeed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>12379</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>0</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>22.14</td>
+      <td>25.760</td>
+      <td>0.68</td>
+      <td>27.9993</td>
+    </tr>
+    <tr>
+      <th>12380</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>1</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>21.32</td>
+      <td>25.000</td>
+      <td>0.77</td>
+      <td>22.0028</td>
+    </tr>
+    <tr>
+      <th>12381</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>2</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>rain</td>
+      <td>21.32</td>
+      <td>25.000</td>
+      <td>0.72</td>
+      <td>19.9995</td>
+    </tr>
+    <tr>
+      <th>12382</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>3</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>rain</td>
+      <td>20.50</td>
+      <td>24.240</td>
+      <td>0.82</td>
+      <td>12.9980</td>
+    </tr>
+    <tr>
+      <th>12383</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>4</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>rain</td>
+      <td>20.50</td>
+      <td>24.240</td>
+      <td>0.82</td>
+      <td>12.9980</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>13374</th>
+      <td>fall</td>
+      <td>1</td>
+      <td>7</td>
+      <td>11</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>34.44</td>
+      <td>40.150</td>
+      <td>0.53</td>
+      <td>15.0013</td>
+    </tr>
+    <tr>
+      <th>13375</th>
+      <td>fall</td>
+      <td>1</td>
+      <td>7</td>
+      <td>12</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>34.44</td>
+      <td>39.395</td>
+      <td>0.49</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>13376</th>
+      <td>fall</td>
+      <td>1</td>
+      <td>7</td>
+      <td>13</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>34.44</td>
+      <td>39.395</td>
+      <td>0.49</td>
+      <td>19.0012</td>
+    </tr>
+    <tr>
+      <th>13377</th>
+      <td>fall</td>
+      <td>1</td>
+      <td>7</td>
+      <td>14</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>36.08</td>
+      <td>40.910</td>
+      <td>0.42</td>
+      <td>7.0015</td>
+    </tr>
+    <tr>
+      <th>13378</th>
+      <td>fall</td>
+      <td>1</td>
+      <td>7</td>
+      <td>15</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>35.26</td>
+      <td>40.150</td>
+      <td>0.47</td>
+      <td>16.9979</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 12 columns</p>
+</div>
+</div>
+<br />
+<br /><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>season</th>
+      <th>year</th>
+      <th>month</th>
+      <th>hour</th>
+      <th>holiday</th>
+      <th>weekday</th>
+      <th>workingday</th>
+      <th>weather</th>
+      <th>temp</th>
+      <th>feel_temp</th>
+      <th>humidity</th>
+      <th>windspeed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2331</th>
+      <td>summer</td>
+      <td>0</td>
+      <td>4</td>
+      <td>1</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>25.42</td>
+      <td>31.060</td>
+      <td>0.50</td>
+      <td>6.0032</td>
+    </tr>
+    <tr>
+      <th>2332</th>
+      <td>summer</td>
+      <td>0</td>
+      <td>4</td>
+      <td>2</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>24.60</td>
+      <td>31.060</td>
+      <td>0.53</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>2333</th>
+      <td>summer</td>
+      <td>0</td>
+      <td>4</td>
+      <td>3</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>23.78</td>
+      <td>27.275</td>
+      <td>0.56</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>2334</th>
+      <td>summer</td>
+      <td>0</td>
+      <td>4</td>
+      <td>4</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>22.96</td>
+      <td>26.515</td>
+      <td>0.64</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>2335</th>
+      <td>summer</td>
+      <td>0</td>
+      <td>4</td>
+      <td>5</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>22.14</td>
+      <td>25.760</td>
+      <td>0.68</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>12326</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>19</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>26.24</td>
+      <td>31.060</td>
+      <td>0.36</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>12327</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>20</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>25.42</td>
+      <td>31.060</td>
+      <td>0.35</td>
+      <td>19.0012</td>
+    </tr>
+    <tr>
+      <th>12328</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>21</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>24.60</td>
+      <td>31.060</td>
+      <td>0.40</td>
+      <td>7.0015</td>
+    </tr>
+    <tr>
+      <th>12329</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>22</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>23.78</td>
+      <td>27.275</td>
+      <td>0.46</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>12330</th>
+      <td>summer</td>
+      <td>1</td>
+      <td>6</td>
+      <td>23</td>
+      <td>False</td>
+      <td>6</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>22.96</td>
+      <td>26.515</td>
+      <td>0.52</td>
+      <td>7.0015</td>
+    </tr>
+  </tbody>
+</table>
+<p>10000 rows × 12 columns</p>
+</div>
+</div>
+<br />
+<br /><p>We now inspect the last split:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">train_4</span><span class="p">,</span> <span class="n">test_4</span> <span class="o">=</span> <span class="n">all_splits</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_4</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>season</th>
+      <th>year</th>
+      <th>month</th>
+      <th>hour</th>
+      <th>holiday</th>
+      <th>weekday</th>
+      <th>workingday</th>
+      <th>weather</th>
+      <th>temp</th>
+      <th>feel_temp</th>
+      <th>humidity</th>
+      <th>windspeed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>16379</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>5</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>13.94</td>
+      <td>16.665</td>
+      <td>0.66</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>16380</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>6</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>13.94</td>
+      <td>16.665</td>
+      <td>0.71</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>16381</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>7</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>13.12</td>
+      <td>16.665</td>
+      <td>0.76</td>
+      <td>6.0032</td>
+    </tr>
+    <tr>
+      <th>16382</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>8</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>13.94</td>
+      <td>16.665</td>
+      <td>0.71</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>16383</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>9</td>
+      <td>False</td>
+      <td>2</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>14.76</td>
+      <td>18.940</td>
+      <td>0.71</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>17374</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>19</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>10.66</td>
+      <td>12.880</td>
+      <td>0.60</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>17375</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>20</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>10.66</td>
+      <td>12.880</td>
+      <td>0.60</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>17376</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>21</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>10.66</td>
+      <td>12.880</td>
+      <td>0.60</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>17377</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>22</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>10.66</td>
+      <td>13.635</td>
+      <td>0.56</td>
+      <td>8.9981</td>
+    </tr>
+    <tr>
+      <th>17378</th>
+      <td>spring</td>
+      <td>1</td>
+      <td>12</td>
+      <td>23</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>10.66</td>
+      <td>13.635</td>
+      <td>0.65</td>
+      <td>8.9981</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 12 columns</p>
+</div>
+</div>
+<br />
+<br /><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_4</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>season</th>
+      <th>year</th>
+      <th>month</th>
+      <th>hour</th>
+      <th>holiday</th>
+      <th>weekday</th>
+      <th>workingday</th>
+      <th>weather</th>
+      <th>temp</th>
+      <th>feel_temp</th>
+      <th>humidity</th>
+      <th>windspeed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>6331</th>
+      <td>winter</td>
+      <td>0</td>
+      <td>9</td>
+      <td>9</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>26.24</td>
+      <td>28.790</td>
+      <td>0.89</td>
+      <td>12.9980</td>
+    </tr>
+    <tr>
+      <th>6332</th>
+      <td>winter</td>
+      <td>0</td>
+      <td>9</td>
+      <td>10</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>26.24</td>
+      <td>28.790</td>
+      <td>0.89</td>
+      <td>12.9980</td>
+    </tr>
+    <tr>
+      <th>6333</th>
+      <td>winter</td>
+      <td>0</td>
+      <td>9</td>
+      <td>11</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>clear</td>
+      <td>27.88</td>
+      <td>31.820</td>
+      <td>0.79</td>
+      <td>15.0013</td>
+    </tr>
+    <tr>
+      <th>6334</th>
+      <td>winter</td>
+      <td>0</td>
+      <td>9</td>
+      <td>12</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>27.88</td>
+      <td>31.820</td>
+      <td>0.79</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>6335</th>
+      <td>winter</td>
+      <td>0</td>
+      <td>9</td>
+      <td>13</td>
+      <td>False</td>
+      <td>1</td>
+      <td>True</td>
+      <td>misty</td>
+      <td>28.70</td>
+      <td>33.335</td>
+      <td>0.74</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>16326</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>0</td>
+      <td>False</td>
+      <td>0</td>
+      <td>False</td>
+      <td>misty</td>
+      <td>12.30</td>
+      <td>15.150</td>
+      <td>0.70</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>16327</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>1</td>
+      <td>False</td>
+      <td>0</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>12.30</td>
+      <td>14.395</td>
+      <td>0.70</td>
+      <td>12.9980</td>
+    </tr>
+    <tr>
+      <th>16328</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>2</td>
+      <td>False</td>
+      <td>0</td>
+      <td>False</td>
+      <td>clear</td>
+      <td>11.48</td>
+      <td>14.395</td>
+      <td>0.81</td>
+      <td>7.0015</td>
+    </tr>
+    <tr>
+      <th>16329</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>3</td>
+      <td>False</td>
+      <td>0</td>
+      <td>False</td>
+      <td>misty</td>
+      <td>12.30</td>
+      <td>15.150</td>
+      <td>0.81</td>
+      <td>11.0014</td>
+    </tr>
+    <tr>
+      <th>16330</th>
+      <td>winter</td>
+      <td>1</td>
+      <td>11</td>
+      <td>4</td>
+      <td>False</td>
+      <td>0</td>
+      <td>False</td>
+      <td>misty</td>
+      <td>12.30</td>
+      <td>14.395</td>
+      <td>0.81</td>
+      <td>12.9980</td>
+    </tr>
+  </tbody>
+</table>
+<p>10000 rows × 12 columns</p>
+</div>
+</div>
+<br />
+<br /><p>All is well. We are now ready to do some predictive modeling!</p>
+</section>
+<section id="gradient-boosting">
+<h2>Gradient Boosting<a class="headerlink" href="#gradient-boosting" title="Link to this heading">¶</a></h2>
+<p>Gradient Boosting Regression with decision trees is often flexible enough to
+efficiently handle heteorogenous tabular data with a mix of categorical and
+numerical features as long as the number of samples is large enough.</p>
+<p>Here, we do minimal ordinal encoding for the categorical variables and then
+let the model know that it should treat those as categorical variables by
+using a dedicated tree splitting rule. Since we use an ordinal encoder, we
+pass the list of categorical values explicitly to use a logical order when
+encoding the categories as integers instead of the lexicographical order.
+This also has the added benefit of preventing any issue with unknown
+categories when using cross-validation.</p>
+<p>The numerical variables need no preprocessing and, for the sake of simplicity,
+we only try the default hyper-parameters for this model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html#sklearn.ensemble.HistGradientBoostingRegressor" title="sklearn.ensemble.HistGradientBoostingRegressor" class="sphx-glr-backref-module-sklearn-ensemble sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">HistGradientBoostingRegressor</span></a>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate" title="sklearn.model_selection.cross_validate" class="sphx-glr-backref-module-sklearn-model_selection sphx-glr-backref-type-py-function"><span class="n">cross_validate</span></a>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.preprocessing.OrdinalEncoder.html#sklearn.preprocessing.OrdinalEncoder" title="sklearn.preprocessing.OrdinalEncoder" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">OrdinalEncoder</span></a>
+
+<span class="n">categorical_columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;weather&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;season&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;holiday&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;workingday&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">categories</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;clear&quot;</span><span class="p">,</span> <span class="s2">&quot;misty&quot;</span><span class="p">,</span> <span class="s2">&quot;rain&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;spring&quot;</span><span class="p">,</span> <span class="s2">&quot;summer&quot;</span><span class="p">,</span> <span class="s2">&quot;fall&quot;</span><span class="p">,</span> <span class="s2">&quot;winter&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">],</span>
+<span class="p">]</span>
+<span class="n">ordinal_encoder</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.preprocessing.OrdinalEncoder.html#sklearn.preprocessing.OrdinalEncoder" title="sklearn.preprocessing.OrdinalEncoder" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">OrdinalEncoder</span></a><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">)</span>
+
+
+<span class="n">gbrt_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+        <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">ordinal_encoder</span><span class="p">,</span> <span class="n">categorical_columns</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">remainder</span><span class="o">=</span><span class="s2">&quot;passthrough&quot;</span><span class="p">,</span>
+        <span class="c1"># Use short feature names to make it easier to specify the categorical</span>
+        <span class="c1"># variables in the HistGradientBoostingRegressor in the next</span>
+        <span class="c1"># step of the pipeline.</span>
+        <span class="n">verbose_feature_names_out</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">),</span>
+    <a href="../../modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html#sklearn.ensemble.HistGradientBoostingRegressor" title="sklearn.ensemble.HistGradientBoostingRegressor" class="sphx-glr-backref-module-sklearn-ensemble sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">HistGradientBoostingRegressor</span></a><span class="p">(</span>
+        <span class="n">categorical_features</span><span class="o">=</span><span class="n">categorical_columns</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span><span class="o">.</span><span class="n">set_output</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Lets evaluate our gradient boosting model with the mean absolute error of the
+relative demand averaged across our 5 time-based cross-validation splits:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="p">):</span>
+    <span class="n">cv_results</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate" title="sklearn.model_selection.cross_validate" class="sphx-glr-backref-module-sklearn-model_selection sphx-glr-backref-type-py-function"><span class="n">cross_validate</span></a><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">,</span>
+        <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span>
+        <span class="n">scoring</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;neg_mean_absolute_error&quot;</span><span class="p">,</span> <span class="s2">&quot;neg_root_mean_squared_error&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">mae</span> <span class="o">=</span> <span class="o">-</span><span class="n">cv_results</span><span class="p">[</span><span class="s2">&quot;test_neg_mean_absolute_error&quot;</span><span class="p">]</span>
+    <span class="n">rmse</span> <span class="o">=</span> <span class="o">-</span><span class="n">cv_results</span><span class="p">[</span><span class="s2">&quot;test_neg_root_mean_squared_error&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Mean Absolute Error:     </span><span class="si">{</span><span class="n">mae</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> +/- </span><span class="si">{</span><span class="n">mae</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Root Mean Squared Error: </span><span class="si">{</span><span class="n">rmse</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> +/- </span><span class="si">{</span><span class="n">rmse</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="n">evaluate</span><span class="p">(</span><span class="n">gbrt_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.044 +/- 0.003
+Root Mean Squared Error: 0.068 +/- 0.005
+</pre></div>
+</div>
+<p>This model has an average error around 4 to 5% of the maximum demand. This is
+quite good for a first trial without any hyper-parameter tuning! We just had
+to make the categorical variables explicit. Note that the time related
+features are passed as is, i.e. without processing them. But this is not much
+of a problem for tree-based models as they can learn a non-monotonic
+relationship between ordinal input features and the target.</p>
+<p>This is not the case for linear regression models as we will see in the
+following.</p>
+</section>
+<section id="naive-linear-regression">
+<h2>Naive linear regression<a class="headerlink" href="#naive-linear-regression" title="Link to this heading">¶</a></h2>
+<p>As usual for linear models, categorical variables need to be one-hot encoded.
+For consistency, we scale the numerical features to the same 0-1 range using
+class:<code class="docutils literal notranslate"><span class="pre">sklearn.preprocessing.MinMaxScaler</span></code>, although in this case it does not
+impact the results much because they are already on comparable scales:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler" title="sklearn.preprocessing.MinMaxScaler" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MinMaxScaler</span></a><span class="p">,</span> <a href="../../modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="sklearn.preprocessing.OneHotEncoder" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">OneHotEncoder</span></a>
+
+<span class="n">one_hot_encoder</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="sklearn.preprocessing.OneHotEncoder" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">OneHotEncoder</span></a><span class="p">(</span><span class="n">handle_unknown</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">sparse_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">alphas</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.logspace.html#numpy.logspace" title="numpy.logspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">logspace</span></a><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+<span class="n">naive_linear_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+        <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="n">categorical_columns</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">remainder</span><span class="o">=</span><a href="../../modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler" title="sklearn.preprocessing.MinMaxScaler" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MinMaxScaler</span></a><span class="p">(),</span>
+    <span class="p">),</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="n">evaluate</span><span class="p">(</span><span class="n">naive_linear_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.142 +/- 0.014
+Root Mean Squared Error: 0.184 +/- 0.020
+</pre></div>
+</div>
+<p>The performance is not good: the average error is around 14% of the maximum
+demand. This is more than three times higher than the average error of the
+gradient boosting model. We can suspect that the naive original encoding
+(merely min-max scaled) of the periodic time-related features might prevent
+the linear regression model to properly leverage the time information: linear
+regression does not automatically model non-monotonic relationships between
+the input features and the target. Non-linear terms have to be engineered in
+the input.</p>
+<p>For example, the raw numerical encoding of the <code class="docutils literal notranslate"><span class="pre">&quot;hour&quot;</span></code> feature prevents the
+linear model from recognizing that an increase of hour in the morning from 6
+to 8 should have a strong positive impact on the number of bike rentals while
+an increase of similar magnitude in the evening from 18 to 20 should have a
+strong negative impact on the predicted number of bike rentals.</p>
+</section>
+<section id="time-steps-as-categories">
+<h2>Time-steps as categories<a class="headerlink" href="#time-steps-as-categories" title="Link to this heading">¶</a></h2>
+<p>Since the time features are encoded in a discrete manner using integers (24
+unique values in the “hours” feature), we could decide to treat those as
+categorical variables using a one-hot encoding and thereby ignore any
+assumption implied by the ordering of the hour values.</p>
+<p>Using one-hot encoding for the time features gives the linear model a lot
+more flexibility as we introduce one additional feature per discrete time
+level.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one_hot_linear_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+        <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="n">categorical_columns</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;one_hot_time&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">,</span> <span class="s2">&quot;weekday&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">]),</span>
+        <span class="p">],</span>
+        <span class="n">remainder</span><span class="o">=</span><a href="../../modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler" title="sklearn.preprocessing.MinMaxScaler" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MinMaxScaler</span></a><span class="p">(),</span>
+    <span class="p">),</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">evaluate</span><span class="p">(</span><span class="n">one_hot_linear_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.099 +/- 0.011
+Root Mean Squared Error: 0.131 +/- 0.011
+</pre></div>
+</div>
+<p>The average error rate of this model is 10% which is much better than using
+the original (ordinal) encoding of the time feature, confirming our intuition
+that the linear regression model benefits from the added flexibility to not
+treat time progression in a monotonic manner.</p>
+<p>However, this introduces a very large number of new features. If the time of
+the day was represented in minutes since the start of the day instead of
+hours, one-hot encoding would have introduced 1440 features instead of 24.
+This could cause some significant overfitting. To avoid this we could use
+<a class="reference internal" href="../../modules/generated/sklearn.preprocessing.KBinsDiscretizer.html#sklearn.preprocessing.KBinsDiscretizer" title="sklearn.preprocessing.KBinsDiscretizer"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.preprocessing.KBinsDiscretizer</span></code></a> instead to re-bin the number
+of levels of fine-grained ordinal or numerical variables while still
+benefitting from the non-monotonic expressivity advantages of one-hot
+encoding.</p>
+<p>Finally, we also observe that one-hot encoding completely ignores the
+ordering of the hour levels while this could be an interesting inductive bias
+to preserve to some level. In the following we try to explore smooth,
+non-monotonic encoding that locally preserves the relative ordering of time
+features.</p>
+</section>
+<section id="trigonometric-features">
+<h2>Trigonometric features<a class="headerlink" href="#trigonometric-features" title="Link to this heading">¶</a></h2>
+<p>As a first attempt, we can try to encode each of those periodic features
+using a sine and cosine transformation with the matching period.</p>
+<p>Each ordinal time feature is transformed into 2 features that together encode
+equivalent information in a non-monotonic way, and more importantly without
+any jump between the first and the last value of the periodic range.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.preprocessing.FunctionTransformer.html#sklearn.preprocessing.FunctionTransformer" title="sklearn.preprocessing.FunctionTransformer" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">FunctionTransformer</span></a>
+
+
+<span class="k">def</span> <span class="nf">sin_transformer</span><span class="p">(</span><span class="n">period</span><span class="p">):</span>
+    <span class="k">return</span> <a href="../../modules/generated/sklearn.preprocessing.FunctionTransformer.html#sklearn.preprocessing.FunctionTransformer" title="sklearn.preprocessing.FunctionTransformer" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">FunctionTransformer</span></a><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.sin.html#numpy.sin" title="numpy.sin" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-data"><span class="n">np</span><span class="o">.</span><span class="n">sin</span></a><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">period</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <a href="https://numpy.org/doc/stable/reference/constants.html#numpy.pi" title="numpy.pi" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-data"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">cos_transformer</span><span class="p">(</span><span class="n">period</span><span class="p">):</span>
+    <span class="k">return</span> <a href="../../modules/generated/sklearn.preprocessing.FunctionTransformer.html#sklearn.preprocessing.FunctionTransformer" title="sklearn.preprocessing.FunctionTransformer" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">FunctionTransformer</span></a><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.cos.html#numpy.cos" title="numpy.cos" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-data"><span class="n">np</span><span class="o">.</span><span class="n">cos</span></a><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">period</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <a href="https://numpy.org/doc/stable/reference/constants.html#numpy.pi" title="numpy.pi" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-data"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<p>Let us visualize the effect of this feature expansion on some synthetic hour
+data with a bit of extrapolation beyond hour=23:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">hour_df</span> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><span class="mi">26</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">hour_df</span><span class="p">[</span><span class="s2">&quot;hour_sin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">hour_df</span><span class="p">)[</span><span class="s2">&quot;hour&quot;</span><span class="p">]</span>
+<span class="n">hour_df</span><span class="p">[</span><span class="s2">&quot;hour_cos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">hour_df</span><span class="p">)[</span><span class="s2">&quot;hour&quot;</span><span class="p">]</span>
+<span class="n">hour_df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;hour&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;Trigonometric encoding for the &#39;hour&#39; feature&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_003.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_003.png" alt="Trigonometric encoding for the 'hour' feature" class = "sphx-glr-single-img"/><p>Let’s use a 2D scatter plot with the hours encoded as colors to better see
+how this representation maps the 24 hours of the day to a 2D space, akin to
+some sort of a 24 hour version of an analog clock. Note that the “25th” hour
+is mapped back to the 1st hour because of the periodic nature of the
+sine/cosine representation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">sp</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">hour_df</span><span class="p">[</span><span class="s2">&quot;hour_sin&quot;</span><span class="p">],</span> <span class="n">hour_df</span><span class="p">[</span><span class="s2">&quot;hour_cos&quot;</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">hour_df</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;sin(hour)&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;cos(hour)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_004.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_004.png" alt="plot cyclical feature engineering" class = "sphx-glr-single-img"/><p>We can now build a feature extraction pipeline using this strategy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cyclic_cossin_transformer</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+    <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="n">categorical_columns</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;month_sin&quot;</span><span class="p">,</span> <span class="n">sin_transformer</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;month_cos&quot;</span><span class="p">,</span> <span class="n">cos_transformer</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;weekday_sin&quot;</span><span class="p">,</span> <span class="n">sin_transformer</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;weekday&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;weekday_cos&quot;</span><span class="p">,</span> <span class="n">cos_transformer</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;weekday&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span> <span class="n">sin_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span> <span class="n">cos_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">]),</span>
+    <span class="p">],</span>
+    <span class="n">remainder</span><span class="o">=</span><a href="../../modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler" title="sklearn.preprocessing.MinMaxScaler" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MinMaxScaler</span></a><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">cyclic_cossin_linear_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <span class="n">cyclic_cossin_transformer</span><span class="p">,</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">evaluate</span><span class="p">(</span><span class="n">cyclic_cossin_linear_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.125 +/- 0.014
+Root Mean Squared Error: 0.166 +/- 0.020
+</pre></div>
+</div>
+<p>The performance of our linear regression model with this simple feature
+engineering is a bit better than using the original ordinal time features but
+worse than using the one-hot encoded time features. We will further analyze
+possible reasons for this disappointing outcome at the end of this notebook.</p>
+</section>
+<section id="periodic-spline-features">
+<h2>Periodic spline features<a class="headerlink" href="#periodic-spline-features" title="Link to this heading">¶</a></h2>
+<p>We can try an alternative encoding of the periodic time-related features
+using spline transformations with a large enough number of splines, and as a
+result a larger number of expanded features compared to the sine/cosine
+transformation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.preprocessing.SplineTransformer.html#sklearn.preprocessing.SplineTransformer" title="sklearn.preprocessing.SplineTransformer" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SplineTransformer</span></a>
+
+
+<span class="k">def</span> <span class="nf">periodic_spline_transformer</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">n_splines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n_splines</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_splines</span> <span class="o">=</span> <span class="n">period</span>
+    <span class="n">n_knots</span> <span class="o">=</span> <span class="n">n_splines</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># periodic and include_bias is True</span>
+    <span class="k">return</span> <a href="../../modules/generated/sklearn.preprocessing.SplineTransformer.html#sklearn.preprocessing.SplineTransformer" title="sklearn.preprocessing.SplineTransformer" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SplineTransformer</span></a><span class="p">(</span>
+        <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">,</span>
+        <span class="n">n_knots</span><span class="o">=</span><span class="n">n_knots</span><span class="p">,</span>
+        <span class="n">knots</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">n_knots</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_knots</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">extrapolation</span><span class="o">=</span><span class="s2">&quot;periodic&quot;</span><span class="p">,</span>
+        <span class="n">include_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Again, let us visualize the effect of this feature expansion on some
+synthetic hour data with a bit of extrapolation beyond hour=23:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hour_df</span> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">splines</span> <span class="o">=</span> <span class="n">periodic_spline_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="n">n_splines</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">hour_df</span><span class="p">)</span>
+<span class="n">splines_df</span> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <span class="n">splines</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;spline_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">splines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+<span class="p">)</span>
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html#pandas.concat" title="pandas.concat" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">concat</span></a><span class="p">([</span><span class="n">hour_df</span><span class="p">,</span> <span class="n">splines_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;hour&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">tab20b</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;Periodic spline-based encoding for the &#39;hour&#39; feature&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_005.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_005.png" alt="Periodic spline-based encoding for the 'hour' feature" class = "sphx-glr-single-img"/><p>Thanks to the use of the <code class="docutils literal notranslate"><span class="pre">extrapolation=&quot;periodic&quot;</span></code> parameter, we observe
+that the feature encoding stays smooth when extrapolating beyond midnight.</p>
+<p>We can now build a predictive pipeline using this alternative periodic
+feature engineering strategy.</p>
+<p>It is possible to use fewer splines than discrete levels for those ordinal
+values. This makes spline-based encoding more efficient than one-hot encoding
+while preserving most of the expressivity:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cyclic_spline_transformer</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+    <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="n">categorical_columns</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;cyclic_month&quot;</span><span class="p">,</span> <span class="n">periodic_spline_transformer</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_splines</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;cyclic_weekday&quot;</span><span class="p">,</span> <span class="n">periodic_spline_transformer</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">n_splines</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;weekday&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;cyclic_hour&quot;</span><span class="p">,</span> <span class="n">periodic_spline_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="n">n_splines</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">]),</span>
+    <span class="p">],</span>
+    <span class="n">remainder</span><span class="o">=</span><a href="../../modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler" title="sklearn.preprocessing.MinMaxScaler" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MinMaxScaler</span></a><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">cyclic_spline_linear_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <span class="n">cyclic_spline_transformer</span><span class="p">,</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">evaluate</span><span class="p">(</span><span class="n">cyclic_spline_linear_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.097 +/- 0.011
+Root Mean Squared Error: 0.132 +/- 0.013
+</pre></div>
+</div>
+<p>Spline features make it possible for the linear model to successfully
+leverage the periodic time-related features and reduce the error from ~14% to
+~10% of the maximum demand, which is similar to what we observed with the
+one-hot encoded features.</p>
+</section>
+<section id="qualitative-analysis-of-the-impact-of-features-on-linear-model-predictions">
+<h2>Qualitative analysis of the impact of features on linear model predictions<a class="headerlink" href="#qualitative-analysis-of-the-impact-of-features-on-linear-model-predictions" title="Link to this heading">¶</a></h2>
+<p>Here, we want to visualize the impact of the feature engineering choices on
+the time related shape of the predictions.</p>
+<p>To do so we consider an arbitrary time-based split to compare the predictions
+on a range of held out data points.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">naive_linear_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">naive_linear_predictions</span> <span class="o">=</span> <span class="n">naive_linear_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+
+<span class="n">one_hot_linear_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">one_hot_linear_predictions</span> <span class="o">=</span> <span class="n">one_hot_linear_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+
+<span class="n">cyclic_cossin_linear_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">cyclic_cossin_linear_predictions</span> <span class="o">=</span> <span class="n">cyclic_cossin_linear_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+
+<span class="n">cyclic_spline_linear_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">cyclic_spline_linear_predictions</span> <span class="o">=</span> <span class="n">cyclic_spline_linear_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>We visualize those predictions by zooming on the last 96 hours (4 days) of
+the test set to get some qualitative insights:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">last_hours</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">96</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Predictions by linear models&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Actual demand&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">naive_linear_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span> <span class="s2">&quot;x-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Ordinal time features&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">cyclic_cossin_linear_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Trigonometric time features&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">cyclic_spline_linear_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Spline-based time features&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">one_hot_linear_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;One-hot time features&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_006.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_006.png" alt="Predictions by linear models" class = "sphx-glr-single-img"/><p>We can draw the following conclusions from the above plot:</p>
+<ul class="simple">
+<li><p>The <strong>raw ordinal time-related features</strong> are problematic because they do
+not capture the natural periodicity: we observe a big jump in the
+predictions at the end of each day when the hour features goes from 23 back
+to 0. We can expect similar artifacts at the end of each week or each year.</p></li>
+<li><p>As expected, the <strong>trigonometric features</strong> (sine and cosine) do not have
+these discontinuities at midnight, but the linear regression model fails to
+leverage those features to properly model intra-day variations.
+Using trigonometric features for higher harmonics or additional
+trigonometric features for the natural period with different phases could
+potentially fix this problem.</p></li>
+<li><p>the <strong>periodic spline-based features</strong> fix those two problems at once: they
+give more expressivity to the linear model by making it possible to focus
+on specific hours thanks to the use of 12 splines. Furthermore the
+<code class="docutils literal notranslate"><span class="pre">extrapolation=&quot;periodic&quot;</span></code> option enforces a smooth representation between
+<code class="docutils literal notranslate"><span class="pre">hour=23</span></code> and <code class="docutils literal notranslate"><span class="pre">hour=0</span></code>.</p></li>
+<li><p>The <strong>one-hot encoded features</strong> behave similarly to the periodic
+spline-based features but are more spiky: for instance they can better
+model the morning peak during the week days since this peak lasts shorter
+than an hour. However, we will see in the following that what can be an
+advantage for linear models is not necessarily one for more expressive
+models.</p></li>
+</ul>
+<p>We can also compare the number of features extracted by each feature
+engineering pipeline:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">naive_linear_pipeline</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(17379, 19)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one_hot_linear_pipeline</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(17379, 59)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cyclic_cossin_linear_pipeline</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(17379, 22)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cyclic_spline_linear_pipeline</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(17379, 37)
+</pre></div>
+</div>
+<p>This confirms that the one-hot encoding and the spline encoding strategies
+create a lot more features for the time representation than the alternatives,
+which in turn gives the downstream linear model more flexibility (degrees of
+freedom) to avoid underfitting.</p>
+<p>Finally, we observe that none of the linear models can approximate the true
+bike rentals demand, especially for the peaks that can be very sharp at rush
+hours during the working days but much flatter during the week-ends: the most
+accurate linear models based on splines or one-hot encoding tend to forecast
+peaks of commuting-related bike rentals even on the week-ends and
+under-estimate the commuting-related events during the working days.</p>
+<p>These systematic prediction errors reveal a form of under-fitting and can be
+explained by the lack of interactions terms between features, e.g.
+“workingday” and features derived from “hours”. This issue will be addressed
+in the following section.</p>
+</section>
+<section id="modeling-pairwise-interactions-with-splines-and-polynomial-features">
+<h2>Modeling pairwise interactions with splines and polynomial features<a class="headerlink" href="#modeling-pairwise-interactions-with-splines-and-polynomial-features" title="Link to this heading">¶</a></h2>
+<p>Linear models do not automatically capture interaction effects between input
+features. It does not help that some features are marginally non-linear as is
+the case with features constructed by <code class="docutils literal notranslate"><span class="pre">SplineTransformer</span></code> (or one-hot
+encoding or binning).</p>
+<p>However, it is possible to use the <code class="docutils literal notranslate"><span class="pre">PolynomialFeatures</span></code> class on coarse
+grained spline encoded hours to model the “workingday”/”hours” interaction
+explicitly without introducing too many new variables:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.pipeline.FeatureUnion.html#sklearn.pipeline.FeatureUnion" title="sklearn.pipeline.FeatureUnion" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">FeatureUnion</span></a>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.preprocessing.PolynomialFeatures.html#sklearn.preprocessing.PolynomialFeatures" title="sklearn.preprocessing.PolynomialFeatures" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">PolynomialFeatures</span></a>
+
+<span class="n">hour_workday_interaction</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;cyclic_hour&quot;</span><span class="p">,</span> <span class="n">periodic_spline_transformer</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="n">n_splines</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s2">&quot;workingday&quot;</span><span class="p">,</span> <a href="../../modules/generated/sklearn.preprocessing.FunctionTransformer.html#sklearn.preprocessing.FunctionTransformer" title="sklearn.preprocessing.FunctionTransformer" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">FunctionTransformer</span></a><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;workingday&quot;</span><span class="p">]),</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <a href="../../modules/generated/sklearn.preprocessing.PolynomialFeatures.html#sklearn.preprocessing.PolynomialFeatures" title="sklearn.preprocessing.PolynomialFeatures" class="sphx-glr-backref-module-sklearn-preprocessing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">PolynomialFeatures</span></a><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">interaction_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Those features are then combined with the ones already computed in the
+previous spline-base pipeline. We can observe a nice performance improvemnt
+by modeling this pairwise interaction explicitly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cyclic_spline_interactions_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <a href="../../modules/generated/sklearn.pipeline.FeatureUnion.html#sklearn.pipeline.FeatureUnion" title="sklearn.pipeline.FeatureUnion" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">FeatureUnion</span></a><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;marginal&quot;</span><span class="p">,</span> <span class="n">cyclic_spline_transformer</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;interactions&quot;</span><span class="p">,</span> <span class="n">hour_workday_interaction</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">evaluate</span><span class="p">(</span><span class="n">cyclic_spline_interactions_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.078 +/- 0.009
+Root Mean Squared Error: 0.104 +/- 0.009
+</pre></div>
+</div>
+</section>
+<section id="modeling-non-linear-feature-interactions-with-kernels">
+<h2>Modeling non-linear feature interactions with kernels<a class="headerlink" href="#modeling-non-linear-feature-interactions-with-kernels" title="Link to this heading">¶</a></h2>
+<p>The previous analysis highlighted the need to model the interactions between
+<code class="docutils literal notranslate"><span class="pre">&quot;workingday&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;hours&quot;</span></code>. Another example of a such a non-linear
+interaction that we would like to model could be the impact of the rain that
+might not be the same during the working days and the week-ends and holidays
+for instance.</p>
+<p>To model all such interactions, we could either use a polynomial expansion on
+all marginal features at once, after their spline-based expansion. However,
+this would create a quadratic number of features which can cause overfitting
+and computational tractability issues.</p>
+<p>Alternatively, we can use the Nyström method to compute an approximate
+polynomial kernel expansion. Let us try the latter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.kernel_approximation</span> <span class="kn">import</span> <a href="../../modules/generated/sklearn.kernel_approximation.Nystroem.html#sklearn.kernel_approximation.Nystroem" title="sklearn.kernel_approximation.Nystroem" class="sphx-glr-backref-module-sklearn-kernel_approximation sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Nystroem</span></a>
+
+<span class="n">cyclic_spline_poly_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <span class="n">cyclic_spline_transformer</span><span class="p">,</span>
+    <a href="../../modules/generated/sklearn.kernel_approximation.Nystroem.html#sklearn.kernel_approximation.Nystroem" title="sklearn.kernel_approximation.Nystroem" class="sphx-glr-backref-module-sklearn-kernel_approximation sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Nystroem</span></a><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;poly&quot;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">evaluate</span><span class="p">(</span><span class="n">cyclic_spline_poly_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.053 +/- 0.002
+Root Mean Squared Error: 0.076 +/- 0.004
+</pre></div>
+</div>
+<p>We observe that this model can almost rival the performance of the gradient
+boosted trees with an average error around 5% of the maximum demand.</p>
+<p>Note that while the final step of this pipeline is a linear regression model,
+the intermediate steps such as the spline feature extraction and the Nyström
+kernel approximation are highly non-linear. As a result the compound pipeline
+is much more expressive than a simple linear regression model with raw features.</p>
+<p>For the sake of completeness, we also evaluate the combination of one-hot
+encoding and kernel approximation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one_hot_poly_pipeline</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="sklearn.pipeline.make_pipeline" class="sphx-glr-backref-module-sklearn-pipeline sphx-glr-backref-type-py-function"><span class="n">make_pipeline</span></a><span class="p">(</span>
+    <a href="../../modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="sklearn.compose.ColumnTransformer" class="sphx-glr-backref-module-sklearn-compose sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ColumnTransformer</span></a><span class="p">(</span>
+        <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="n">categorical_columns</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;one_hot_time&quot;</span><span class="p">,</span> <span class="n">one_hot_encoder</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">,</span> <span class="s2">&quot;weekday&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">]),</span>
+        <span class="p">],</span>
+        <span class="n">remainder</span><span class="o">=</span><span class="s2">&quot;passthrough&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <a href="../../modules/generated/sklearn.kernel_approximation.Nystroem.html#sklearn.kernel_approximation.Nystroem" title="sklearn.kernel_approximation.Nystroem" class="sphx-glr-backref-module-sklearn-kernel_approximation sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Nystroem</span></a><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;poly&quot;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <a href="../../modules/generated/sklearn.linear_model.RidgeCV.html#sklearn.linear_model.RidgeCV" title="sklearn.linear_model.RidgeCV" class="sphx-glr-backref-module-sklearn-linear_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">RidgeCV</span></a><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">evaluate</span><span class="p">(</span><span class="n">one_hot_poly_pipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">ts_cv</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean Absolute Error:     0.082 +/- 0.006
+Root Mean Squared Error: 0.111 +/- 0.011
+</pre></div>
+</div>
+<p>While one-hot encoded features were competitive with spline-based features
+when using linear models, this is no longer the case when using a low-rank
+approximation of a non-linear kernel: this can be explained by the fact that
+spline features are smoother and allow the kernel approximation to find a
+more expressive decision function.</p>
+<p>Let us now have a qualitative look at the predictions of the kernel models
+and of the gradient boosted trees that should be able to better model
+non-linear interactions between features:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gbrt_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">gbrt_predictions</span> <span class="o">=</span> <span class="n">gbrt_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+
+<span class="n">one_hot_poly_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">one_hot_poly_predictions</span> <span class="o">=</span> <span class="n">one_hot_poly_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+
+<span class="n">cyclic_spline_poly_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_0</span><span class="p">])</span>
+<span class="n">cyclic_spline_poly_predictions</span> <span class="o">=</span> <span class="n">cyclic_spline_poly_pipeline</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Again we zoom on the last 4 days of the test set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">last_hours</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">96</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Predictions by non-linear regression models&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Actual demand&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">gbrt_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gradient Boosted Trees&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">one_hot_poly_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;One-hot + polynomial kernel&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">cyclic_spline_poly_predictions</span><span class="p">[</span><span class="n">last_hours</span><span class="p">],</span>
+    <span class="s2">&quot;x-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Splines + polynomial kernel&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_007.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_007.png" alt="Predictions by non-linear regression models" class = "sphx-glr-single-img"/><p>First, note that trees can naturally model non-linear feature interactions
+since, by default, decision trees are allowed to grow beyond a depth of 2
+levels.</p>
+<p>Here, we can observe that the combinations of spline features and non-linear
+kernels works quite well and can almost rival the accuracy of the gradient
+boosting regression trees.</p>
+<p>On the contrary, one-hot encoded time features do not perform that well with
+the low rank kernel model. In particular, they significantly over-estimate
+the low demand hours more than the competing models.</p>
+<p>We also observe that none of the models can successfully predict some of the
+peak rentals at the rush hours during the working days. It is possible that
+access to additional features would be required to further improve the
+accuracy of the predictions. For instance, it could be useful to have access
+to the geographical repartition of the fleet at any point in time or the
+fraction of bikes that are immobilized because they need servicing.</p>
+<p>Let us finally get a more quantative look at the prediction errors of those
+three models using the true vs predicted demand scatter plots:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">PredictionErrorDisplay</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Non-linear regression models&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">one_hot_poly_predictions</span><span class="p">,</span>
+    <span class="n">cyclic_spline_poly_predictions</span><span class="p">,</span>
+    <span class="n">gbrt_predictions</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;One hot +</span><span class="se">\n</span><span class="s2">polynomial kernel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Splines +</span><span class="se">\n</span><span class="s2">polynomial kernel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Gradient Boosted</span><span class="se">\n</span><span class="s2">Trees&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">plot_kinds</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;actual_vs_predicted&quot;</span><span class="p">,</span> <span class="s2">&quot;residual_vs_predicted&quot;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">axis_idx</span><span class="p">,</span> <span class="n">kind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plot_kinds</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_idx</span><span class="p">],</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="n">disp</span> <span class="o">=</span> <a href="../../modules/generated/sklearn.metrics.PredictionErrorDisplay.html#sklearn.metrics.PredictionErrorDisplay.from_predictions" title="sklearn.metrics.PredictionErrorDisplay.from_predictions" class="sphx-glr-backref-module-sklearn-metrics-PredictionErrorDisplay sphx-glr-backref-type-py-method"><span class="n">PredictionErrorDisplay</span><span class="o">.</span><span class="n">from_predictions</span></a><span class="p">(</span>
+            <span class="n">y_true</span><span class="o">=</span><span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_0</span><span class="p">],</span>
+            <span class="n">y_pred</span><span class="o">=</span><span class="n">pred</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+            <span class="n">scatter_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">axis_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;Best model&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">],</span>
+                <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper center&quot;</span><span class="p">,</span>
+                <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">),</span>
+                <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_cyclical_feature_engineering_008.png" srcset="../../_images/sphx_glr_plot_cyclical_feature_engineering_008.png" alt="Non-linear regression models" class = "sphx-glr-single-img"/><p>This visualization confirms the conclusions we draw on the previous plot.</p>
+<p>All models under-estimate the high demand events (working day rush hours),
+but gradient boosting a bit less so. The low demand events are well predicted
+on average by gradient boosting while the one-hot polynomial regression
+pipeline seems to systematically over-estimate demand in that regime. Overall
+the predictions of the gradient boosted trees are closer to the diagonal than
+for the kernel models.</p>
+</section>
+<section id="concluding-remarks">
+<h2>Concluding remarks<a class="headerlink" href="#concluding-remarks" title="Link to this heading">¶</a></h2>
+<p>We note that we could have obtained slightly better results for kernel models
+by using more components (higher rank kernel approximation) at the cost of
+longer fit and prediction durations. For large values of <code class="docutils literal notranslate"><span class="pre">n_components</span></code>, the
+performance of the one-hot encoded features would even match the spline
+features.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Nystroem</span></code> + <code class="docutils literal notranslate"><span class="pre">RidgeCV</span></code> regressor could also have been replaced by
+<a class="reference internal" href="../../modules/generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor" title="sklearn.neural_network.MLPRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPRegressor</span></code></a> with one or two hidden layers
+and we would have obtained quite similar results.</p>
+<p>The dataset we used in this case study is sampled on a hourly basis. However
+cyclic spline-based features could model time-within-day or time-within-week
+very efficiently with finer-grained time resolutions (for instance with
+measurements taken every minute instead of every hours) without introducing
+more features. One-hot encoding time representations would not offer this
+flexibility.</p>
+<p>Finally, in this notebook we used <code class="docutils literal notranslate"><span class="pre">RidgeCV</span></code> because it is very efficient from
+a computational point of view. However, it models the target variable as a
+Gaussian random variable with constant variance. For positive regression
+problems, it is likely that using a Poisson or Gamma distribution would make
+more sense. This could be achieved by using
+<code class="docutils literal notranslate"><span class="pre">GridSearchCV(TweedieRegressor(power=2),</span> <span class="pre">param_grid({&quot;alpha&quot;:</span> <span class="pre">alphas}))</span></code>
+instead of <code class="docutils literal notranslate"><span class="pre">RidgeCV</span></code>.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 17.648 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-applications-plot-cyclical-feature-engineering-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/scikit-learn/scikit-learn/1.3.X?urlpath=lab/tree/notebooks/auto_examples/applications/plot_cyclical_feature_engineering.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo.svg" width="150px" /></a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/9fcbbc59ab27a20d07e209a711ac4f50/plot_cyclical_feature_engineering.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_cyclical_feature_engineering.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/7012baed63b9a27f121bae611b8285c2/plot_cyclical_feature_engineering.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_cyclical_feature_engineering.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2023, scikit-learn developers (BSD License).
+          <a href="../../_sources/auto_examples/applications/plot_cyclical_feature_engineering.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+<script defer data-domain="scikit-learn.org" src="https://views.scientific-python.org/js/script.js">
+</script>
+
+
+<script src="../../_static/clipboard.min.js"></script>
+<script src="../../_static/copybutton.js"></script>
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>

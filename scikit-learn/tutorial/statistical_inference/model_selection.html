@@ -5,12 +5,20 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="Model selection: choosing estimators and their parameters" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://scikit-learn/stable/tutorial/statistical_inference/model_selection.html" />
+<meta property="og:site_name" content="scikit-learn" />
+<meta property="og:description" content="Score, and cross-validated scores: As we have seen, every estimator exposes a score method that can judge the quality of the fit (or the prediction) on new data. Bigger is better. To get a better m..." />
+<meta property="og:image" content="https://scikit-learn/stable/_images/sphx_glr_plot_cv_digits_001.png" />
+<meta property="og:image:alt" content="scikit-learn" />
+<meta name="description" content="Score, and cross-validated scores: As we have seen, every estimator exposes a score method that can judge the quality of the fit (or the prediction) on new data. Bigger is better. To get a better m..." />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="Description" content="scikit-learn: machine learning in Python">
 
   
-  <title>Model selection: choosing estimators and their parameters &mdash; scikit-learn 0.23.2 documentation</title>
+  <title>Model selection: choosing estimators and their parameters &mdash; scikit-learn 1.3.2 documentation</title>
   
   <link rel="canonical" href="http://scikit-learn.org/stable/tutorial/statistical_inference/model_selection.html" />
 
@@ -19,14 +27,25 @@
   
 
   <link rel="stylesheet" href="../../_static/css/vendor/bootstrap.min.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
 <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-<script src="../../_static/jquery.js"></script> 
+<script src="../../_static/js/vendor/jquery-3.6.3.slim.min.js"></script> 
 </head>
 <body>
+
+
+
+
+
+
 <nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
   <div class="container-fluid sk-docs-container px-0">
       <a class="navbar-brand py-0" href="../../index.html">
@@ -63,52 +82,63 @@
           <a class="sk-nav-link nav-link" href="../../auto_examples/index.html">Examples</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html">Getting Started</a>
+          <a class="sk-nav-link nav-link" target="_blank" rel="noopener noreferrer" href="https://blog.scikit-learn.org/">Community</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../index.html">Tutorial</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../getting_started.html" >Getting Started</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v0.23.html">What's new</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../index.html" >Tutorial</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html">Glossary</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../whats_new/v1.3.html" >What's new</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../developers/index.html">Development</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../glossary.html" >Glossary</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html">FAQ</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html">Related packages</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../faq.html" >FAQ</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html">Roadmap</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../support.html" >Support</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html">About us</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../related_projects.html" >Related packages</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../roadmap.html" >Roadmap</a>
         </li>
         <li class="nav-item">
-          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../governance.html" >Governance</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../../about.html" >About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
         </li>
         <li class="nav-item dropdown nav-more-item-dropdown">
           <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html">Getting Started</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../index.html">Tutorial</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v0.23.html">What's new</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html">Glossary</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../developers/index.html">Development</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html">FAQ</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html">Related packages</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html">Roadmap</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html">About us</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn">GitHub</a>
-              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html">Other Versions</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../getting_started.html" >Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../index.html" >Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../whats_new/v1.3.html" >What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../glossary.html" >Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../faq.html" >FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../support.html" >Support</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../related_projects.html" >Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../roadmap.html" >Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../governance.html" >Governance</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../../about.html" >About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
           </div>
         </li>
       </ul>
@@ -128,21 +158,13 @@
     <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
     <div id="sk-sidebar-wrapper" class="border-right">
       <div class="sk-sidebar-toc-wrapper">
-        <div class="sk-sidebar-toc-logo">
-          <a href="../../index.html">
-            <img
-              class="sk-brand-img"
-              src="../../_static/scikit-learn-logo-small.png"
-              alt="logo"/>
-          </a>
-        </div>
         <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
             <a href="supervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Supervised learning: predicting an output variable from high-dimensional observations">Prev</a><a href="index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="A tutorial on statistical-learning for scientific data processing">Up</a>
             <a href="unsupervised_learning.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Unsupervised learning: seeking representations of the data">Next</a>
         </div>
         <div class="alert alert-danger p-1 mb-2" role="alert">
           <p class="text-center mb-0">
-          <strong>scikit-learn 0.23.2</strong><br/>
+          <strong>scikit-learn 1.3.2</strong><br/>
           <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
           </p>
         </div>
@@ -151,8 +173,8 @@
             Please <a class="font-weight-bold" href="../../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
           </p>
         </div>
-          <div class="sk-sidebar-toc">
-            <ul>
+            <div class="sk-sidebar-toc">
+              <ul>
 <li><a class="reference internal" href="#">Model selection: choosing estimators and their parameters</a><ul>
 <li><a class="reference internal" href="#score-and-cross-validated-scores">Score, and cross-validated scores</a></li>
 <li><a class="reference internal" href="#cross-validation-generators">Cross-validation generators</a></li>
@@ -165,16 +187,16 @@
 </li>
 </ul>
 
-          </div>
+            </div>
       </div>
     </div>
     <div id="sk-page-content-wrapper">
       <div class="sk-page-content container-fluid body px-md-3" role="main">
         
-  <div class="section" id="model-selection-choosing-estimators-and-their-parameters">
-<span id="model-selection-tut"></span><h1>Model selection: choosing estimators and their parameters<a class="headerlink" href="#model-selection-choosing-estimators-and-their-parameters" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="score-and-cross-validated-scores">
-<h2>Score, and cross-validated scores<a class="headerlink" href="#score-and-cross-validated-scores" title="Permalink to this headline">¶</a></h2>
+  <section id="model-selection-choosing-estimators-and-their-parameters">
+<span id="model-selection-tut"></span><h1>Model selection: choosing estimators and their parameters<a class="headerlink" href="#model-selection-choosing-estimators-and-their-parameters" title="Link to this heading">¶</a></h1>
+<section id="score-and-cross-validated-scores">
+<h2>Score, and cross-validated scores<a class="headerlink" href="#score-and-cross-validated-scores" title="Link to this heading">¶</a></h2>
 <p>As we have seen, every estimator exposes a <code class="docutils literal notranslate"><span class="pre">score</span></code> method that can judge
 the quality of the fit (or the prediction) on new data. <strong>Bigger is
 better</strong>.</p>
@@ -206,9 +228,9 @@ data in <em>folds</em> that we use for training and testing:</p>
 </pre></div>
 </div>
 <p>This is called a <a class="reference internal" href="../../modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold" title="sklearn.model_selection.KFold"><code class="xref py py-class docutils literal notranslate"><span class="pre">KFold</span></code></a> cross-validation.</p>
-</div>
-<div class="section" id="cross-validation-generators">
-<span id="cv-generators-tut"></span><h2>Cross-validation generators<a class="headerlink" href="#cross-validation-generators" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="cross-validation-generators">
+<span id="cv-generators-tut"></span><h2>Cross-validation generators<a class="headerlink" href="#cross-validation-generators" title="Link to this heading">¶</a></h2>
 <p>Scikit-learn has a collection of classes which can be used to generate lists of
 train/test indices for popular cross-validation strategies.</p>
 <p>They expose a <code class="docutils literal notranslate"><span class="pre">split</span></code> method which accepts the input
@@ -258,11 +280,6 @@ scoring method.</p>
 <p><strong>Cross-validation generators</strong></p>
 </div></blockquote>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold" title="sklearn.model_selection.KFold"><code class="xref py py-class docutils literal notranslate"><span class="pre">KFold</span></code></a> <strong>(n_splits, shuffle, random_state)</strong></p></td>
 <td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold" title="sklearn.model_selection.StratifiedKFold"><code class="xref py py-class docutils literal notranslate"><span class="pre">StratifiedKFold</span></code></a> <strong>(n_splits, shuffle, random_state)</strong></p></td>
@@ -275,11 +292,6 @@ scoring method.</p>
 </tbody>
 </table>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit" title="sklearn.model_selection.ShuffleSplit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShuffleSplit</span></code></a> <strong>(n_splits, test_size, train_size, random_state)</strong></p></td>
 <td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.StratifiedShuffleSplit.html#sklearn.model_selection.StratifiedShuffleSplit" title="sklearn.model_selection.StratifiedShuffleSplit"><code class="xref py py-class docutils literal notranslate"><span class="pre">StratifiedShuffleSplit</span></code></a></p></td>
@@ -292,11 +304,6 @@ scoring method.</p>
 </tbody>
 </table>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.LeaveOneGroupOut.html#sklearn.model_selection.LeaveOneGroupOut" title="sklearn.model_selection.LeaveOneGroupOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeaveOneGroupOut</span></code></a> <strong>()</strong></p></td>
 <td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.LeavePGroupsOut.html#sklearn.model_selection.LeavePGroupsOut" title="sklearn.model_selection.LeavePGroupsOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeavePGroupsOut</span></code></a>  <strong>(n_groups)</strong></p></td>
@@ -309,10 +316,6 @@ scoring method.</p>
 </tbody>
 </table>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.LeavePOut.html#sklearn.model_selection.LeavePOut" title="sklearn.model_selection.LeavePOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeavePOut</span></code></a> <strong>(p)</strong></p></td>
 <td><p><a class="reference internal" href="../../modules/generated/sklearn.model_selection.PredefinedSplit.html#sklearn.model_selection.PredefinedSplit" title="sklearn.model_selection.PredefinedSplit"><code class="xref py py-class docutils literal notranslate"><span class="pre">PredefinedSplit</span></code></a></p></td>
@@ -322,32 +325,34 @@ scoring method.</p>
 </tr>
 </tbody>
 </table>
-<div class="green topic">
+<aside class="topic">
 <p class="topic-title"><strong>Exercise</strong></p>
-<a class="reference external image-reference" href="../../auto_examples/exercises/plot_cv_digits.html"><img alt="../../_images/sphx_glr_plot_cv_digits_001.png" class="align-right" src="../../_images/sphx_glr_plot_cv_digits_001.png" style="width: 576.0px; height: 432.0px;" /></a>
 <p>On the digits dataset, plot the cross-validation score of a <a class="reference internal" href="../../modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC" title="sklearn.svm.SVC"><code class="xref py py-class docutils literal notranslate"><span class="pre">SVC</span></code></a>
-estimator with an linear kernel as a function of parameter <code class="docutils literal notranslate"><span class="pre">C</span></code> (use a
+estimator with a linear kernel as a function of parameter <code class="docutils literal notranslate"><span class="pre">C</span></code> (use a
 logarithmic grid of points, from 1 to 10).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">svm</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
 
 <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">svc</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+<span class="n">svc</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
 <span class="n">C_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
 <span class="n">scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 </pre></div>
 </div>
+</div></blockquote>
+<a class="reference external image-reference" href="../../auto_examples/exercises/plot_cv_digits.html"><img alt="../../_images/sphx_glr_plot_cv_digits_001.png" class="align-center" src="../../_images/sphx_glr_plot_cv_digits_001.png" style="width: 576.0px; height: 432.0px;" /></a>
 <p><strong>Solution:</strong> <a class="reference internal" href="../../auto_examples/exercises/plot_cv_digits.html#sphx-glr-auto-examples-exercises-plot-cv-digits-py"><span class="std std-ref">Cross-validation on Digits Dataset Exercise</span></a></p>
-</div>
-</div>
-<div class="section" id="grid-search-and-cross-validated-estimators">
-<h2>Grid-search and cross-validated estimators<a class="headerlink" href="#grid-search-and-cross-validated-estimators" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="grid-search">
-<h3>Grid-search<a class="headerlink" href="#grid-search" title="Permalink to this headline">¶</a></h3>
+</aside>
+</section>
+<section id="grid-search-and-cross-validated-estimators">
+<h2>Grid-search and cross-validated estimators<a class="headerlink" href="#grid-search-and-cross-validated-estimators" title="Link to this heading">¶</a></h2>
+<section id="grid-search">
+<h3>Grid-search<a class="headerlink" href="#grid-search" title="Link to this heading">¶</a></h3>
 <p>scikit-learn provides an object that, given data, computes the score
 during the fit of an estimator on a parameter grid and chooses the
 parameters to maximize the cross-validation score. This object takes an
@@ -368,11 +373,10 @@ estimator during the construction and exposes an estimator API:</p>
 <span class="go">0.943...</span>
 </pre></div>
 </div>
-<p>By default, the <a class="reference internal" href="../../modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="sklearn.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> uses a 3-fold cross-validation. However,
+<p>By default, the <a class="reference internal" href="../../modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="sklearn.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> uses a 5-fold cross-validation. However,
 if it detects that a classifier is passed, rather than a regressor, it uses
-a stratified 3-fold. The default will change to a 5-fold cross-validation in
-version 0.22.</p>
-<div class="topic">
+a stratified 5-fold.</p>
+<aside class="topic">
 <p class="topic-title">Nested cross-validation</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cross_val_score</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_digits</span><span class="p">,</span> <span class="n">y_digits</span><span class="p">)</span> 
 <span class="go">array([0.938..., 0.963..., 0.944...])</span>
@@ -383,15 +387,15 @@ version 0.22.</p>
 <code class="docutils literal notranslate"><span class="pre">cross_val_score</span></code> to measure the prediction performance of the
 estimator. The resulting scores are unbiased estimates of the
 prediction score on new data.</p>
-</div>
+</aside>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>You cannot nest objects with parallel computing (<code class="docutils literal notranslate"><span class="pre">n_jobs</span></code> different
 than 1).</p>
 </div>
-</div>
-<div class="section" id="cross-validated-estimators">
-<span id="cv-estimators-tut"></span><h3>Cross-validated estimators<a class="headerlink" href="#cross-validated-estimators" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="cross-validated-estimators">
+<span id="cv-estimators-tut"></span><h3>Cross-validated estimators<a class="headerlink" href="#cross-validated-estimators" title="Link to this heading">¶</a></h3>
 <p>Cross-validation to set a parameter can be done more efficiently on an
 algorithm-by-algorithm basis. This is why, for certain estimators,
 scikit-learn exposes <a class="reference internal" href="../../modules/cross_validation.html#cross-validation"><span class="std std-ref">Cross-validation: evaluating estimator performance</span></a> estimators that set their
@@ -408,15 +412,15 @@ parameter automatically by cross-validation:</p>
 </div>
 <p>These estimators are called similarly to their counterparts, with ‘CV’
 appended to their name.</p>
-<div class="green topic">
+<aside class="topic">
 <p class="topic-title"><strong>Exercise</strong></p>
 <p>On the diabetes dataset, find the optimal regularization parameter
 alpha.</p>
 <p><strong>Bonus</strong>: How much can you trust the selection of alpha?</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Lasso</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
 
 <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_diabetes</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -424,16 +428,16 @@ alpha.</p>
 </pre></div>
 </div>
 <p><strong>Solution:</strong> <a class="reference internal" href="../../auto_examples/exercises/plot_cv_diabetes.html#sphx-glr-auto-examples-exercises-plot-cv-diabetes-py"><span class="std std-ref">Cross-validation on diabetes Dataset Exercise</span></a></p>
-</div>
-</div>
-</div>
-</div>
+</aside>
+</section>
+</section>
+</section>
 
 
       </div>
     <div class="container">
       <footer class="sk-content-footer">
-            &copy; 2007 - 2020, scikit-learn developers (BSD License).
+            &copy; 2007 - 2023, scikit-learn developers (BSD License).
           <a href="../../_sources/tutorial/statistical_inference/model_selection.rst.txt" rel="nofollow">Show this page source</a>
       </footer>
     </div>
@@ -450,6 +454,14 @@ alpha.</p>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
+
+<script defer data-domain="scikit-learn.org" src="https://views.scientific-python.org/js/script.js">
+</script>
+
+
+<script src="../../_static/clipboard.min.js"></script>
+<script src="../../_static/copybutton.js"></script>
+
 <script>
 $(document).ready(function() {
     /* Add a [>>>] button on the top-right corner of code samples to hide
@@ -463,44 +475,15 @@ $(document).ready(function() {
 
     // get the styles from the current theme
     pre.parent().parent().css('position', 'relative');
-    var hide_text = 'Hide prompts and outputs';
-    var show_text = 'Show prompts and outputs';
 
     // create and add the button to all the code blocks that contain >>>
     div.each(function(index) {
         var jthis = $(this);
-        if (jthis.find('.gp').length > 0) {
-            var button = $('<span class="copybutton">&gt;&gt;&gt;</span>');
-            button.attr('title', hide_text);
-            button.data('hidden', 'false');
-            jthis.prepend(button);
-        }
         // tracebacks (.gt) contain bare text elements that need to be
         // wrapped in a span to work with .nextUntil() (see later)
         jthis.find('pre:has(.gt)').contents().filter(function() {
             return ((this.nodeType == 3) && (this.data.trim().length > 0));
         }).wrap('<span>');
-    });
-
-    // define the behavior of the button when it's clicked
-    $('.copybutton').click(function(e){
-        e.preventDefault();
-        var button = $(this);
-        if (button.data('hidden') === 'false') {
-            // hide the code output
-            button.parent().find('.go, .gp, .gt').hide();
-            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'hidden');
-            button.css('text-decoration', 'line-through');
-            button.attr('title', show_text);
-            button.data('hidden', 'true');
-        } else {
-            // show the code output
-            button.parent().find('.go, .gp, .gt').show();
-            button.next('pre').find('.gt').nextUntil('.gp, .go').css('visibility', 'visible');
-            button.css('text-decoration', 'none');
-            button.attr('title', hide_text);
-            button.data('hidden', 'false');
-        }
     });
 
 	/*** Add permalink buttons next to glossary terms ***/
@@ -509,75 +492,6 @@ $(document).ready(function() {
 			    this.getAttribute('id') +
 			    '" title="Permalink to this term">¶</a>');
 	});
-  /*** Hide navbar when scrolling down ***/
-  // Returns true when headerlink target matches hash in url
-  (function() {
-    hashTargetOnTop = function() {
-        var hash = window.location.hash;
-        if ( hash.length < 2 ) { return false; }
-
-        var target = document.getElementById( hash.slice(1) );
-        if ( target === null ) { return false; }
-
-        var top = target.getBoundingClientRect().top;
-        return (top < 2) && (top > -2);
-    };
-
-    // Hide navbar on load if hash target is on top
-    var navBar = document.getElementById("navbar");
-    var navBarToggler = document.getElementById("sk-navbar-toggler");
-    var navBarHeightHidden = "-" + navBar.getBoundingClientRect().height + "px";
-    var $window = $(window);
-
-    hideNavBar = function() {
-        navBar.style.top = navBarHeightHidden;
-    };
-
-    showNavBar = function() {
-        navBar.style.top = "0";
-    }
-
-    if (hashTargetOnTop()) {
-        hideNavBar()
-    }
-
-    var prevScrollpos = window.pageYOffset;
-    hideOnScroll = function(lastScrollTop) {
-        if (($window.width() < 768) && (navBarToggler.getAttribute("aria-expanded") === 'true')) {
-            return;
-        }
-        if (lastScrollTop > 2 && (prevScrollpos <= lastScrollTop) || hashTargetOnTop()){
-            hideNavBar()
-        } else {
-            showNavBar()
-        }
-        prevScrollpos = lastScrollTop;
-    };
-
-    /*** high performance scroll event listener***/
-    var raf = window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        window.oRequestAnimationFrame;
-    var lastScrollTop = $window.scrollTop();
-
-    if (raf) {
-        loop();
-    }
-
-    function loop() {
-        var scrollTop = $window.scrollTop();
-        if (lastScrollTop === scrollTop) {
-            raf(loop);
-            return;
-        } else {
-            lastScrollTop = scrollTop;
-            hideOnScroll(lastScrollTop);
-            raf(loop);
-        }
-    }
-  })();
 });
 
 </script>

@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta content="codex" name="keywords" />
+
+    <title>Text rendering with XeLaTeX/LuaLaTeX via the pgf backend &#8212; Matplotlib 3.8.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=86e00652" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css?v=7f9a90b1" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mpl.css?v=a30b99b9" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script src="../../../_static/documentation_options.js?v=52ef03d6"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'users/explain/text/pgf';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://matplotlib.org/devdocs/_static/switcher.json?3.8.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
+        </script>
+    <link rel="canonical" href="https://matplotlib.org/stable/users/explain/text/pgf.html" />
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Matplotlib 3.8.1 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Text rendering with LaTeX" href="usetex.html" />
+    <link rel="prev" title="Writing mathematical expressions" href="mathtext.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  <div class="bd-header-announcement container-fluid" id="unreleased-message">
+    <div class="bd-header-announcement__content">
+      You are reading documentation for the unreleased version of Matplotlib.
+      <a href="https://matplotlib.org/search.html?q=Text%20rendering%20with%20XeLaTeX/LuaLaTeX%20via%20the%20pgf%20backend&amp;check_keywords=yes&amp;area=default">
+        Try searching for the released version of this page instead?
+      </a>
+    </div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+   
+
+<a class="navbar-brand logo" href="https://matplotlib.org/stable/">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo_light.svg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/logo_dark.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><ul id="navbar-main-elements" class="navbar-nav">
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../plot_types/index.html">Plot types</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../index.html">User guide</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../tutorials/index.html">Tutorials</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../gallery/index.html">Examples</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../api/index.html">Reference</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../devel/index.html">Contribute</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../release_notes.html">Releases</a>
+  </li>
+</ul></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      stable  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://gitter.im/matplotlib/matplotlib" title="Gitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-gitter"></i></span>
+            <label class="sr-only">Gitter</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://discourse.matplotlib.org" title="Discourse" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-discourse"></i></span>
+            <label class="sr-only">Discourse</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/matplotlib/matplotlib" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/matplotlib/" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><ul id="navbar-main-elements" class="navbar-nav">
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../plot_types/index.html">Plot types</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../index.html">User guide</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../tutorials/index.html">Tutorials</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../gallery/index.html">Examples</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../api/index.html">Reference</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../../devel/index.html">Contribute</a>
+  </li>
+  <li class="nav-item">
+    <a class="reference internal nav-link" href="../../release_notes.html">Releases</a>
+  </li>
+</ul></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      stable  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://gitter.im/matplotlib/matplotlib" title="Gitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-gitter"></i></span>
+            <label class="sr-only">Gitter</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://discourse.matplotlib.org" title="Discourse" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-discourse"></i></span>
+            <label class="sr-only">Discourse</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/matplotlib/matplotlib" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/matplotlib/" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick start guide</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../figure/index.html">Figures and backends</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../axes/index.html">Axes and subplots</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../artists/index.html">Artists</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../customizing.html">Customizing Matplotlib with style sheets and rcParams</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../colors/index.html">Colors</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Text</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="text_intro.html">Text in Matplotlib Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text_props.html">Text properties and layout</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="annotations.html">Annotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fonts.html">Fonts in Matplotlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mathtext.html">Writing mathematical expressions</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Text rendering with XeLaTeX/LuaLaTeX via the <code class="docutils literal notranslate"><span class="pre">pgf</span></code> backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usetex.html">Text rendering with LaTeX</a></li>
+</ul>
+</li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../animations/index.html">Animations using Matplotlib</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../toolkits/index.html">User Toolkits</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">User guide tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/index.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installing/index.html">Installation</a></li>
+
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Using Matplotlib</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Text</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Text rendering with XeLaTeX/LuaLaTeX via the <code class="docutils literal notranslate"><span class="pre">pgf</span></code> backend</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-users-explain-text-pgf-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="text-rendering-with-xelatex-lualatex-via-the-pgf-backend">
+<span id="pgf"></span><span id="sphx-glr-users-explain-text-pgf-py"></span><h1>Text rendering with XeLaTeX/LuaLaTeX via the <code class="docutils literal notranslate"><span class="pre">pgf</span></code> backend<a class="headerlink" href="#text-rendering-with-xelatex-lualatex-via-the-pgf-backend" title="Link to this heading">#</a></h1>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">pgf</span></code> backend, Matplotlib can export figures as pgf drawing
+commands that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and
+LuaLaTeX have full Unicode support and can use any font that is installed in
+the operating system, making use of advanced typographic features of OpenType,
+AAT and Graphite. Pgf pictures created by <code class="docutils literal notranslate"><span class="pre">plt.savefig('figure.pgf')</span></code>
+can be embedded as raw commands in LaTeX documents. Figures can also be
+directly compiled and saved to PDF with <code class="docutils literal notranslate"><span class="pre">plt.savefig('figure.pdf')</span></code> by
+switching the backend</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;pgf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or by explicitly requesting the use of the <code class="docutils literal notranslate"><span class="pre">pgf</span></code> backend</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;figure.pdf&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;pgf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or by registering it for handling pdf output</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pgf</span> <span class="kn">import</span> <span class="n">FigureCanvasPgf</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">backend_bases</span><span class="o">.</span><span class="n">register_backend</span><span class="p">(</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">FigureCanvasPgf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The last method allows you to keep using regular interactive backends and to
+save xelatex, lualatex or pdflatex compiled PDF files from the graphical user
+interface.</p>
+<p>Matplotlib's pgf support requires a recent <a class="reference external" href="http://www.tug.org">LaTeX</a> installation that includes
+the TikZ/PGF packages (such as <a class="reference external" href="http://www.tug.org/texlive/">TeXLive</a>), preferably with XeLaTeX or LuaLaTeX
+installed. If either pdftocairo or ghostscript is present on your system,
+figures can optionally be saved to PNG images as well. The executables
+for all applications must be located on your <span class="target" id="index-0"></span><a class="reference internal" href="../../installing/environment_variables_faq.html#envvar-PATH"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PATH</span></code></a>.</p>
+<p><a class="reference internal" href="../../../api/matplotlib_configuration_api.html#matplotlib.rcParams" title="matplotlib.rcParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcParams</span></code></a> that control the behavior of the pgf backend:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Documentation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pgf.preamble</p></td>
+<td><p>Lines to be included in the LaTeX preamble</p></td>
+</tr>
+<tr class="row-odd"><td><p>pgf.rcfonts</p></td>
+<td><p>Setup fonts from rc params using the fontspec package</p></td>
+</tr>
+<tr class="row-even"><td><p>pgf.texsystem</p></td>
+<td><p>Either &quot;xelatex&quot; (default), &quot;lualatex&quot; or &quot;pdflatex&quot;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TeX defines a set of special characters, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $ % &amp; ~ _ ^ \ { }</span>
+</pre></div>
+</div>
+<p>Generally, these characters must be escaped correctly. For convenience,
+some characters (_, ^, %) are automatically escaped outside of math
+environments. Other characters are not escaped as they are commonly needed
+in actual TeX expressions. However, one can configure TeX to treat them as
+&quot;normal&quot; characters (known as &quot;catcode 12&quot; to TeX) via a custom preamble,
+such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;pgf.preamble&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;\AtBeginDocument{\catcode`\&amp;=12\catcode`\#=12}&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="multi-page-pdf-files">
+<span id="pgf-rcfonts"></span><h2>Multi-Page PDF Files<a class="headerlink" href="#multi-page-pdf-files" title="Link to this heading">#</a></h2>
+<p>The pgf backend also supports multipage pdf files using
+<a class="reference internal" href="../../../api/backend_pgf_api.html#matplotlib.backends.backend_pgf.PdfPages" title="matplotlib.backends.backend_pgf.PdfPages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PdfPages</span></code></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pgf</span> <span class="kn">import</span> <span class="n">PdfPages</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="k">with</span> <span class="n">PdfPages</span><span class="p">(</span><span class="s1">&#39;multipage.pdf&#39;</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;Me&#39;</span><span class="p">})</span> <span class="k">as</span> <span class="n">pdf</span><span class="p">:</span>
+
+    <span class="n">fig1</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig1</span><span class="p">)</span>
+
+    <span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="font-specification">
+<h2>Font specification<a class="headerlink" href="#font-specification" title="Link to this heading">#</a></h2>
+<p>The fonts used for obtaining the size of text elements or when compiling
+figures to PDF are usually defined in the <a class="reference internal" href="../../../api/matplotlib_configuration_api.html#matplotlib.rcParams" title="matplotlib.rcParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcParams</span></code></a>. You can also use the
+LaTeX default Computer Modern fonts by clearing the lists for <code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=font.serif#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;font.serif&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">['DejaVu</span> <span class="pre">Serif',</span> <span class="pre">'Bitstream</span> <span class="pre">Vera</span> <span class="pre">Serif',</span> <span class="pre">'Computer</span> <span class="pre">Modern</span> <span class="pre">Roman',</span> <span class="pre">'New</span> <span class="pre">Century</span> <span class="pre">Schoolbook',</span> <span class="pre">'Century</span> <span class="pre">Schoolbook</span> <span class="pre">L',</span> <span class="pre">'Utopia',</span> <span class="pre">'ITC</span> <span class="pre">Bookman',</span> <span class="pre">'Bookman',</span> <span class="pre">'Nimbus</span> <span class="pre">Roman</span> <span class="pre">No9</span> <span class="pre">L',</span> <span class="pre">'Times</span> <span class="pre">New</span> <span class="pre">Roman',</span> <span class="pre">'Times',</span> <span class="pre">'Palatino',</span> <span class="pre">'Charter',</span> <span class="pre">'serif']</span></code>),
+<code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=font.sans-serif#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;font.sans-serif&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">['DejaVu</span> <span class="pre">Sans',</span> <span class="pre">'Bitstream</span> <span class="pre">Vera</span> <span class="pre">Sans',</span> <span class="pre">'Computer</span> <span class="pre">Modern</span> <span class="pre">Sans</span> <span class="pre">Serif',</span> <span class="pre">'Lucida</span> <span class="pre">Grande',</span> <span class="pre">'Verdana',</span> <span class="pre">'Geneva',</span> <span class="pre">'Lucid',</span> <span class="pre">'Arial',</span> <span class="pre">'Helvetica',</span> <span class="pre">'Avant</span> <span class="pre">Garde',</span> <span class="pre">'sans-serif']</span></code>) or <code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=font.monospace#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;font.monospace&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">['DejaVu</span> <span class="pre">Sans</span> <span class="pre">Mono',</span> <span class="pre">'Bitstream</span> <span class="pre">Vera</span> <span class="pre">Sans</span> <span class="pre">Mono',</span> <span class="pre">'Computer</span> <span class="pre">Modern</span> <span class="pre">Typewriter',</span> <span class="pre">'Andale</span> <span class="pre">Mono',</span> <span class="pre">'Nimbus</span> <span class="pre">Mono</span> <span class="pre">L',</span> <span class="pre">'Courier</span> <span class="pre">New',</span> <span class="pre">'Courier',</span> <span class="pre">'Fixed',</span> <span class="pre">'Terminal',</span> <span class="pre">'monospace']</span></code>). Please note that the glyph
+coverage of these fonts is very limited. If you want to keep the Computer
+Modern font face but require extended Unicode support, consider installing the
+<a class="reference external" href="https://sourceforge.net/projects/cm-unicode/">Computer Modern Unicode</a> fonts <em>CMU Serif</em>, <em>CMU Sans Serif</em>, etc.</p>
+<p>When saving to <code class="docutils literal notranslate"><span class="pre">.pgf</span></code>, the font configuration Matplotlib used for the
+layout of the figure is included in the header of the text file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">=========</span>
+<span class="sd">PGF fonts</span>
+<span class="sd">=========</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s2">&quot;font.family&quot;</span><span class="p">:</span> <span class="s2">&quot;serif&quot;</span><span class="p">,</span>
+    <span class="c1"># Use LaTeX default serif font.</span>
+    <span class="s2">&quot;font.serif&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="c1"># Use specific cursive fonts.</span>
+    <span class="s2">&quot;font.cursive&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Comic Neue&quot;</span><span class="p">,</span> <span class="s2">&quot;Comic Sans MS&quot;</span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="s2">&quot;serif&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="s2">&quot;monospace&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;monospace&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="s2">&quot;sans-serif&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;DejaVu Sans&quot;</span><span class="p">)</span>  <span class="c1"># Use specific sans font.</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="s2">&quot;comic&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;cursive&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;µ is not $</span><span class="se">\\</span><span class="s2">mu$&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+<section id="custom-preamble">
+<span id="pgf-preamble"></span><h2>Custom preamble<a class="headerlink" href="#custom-preamble" title="Link to this heading">#</a></h2>
+<p>Full customization is possible by adding your own commands to the preamble.
+Use <code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=pgf.preamble#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;pgf.preamble&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">''</span></code>) if you want to configure the math fonts,
+using <code class="docutils literal notranslate"><span class="pre">unicode-math</span></code> for example, or for loading additional packages. Also,
+if you want to do the font configuration yourself instead of using the fonts
+specified in the rc parameters, make sure to disable <code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=pgf.rcfonts#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;pgf.rcfonts&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">============</span>
+<span class="sd">PGF preamble</span>
+<span class="sd">============</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+
+<span class="n">mpl</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;pgf&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s2">&quot;font.family&quot;</span><span class="p">:</span> <span class="s2">&quot;serif&quot;</span><span class="p">,</span>  <span class="c1"># use serif/main font for text elements</span>
+    <span class="s2">&quot;text.usetex&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>     <span class="c1"># use inline math for ticks</span>
+    <span class="s2">&quot;pgf.rcfonts&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>    <span class="c1"># don&#39;t setup fonts from rc parameters</span>
+    <span class="s2">&quot;pgf.preamble&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+         <span class="sa">r</span><span class="s2">&quot;\usepackage</span><span class="si">{url}</span><span class="s2">&quot;</span><span class="p">,</span>            <span class="c1"># load additional packages</span>
+         <span class="sa">r</span><span class="s2">&quot;\usepackage{unicode-math}&quot;</span><span class="p">,</span>   <span class="c1"># unicode math setup</span>
+         <span class="sa">r</span><span class="s2">&quot;\setmainfont{DejaVu Serif}&quot;</span><span class="p">,</span>  <span class="c1"># serif font via preamble</span>
+    <span class="p">])</span>
+<span class="p">})</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;unicode text: я, ψ, €, ü&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\url{https://matplotlib.org}&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;unicode math: $λ=∑_i^∞ μ_i^2$&quot;</span><span class="p">])</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+<section id="choosing-the-tex-system">
+<span id="pgf-texsystem"></span><h2>Choosing the TeX system<a class="headerlink" href="#choosing-the-tex-system" title="Link to this heading">#</a></h2>
+<p>The TeX system to be used by Matplotlib is chosen by <code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=pgf.texsystem#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;pgf.texsystem&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">'xelatex'</span></code>).
+Possible values are <code class="docutils literal notranslate"><span class="pre">'xelatex'</span></code> (default), <code class="docutils literal notranslate"><span class="pre">'lualatex'</span></code> and <code class="docutils literal notranslate"><span class="pre">'pdflatex'</span></code>.
+Please note that when selecting pdflatex, the fonts and Unicode handling must
+be configured in the preamble.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">=============</span>
+<span class="sd">PGF texsystem</span>
+<span class="sd">=============</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="s2">&quot;pgf.texsystem&quot;</span><span class="p">:</span> <span class="s2">&quot;pdflatex&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pgf.preamble&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+         <span class="sa">r</span><span class="s2">&quot;\usepackage[utf8x]</span><span class="si">{inputenc}</span><span class="s2">&quot;</span><span class="p">,</span>
+         <span class="sa">r</span><span class="s2">&quot;\usepackage[T1]</span><span class="si">{fontenc}</span><span class="s2">&quot;</span><span class="p">,</span>
+         <span class="sa">r</span><span class="s2">&quot;\usepackage</span><span class="si">{cmbright}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">]),</span>
+<span class="p">})</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="s2">&quot;serif&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;serif&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="s2">&quot;monospace&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;monospace&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="s2">&quot;sans-serif&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;sans-serif&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;µ is not $\mu$&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<span id="pgf-troubleshooting"></span><h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Please note that the TeX packages found in some Linux distributions and
+MiKTeX installations are dramatically outdated. Make sure to update your
+package catalog and upgrade or install a recent TeX distribution.</p></li>
+<li><p>On Windows, the <span class="target" id="index-1"></span><a class="reference internal" href="../../installing/environment_variables_faq.html#envvar-PATH"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PATH</span></code></a> environment variable may need to be modified
+to include the directories containing the latex, dvipng and ghostscript
+executables. See <a class="reference internal" href="../../installing/environment_variables_faq.html#environment-variables"><span class="std std-ref">Environment variables</span></a> and
+<a class="reference internal" href="../../installing/environment_variables_faq.html#setting-windows-environment-variables"><span class="std std-ref">Setting environment variables in Windows</span></a> for details.</p></li>
+<li><p>Sometimes the font rendering in figures that are saved to png images is
+very bad. This happens when the pdftocairo tool is not available and
+ghostscript is used for the pdf to png conversion.</p></li>
+<li><p>Make sure what you are trying to do is possible in a LaTeX document,
+that your LaTeX syntax is valid and that you are using raw strings
+if necessary to avoid unintended escape sequences.</p></li>
+<li><p><code class="docutils literal notranslate"><a class="reference internal" href="../customizing.html?highlight=pgf.preamble#matplotlibrc-sample"><span class="std std-ref"><span class="pre">rcParams[&quot;pgf.preamble&quot;]</span></span></a></code> (default: <code class="docutils literal notranslate"><span class="pre">''</span></code>) provides lots of flexibility, and lots of
+ways to cause problems. When experiencing problems, try to minimalize or
+disable the custom preamble.</p></li>
+<li><p>Configuring an <code class="docutils literal notranslate"><span class="pre">unicode-math</span></code> environment can be a bit tricky. The
+TeXLive distribution for example provides a set of math fonts which are
+usually not installed system-wide. XeTeX, unlike LuaLatex, cannot find
+these fonts by their name, which is why you might have to specify
+<code class="docutils literal notranslate"><span class="pre">\setmathfont{xits-math.otf}</span></code> instead of <code class="docutils literal notranslate"><span class="pre">\setmathfont{XITS</span> <span class="pre">Math}</span></code> or
+alternatively make the fonts available to your OS. See this
+<a class="reference external" href="https://tex.stackexchange.com/q/43642/">tex.stackexchange.com question</a> for more details.</p>
+</li>
+<li><p>If the font configuration used by Matplotlib differs from the font setting
+in yout LaTeX document, the alignment of text elements in imported figures
+may be off. Check the header of your <code class="docutils literal notranslate"><span class="pre">.pgf</span></code> file if you are unsure about
+the fonts Matplotlib used for the layout.</p></li>
+<li><p>Vector images and hence <code class="docutils literal notranslate"><span class="pre">.pgf</span></code> files can become bloated if there are a lot
+of objects in the graph. This can be the case for image processing or very
+big scatter graphs.  In an extreme case this can cause TeX to run out of
+memory: &quot;TeX capacity exceeded, sorry&quot;  You can configure latex to increase
+the amount of memory available to generate the <code class="docutils literal notranslate"><span class="pre">.pdf</span></code> image as discussed on
+<a class="reference external" href="https://tex.stackexchange.com/q/7953/">tex.stackexchange.com</a>.
+Another way would be to &quot;rasterize&quot; parts of the graph causing problems
+using either the <code class="docutils literal notranslate"><span class="pre">rasterized=True</span></code> keyword, or <code class="docutils literal notranslate"><span class="pre">.set_rasterized(True)</span></code> as
+per <a class="reference internal" href="../../../gallery/misc/rasterization_demo.html"><span class="doc">this example</span></a>.</p></li>
+<li><p>Various math fonts are compiled and rendered only if corresponding font
+packages are loaded. Specifically, when using <code class="docutils literal notranslate"><span class="pre">\mathbf{}</span></code> on Greek letters,
+the default computer modern font may not contain them, in which case the
+letter is not rendered. In such scenarios, the <code class="docutils literal notranslate"><span class="pre">lmodern</span></code> package should be
+loaded.</p></li>
+<li><p>If you still need help, please see <a class="reference internal" href="../../faq.html#reporting-problems"><span class="std std-ref">Get help</span></a></p></li>
+</ul>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-users-explain-text-pgf-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/ef09ab1ef747b8ef0462b47da4a3a55e/pgf.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">pgf.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/a4123a58a7384c72d501fe8d2fe988e7/pgf.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">pgf.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-page-pdf-files">Multi-Page PDF Files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#font-specification">Font specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-preamble">Custom preamble</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-tex-system">Choosing the TeX system</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2002–2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the Matplotlib development team; 2012–2023 The Matplotlib development team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Built from 3.8.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

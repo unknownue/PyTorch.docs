@@ -1,0 +1,12 @@
+fig, ax = plt.subplots(figsize=(5, 3), layout='constrained')
+np.random.seed(19680801)
+t = np.arange(200)
+x = np.cumsum(np.random.randn(200))
+y = np.cumsum(np.random.randn(200))
+linesx = ax.plot(t, x, label='Random walk x')
+linesy = ax.plot(t, y, label='Random walk y')
+
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Distance [km]')
+ax.set_title('Random walk example')
+ax.legend()

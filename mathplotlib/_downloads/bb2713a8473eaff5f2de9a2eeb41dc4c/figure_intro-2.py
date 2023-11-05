@@ -1,0 +1,1 @@
+fig, axs = plt.subplots(2, 2, figsize=(4, 3), layout='constrained')

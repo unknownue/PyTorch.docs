@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="Cython Best Practices, Conventions and Knowledge" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://scikit-learn/stable/developers/cython.html" />
+<meta property="og:site_name" content="scikit-learn" />
+<meta property="og:description" content="This documents tips to develop Cython code in scikit-learn. Tips for developing with Cython in scikit-learn: Tips to ease development: Time spent reading Cython’s documentation is not time lost., I..." />
+<meta property="og:image" content="https://scikit-learn.org/stable/_static/scikit-learn-logo-small.png" />
+<meta property="og:image:alt" content="scikit-learn" />
+<meta name="description" content="This documents tips to develop Cython code in scikit-learn. Tips for developing with Cython in scikit-learn: Tips to ease development: Time spent reading Cython’s documentation is not time lost., I..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <title>Cython Best Practices, Conventions and Knowledge &mdash; scikit-learn 1.3.2 documentation</title>
+  
+  <link rel="canonical" href="http://scikit-learn.org/stable/developers/cython.html" />
+
+  
+  <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  <link rel="stylesheet" href="../_static/css/vendor/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+<script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+<script src="../_static/js/vendor/jquery-3.6.3.slim.min.js"></script> 
+</head>
+<body>
+
+
+
+
+
+
+<nav id="navbar" class="sk-docs-navbar navbar navbar-expand-md navbar-light bg-light py-0">
+  <div class="container-fluid sk-docs-container px-0">
+      <a class="navbar-brand py-0" href="../index.html">
+        <img
+          class="sk-brand-img"
+          src="../_static/scikit-learn-logo-small.png"
+          alt="logo"/>
+      </a>
+    <button
+      id="sk-navbar-toggler"
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="sk-navbar-collapse collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../install.html">Install</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../user_guide.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../modules/classes.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" href="../auto_examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link" target="_blank" rel="noopener noreferrer" href="https://blog.scikit-learn.org/">Community</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../getting_started.html" >Getting Started</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../tutorial/index.html" >Tutorial</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../whats_new/v1.3.html" >What's new</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../glossary.html" >Glossary</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../faq.html" >FAQ</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../support.html" >Support</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../related_projects.html" >Related packages</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../roadmap.html" >Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../governance.html" >Governance</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="../about.html" >About us</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+        </li>
+        <li class="nav-item">
+          <a class="sk-nav-link nav-link nav-more-item-mobile-items" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+        </li>
+        <li class="nav-item dropdown nav-more-item-dropdown">
+          <a class="sk-nav-link nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="sk-nav-dropdown-item dropdown-item" href="../getting_started.html" >Getting Started</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../tutorial/index.html" >Tutorial</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../whats_new/v1.3.html" >What's new</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../glossary.html" >Glossary</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/developers/index.html" target="_blank" rel="noopener noreferrer">Development</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../faq.html" >FAQ</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../support.html" >Support</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../related_projects.html" >Related packages</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../roadmap.html" >Roadmap</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../governance.html" >Governance</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="../about.html" >About us</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://github.com/scikit-learn/scikit-learn" >GitHub</a>
+              <a class="sk-nav-dropdown-item dropdown-item" href="https://scikit-learn.org/dev/versions.html" >Other Versions and Download</a>
+          </div>
+        </li>
+      </ul>
+      <div id="searchbox" role="search">
+          <div class="searchformwrapper">
+          <form class="search" action="../search.html" method="get">
+            <input class="sk-search-text-input" type="text" name="q" aria-labelledby="searchlabel" />
+            <input class="sk-search-text-btn" type="submit" value="Go" />
+          </form>
+          </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="d-flex" id="sk-doc-wrapper">
+    <input type="checkbox" name="sk-toggle-checkbox" id="sk-toggle-checkbox">
+    <label id="sk-sidemenu-toggle" class="sk-btn-toggle-toc btn sk-btn-primary" for="sk-toggle-checkbox">Toggle Menu</label>
+    <div id="sk-sidebar-wrapper" class="border-right">
+      <div class="sk-sidebar-toc-wrapper">
+        <div class="btn-group w-100 mb-2" role="group" aria-label="rellinks">
+            <a href="performance.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="How to optimize for speed">Prev</a><a href="index.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Developer’s Guide">Up</a>
+            <a href="advanced_installation.html" role="button" class="btn sk-btn-rellink py-1" sk-rellink-tooltip="Installing the development version of scikit-learn">Next</a>
+        </div>
+        <div class="alert alert-danger p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+          <strong>scikit-learn 1.3.2</strong><br/>
+          <a href="http://scikit-learn.org/dev/versions.html">Other versions</a>
+          </p>
+        </div>
+        <div class="alert alert-warning p-1 mb-2" role="alert">
+          <p class="text-center mb-0">
+            Please <a class="font-weight-bold" href="../about.html#citing-scikit-learn"><string>cite us</string></a> if you use the software.
+          </p>
+        </div>
+            <div class="sk-sidebar-toc">
+              <ul>
+<li><a class="reference internal" href="#">Cython Best Practices, Conventions and Knowledge</a><ul>
+<li><a class="reference internal" href="#tips-for-developing-with-cython-in-scikit-learn">Tips for developing with Cython in scikit-learn</a><ul>
+<li><a class="reference internal" href="#tips-to-ease-development">Tips to ease development</a></li>
+<li><a class="reference internal" href="#tips-for-performance">Tips for performance</a></li>
+<li><a class="reference internal" href="#using-openmp">Using OpenMP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+      </div>
+    </div>
+    <div id="sk-page-content-wrapper">
+      <div class="sk-page-content container-fluid body px-md-3" role="main">
+        
+  <section id="cython-best-practices-conventions-and-knowledge">
+<span id="cython"></span><h1>Cython Best Practices, Conventions and Knowledge<a class="headerlink" href="#cython-best-practices-conventions-and-knowledge" title="Link to this heading">¶</a></h1>
+<p>This documents tips to develop Cython code in scikit-learn.</p>
+<section id="tips-for-developing-with-cython-in-scikit-learn">
+<h2>Tips for developing with Cython in scikit-learn<a class="headerlink" href="#tips-for-developing-with-cython-in-scikit-learn" title="Link to this heading">¶</a></h2>
+<section id="tips-to-ease-development">
+<h3>Tips to ease development<a class="headerlink" href="#tips-to-ease-development" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p>Time spent reading <a class="reference external" href="https://cython.readthedocs.io/en/latest/">Cython’s documentation</a> is not time lost.</p></li>
+<li><p>If you intend to use OpenMP: On MacOS, system’s distribution of <code class="docutils literal notranslate"><span class="pre">clang</span></code> does not implement OpenMP.
+You can install the <code class="docutils literal notranslate"><span class="pre">compilers</span></code> package available on <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code> which comes with an implementation of OpenMP.</p></li>
+<li><p>Activating <a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/sklearn/_build_utils/__init__.py#L68-L87">checks</a> might help. E.g. for activating boundscheck use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">SKLEARN_ENABLE_DEBUG_CYTHON_DIRECTIVES</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference external" href="https://cython.readthedocs.io/en/latest/src/quickstart/build.html#using-the-jupyter-notebook">Start from scratch in a notebook</a> to understand how to use Cython and to get feedback on your work quickly.
+If you plan to use OpenMP for your implementations in your Jupyter Notebook, do add extra compiler and linkers arguments in the Cython magic.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For GCC and for clang</span>
+<span class="o">%%</span><span class="n">cython</span> <span class="o">--</span><span class="nb">compile</span><span class="o">-</span><span class="n">args</span><span class="o">=-</span><span class="n">fopenmp</span> <span class="o">--</span><span class="n">link</span><span class="o">-</span><span class="n">args</span><span class="o">=-</span><span class="n">fopenmp</span>
+<span class="c1"># For Microsoft&#39;s compilers</span>
+<span class="o">%%</span><span class="n">cython</span> <span class="o">--</span><span class="nb">compile</span><span class="o">-</span><span class="n">args</span><span class="o">=/</span><span class="n">openmp</span> <span class="o">--</span><span class="n">link</span><span class="o">-</span><span class="n">args</span><span class="o">=/</span><span class="n">openmp</span>
+</pre></div>
+</div>
+</li>
+<li><p>To debug C code (e.g. a segfault), do use <code class="docutils literal notranslate"><span class="pre">gdb</span></code> with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gdb<span class="w"> </span>--ex<span class="w"> </span>r<span class="w"> </span>--args<span class="w"> </span>python<span class="w"> </span>./entrypoint_to_bug_reproducer.py
+</pre></div>
+</div>
+</li>
+<li><p>To have access to some value in place to debug in <code class="docutils literal notranslate"><span class="pre">cdef</span> <span class="pre">(nogil)</span></code> context, use:</p>
+<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="k">gil</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">state_to_print</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Note that Cython cannot parse f-strings with <code class="docutils literal notranslate"><span class="pre">{var=}</span></code> expressions, e.g.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>print<span class="o">(</span>f<span class="s2">&quot;{test_val=}&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>scikit-learn codebase has a lot of non-unified (fused) types (re)definitions.
+There currently is <a class="reference external" href="https://github.com/scikit-learn/scikit-learn/issues/25572">ongoing work to simplify and unify that across the codebase</a>.
+For now, make sure you understand which concrete types are used ultimately.</p></li>
+<li><p>You might find this alias to compile individual Cython extension handy:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># You might want to add this alias to your shell script config.</span>
+<span class="n">alias</span> <span class="n">cythonX</span><span class="o">=</span><span class="s2">&quot;cython -X language_level=3 -X boundscheck=False -X wraparound=False -X initializedcheck=False -X nonecheck=False -X cdivision=True&quot;</span>
+
+<span class="c1"># This generates `source.c` as as if you had recompiled scikit-learn entirely.</span>
+<span class="n">cythonX</span> <span class="o">--</span><span class="n">annotate</span> <span class="n">source</span><span class="o">.</span><span class="n">pyx</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Using the <code class="docutils literal notranslate"><span class="pre">--annotate</span></code> option with this flag allows generating a HTML report of code annotation.
+This report indicates interactions with the CPython interpreter on a line-by-line basis.
+Interactions with the CPython interpreter must be avoided as much as possible in
+the computationally intensive sections of the algorithms.
+For more information, please refer to <a class="reference external" href="https://cython.readthedocs.io/en/latest/src/tutorial/cython_tutorial.html#primes">this section of Cython’s tutorial</a></p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This generates a HTML report (`source.html`) for `source.c`.</span>
+<span class="n">cythonX</span> <span class="o">--</span><span class="n">annotate</span> <span class="n">source</span><span class="o">.</span><span class="n">pyx</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="tips-for-performance">
+<h3>Tips for performance<a class="headerlink" href="#tips-for-performance" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p>Understand the GIL in context for CPython (which problems it solves, what are its limitations)
+and get a good understanding of when Cython will be mapped to C code free of interactions with
+CPython, when it will not, and when it cannot (e.g. presence of interactions with Python
+objects, which include functions). In this regard, <a class="reference external" href="https://peps.python.org/pep-0703/">PEP073</a>
+provides a good overview and context and pathways for removal.</p></li>
+<li><p>Make sure you have deactivated <a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/sklearn/_build_utils/__init__.py#L68-L87">checks</a>.</p></li>
+<li><p>Always prefer memoryviews instead over <code class="docutils literal notranslate"><span class="pre">cnp.ndarray</span></code> when possible: memoryviews are lightweight.</p></li>
+<li><p>Avoid memoryview slicing: memoryview slicing might be costly or misleading in some cases and
+we better not use it, even if handling fewer dimensions in some context would be preferable.</p></li>
+<li><p>Decorate final classes or methods with <code class="docutils literal notranslate"><span class="pre">&#64;final</span></code> (this allows removing virtual tables when needed)</p></li>
+<li><p>Inline methods and function when it makes sense</p></li>
+<li><p>Make sure your Cython compilation units <a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/setup.py#L64-L70">use NumPy recent C API</a>.</p></li>
+<li><p>In doubt, read the generated C or C++ code if you can: “The fewer C instructions and indirections
+for a line of Cython code, the better” is a good rule of thumb.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nogil</span></code> declarations are just hints: when declaring the <code class="docutils literal notranslate"><span class="pre">cdef</span></code> functions
+as nogil, it means that they can be called without holding the GIL, but it does not release
+the GIL when entering them. You have to do that yourself either by passing <code class="docutils literal notranslate"><span class="pre">nogil=True</span></code> to
+<code class="docutils literal notranslate"><span class="pre">cython.parallel.prange</span></code> explicitly, or by using an explicit context manager:</p>
+<blockquote>
+<div><div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="k">cdef</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">my_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">nogil</span><span class="p">:</span>
+
+     <span class="c"># Some logic interacting with CPython, e.g. allocating arrays via NumPy.</span>
+
+     <span class="k">with</span> <span class="k">nogil</span><span class="p">:</span>
+         <span class="c"># The code here is run as is it were written in C.</span>
+
+     <span class="k">return</span> <span class="mf">0</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This item is based on <a class="reference external" href="https://github.com/cython/cython/issues/2798#issuecomment-459971828">this comment from Stéfan’s Benhel</a></p>
+</li>
+<li><p>Direct calls to BLAS routines are possible via interfaces defined in <code class="docutils literal notranslate"><span class="pre">sklearn.utils._cython_blas</span></code>.</p></li>
+</ul>
+</section>
+<section id="using-openmp">
+<h3>Using OpenMP<a class="headerlink" href="#using-openmp" title="Link to this heading">¶</a></h3>
+<p>Since scikit-learn can be built without OpenMP, it’s necessary to protect each
+direct call to OpenMP.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">_openmp_helpers</span></code> module, available in
+<a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/utils/_openmp_helpers.pyx">sklearn/utils/_openmp_helpers.pyx</a>
+provides protected versions of the OpenMP routines. To use OpenMP routines, they
+must be <code class="docutils literal notranslate"><span class="pre">cimported</span></code> from this module and not from the OpenMP library directly:</p>
+<div class="highlight-cython notranslate"><div class="highlight"><pre><span></span><span class="k">from</span> <span class="nn">sklearn.utils._openmp_helpers</span> <span class="k">cimport</span> <span class="n">omp_get_max_threads</span>
+<span class="n">max_threads</span> <span class="o">=</span> <span class="n">omp_get_max_threads</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The parallel loop, <code class="docutils literal notranslate"><span class="pre">prange</span></code>, is already protected by cython and can be used directly
+from <code class="docutils literal notranslate"><span class="pre">cython.parallel</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+    <div class="container">
+      <footer class="sk-content-footer">
+            &copy; 2007 - 2023, scikit-learn developers (BSD License).
+          <a href="../_sources/developers/cython.rst.txt" rel="nofollow">Show this page source</a>
+      </footer>
+    </div>
+  </div>
+</div>
+<script src="../_static/js/vendor/bootstrap.min.js"></script>
+
+<script>
+    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+    ga('create', 'UA-22606712-2', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+<script defer data-domain="scikit-learn.org" src="https://views.scientific-python.org/js/script.js">
+</script>
+
+
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+
+<script>
+$(document).ready(function() {
+    /* Add a [>>>] button on the top-right corner of code samples to hide
+     * the >>> and ... prompts and the output and thus make the code
+     * copyable. */
+    var div = $('.highlight-python .highlight,' +
+                '.highlight-python3 .highlight,' +
+                '.highlight-pycon .highlight,' +
+		'.highlight-default .highlight')
+    var pre = div.find('pre');
+
+    // get the styles from the current theme
+    pre.parent().parent().css('position', 'relative');
+
+    // create and add the button to all the code blocks that contain >>>
+    div.each(function(index) {
+        var jthis = $(this);
+        // tracebacks (.gt) contain bare text elements that need to be
+        // wrapped in a span to work with .nextUntil() (see later)
+        jthis.find('pre:has(.gt)').contents().filter(function() {
+            return ((this.nodeType == 3) && (this.data.trim().length > 0));
+        }).wrap('<span>');
+    });
+
+	/*** Add permalink buttons next to glossary terms ***/
+	$('dl.glossary > dt[id]').append(function() {
+		return ('<a class="headerlink" href="#' +
+			    this.getAttribute('id') +
+			    '" title="Permalink to this term">¶</a>');
+	});
+});
+
+</script>
+    
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+</body>
+</html>
