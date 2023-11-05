@@ -23,7 +23,7 @@ No need to clone the huge PyTorch repo. No need to install Sphinx. No need to wa
 You can download from [release page](https://github.com/unknownue/PyTorch.docs/releases)(recommended), or clone this repo(about 700+MB) by
 
 ```shell
-$ git clone https://github.com/unknownue/PyTorch.docs.git
+$ git clone --depth 1 https://github.com/unknownue/PyTorch.docs.git
 ```
 
 The documentation of PyTorch is in `torch` directory, and that of torchvision is in `torchvision` directory.
