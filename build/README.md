@@ -89,10 +89,11 @@ $ docker build -t unknownue/matplotlib.docs -f matplotlib.Dockerfile .
 ```shell
 $ mkdir build/
 $ docker run --rm \
-    -v $(pwd)/build:/root/matplotlib/doc/build \
+    -v $(pwd)/build/matplotlib:/root/matplotlib/doc/build \
     -w /root/matplotlib/doc/ \
     unknownue/matplotlib.docs \
+    pip install -r ../requirements/doc/doc-requirements.txt && \
     make html
 ```
 
-After the building finish, the documentation can be found in `build` directory.
+After the building finish, the documentation can be found in `build/matplotlib` directory.

@@ -1,14 +1,14 @@
 
 # See also https://scikit-learn.org/dev/developers/contributing.html#documentation
 
-FROM ubuntu:20.04 AS sklearn
+FROM ubuntu:22.04 AS sklearn
 
 LABEL maintainer="unknownue <unknownue@outlook.com>"
-LABEL description="An docker environment to build offline Numpy Docs"
-LABEL python-version="3.8.x"
+LABEL description="An docker environment to build offline scikit-learn Docs"
 LABEL license="MIT"
 
-ARG SKLEARN_VERSION=0.23.2
+ARG PYTHON_VERSION=3.11
+ARG SKLEARN_VERSION=1.3.2
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -17,27 +17,30 @@ WORKDIR /root/
 ENV PATH "/root/usr/bin:${PATH}"
 
 RUN apt update && apt upgrade -y && \
-    apt install -y --no-install-recommends git wget build-essential ca-certificates && \
+    apt install -y --no-install-recommends git wget build-essential p7zip-full ca-certificates ffmpeg && \
     apt clean
 
 # Install Python 3 and corresponding pip
-RUN apt install -y --no-install-recommends python3 python3-distutils && \
+RUN apt install -y --no-install-recommends python$PYTHON_VERSION python3-distutils python3-scipy python$PYTHON_VERSION-dev && \
     wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && \
     apt clean && \
-    ln -sf python3 /usr/bin/python && ln -sf pip3 /usr/bin/pip && \
-    pip3 install --upgrade pip && \
-    pip install --no-cache-dir sphinx sphinx-gallery numpydoc matplotlib Pillow pandas \
-            scikit-image packaging seaborn && \
+    ln -sf python$PYTHON_VERSION /usr/bin/python && ln -sf pip3 /usr/bin/pip
+    
+RUN pip3 install --upgrade pip && \
+	pip3 install pqi && pqi use aliyun
+
+RUN pip3 install --no-cache-dir Cython joblib pytest && \
+	pip3 install --no-cache-dir sphinx sphinx-gallery numpydoc matplotlib Pillow pandas \
+            scikit-image packaging seaborn sphinx-prompt \
+            sphinxext-opengraph sphinx-copybutton plotly pooch && \
     pip install --no-cache-dir scikit-learn==$SKLEARN_VERSION
 
 # install latex
 # RUN apt install -y --no-install-recommends latexmk && \
     # apt install -y --no-install-recommends texlive-latex-extra
 
-RUN git clone https://github.com/scikit-learn/scikit-learn.git && cd scikit-learn && \
-    git checkout tags/$SKLEARN_VERSION
-    # git submodule init && \
-    # git submodule update
+RUN wget https://github.com/scikit-learn/scikit-learn/archive/refs/tags/$SKLEARN_VERSION.zip -O sklearn.zip && \
+	7z x sklearn.zip && rm sklearn.zip && mv scikit-learn-$SKLEARN_VERSION/ sklearn/
 
 WORKDIR /root/scikit-learn/doc
 CMD ["bash"]
